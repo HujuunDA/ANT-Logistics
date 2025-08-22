@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ANT Logistics - Intelligent Freight Calculation System</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="ANT Logistics">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --accent: #4895ef;
+            --success: #4cc9f0;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --card-bg: #ffffff;
+            --border: #e9ecef;
+            --text: #343a40;
+            --text-light: #6c757d;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .header-gradient {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(67, 97, 238, 0.03);
+        }
+
+        .card-body {
+            padding: 25px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 7px 20px rgba(67, 97, 238, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--light);
+            color: var(--primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+            border-color: #ced4da;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff4d4d 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #ff4d4d 0%, #ff2d2d 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 7px 20px rgba(255, 107, 107, 0.4);
+        }
+
+        .input-field {
+            padding: 14px 16px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            background: white;
+            font-size: 15px;
+            width: 100%;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.15);
+        }
+
+        .label-text {
+            color: var(--text-light);
+            font-weight: 500;
+            font-size: 14px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            padding: 20px;
+            background: rgba(73, 144, 240, 0.05);
+            border-radius: 12px;
+        }
+
+        .result-item {
+            padding: 15px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            border: 1px solid var(--border);
+        }
+
+        .result-total {
+            grid-column: span 2;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            border: 1px solid var(--border);
+            text-align: center;
+            margin-top: 10px;
+            border-top: 2px dashed var(--border);
+        }
+
+        .total-amount {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--secondary);
+            margin-top: 5px;
+        }
+
+        .cargo-item {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cargo-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .remove-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+            color: var(--text-light);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .remove-btn:hover {
+            background: #e9ecef;
+            color: #dc3545;
+            transform: rotate(90deg);
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .radio-item input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary);
+        }
+
+        .image-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .preview-item {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .preview-item .delete-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(220, 53, 69, 0.8);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .floating-btn {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            box-shadow: 0 10px 30px rgba(67, 97, 238, 0.3);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 24px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+        }
+
+        .animate-pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(67, 97, 238, 0.4); }
+            70% { box-shadow: 0 0 0 12px rgba(67, 97, 238, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(67, 97, 238, 0); }
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 450px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        .modal-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: rgba(67, 97, 238, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: var(--primary);
+            font-size: 32px;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: rgba(67, 97, 238, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        .progress {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+
+        .section-title i {
+            background: rgba(67, 97, 238, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container mx-auto max-w-4xl">
+        <div class="card overflow-hidden mb-8">
+            <div class="header-gradient py-6 px-8">
+                <div class="flex justify-between items-center">
+                    <div class="logo">
+                        <div class="logo-icon">
+                            <i class="fas fa-shipping-fast"></i>
+                        </div>
+                        <span>ANT Logistics</span>
+                    </div>
+                    <div class="text-white/80">
+                        <div class="text-sm">Intelligent Freight Calculation System</div>
+                        <div class="font-mono text-xs mt-1">v2.1.5</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <div class="card mb-6">
+                    <div class="card-header">
+                        <h3 class="section-title">
+                            <i class="fas fa-user"></i>
+                            Customer Information
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-5">
+                            <label for="customerName" class="label-text">Customer Name</label>
+                            <input type="text" id="customerName" placeholder="Enter customer name" class="input-field">
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="label-text">Order Date</label>
+                            <div id="order-dates-list" class="space-y-3 mb-3"></div>
+                            <button id="add-date-btn" class="btn btn-secondary w-full">
+                                <i class="fas fa-plus"></i>
+                                Add Order Date
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="cargo-list" class="space-y-6 mb-6"></div>
+
+                <button id="add-cargo-btn" class="btn btn-primary w-full mb-8">
+                    <i class="fas fa-plus-circle"></i>
+                    Add Cargo
+                </button>
+
+                <div id="combined-details-and-results" class="card mb-6">
+                    <div class="card-header">
+                        <h3 class="section-title">
+                            <i class="fas fa-cog"></i>
+                            Calculation Overview
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-6">
+                            <h4 class="font-semibold text-primary mb-4">Rate Settings</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                                <div>
+                                    <label for="kgRate" class="label-text">Weight Rate (¥/kg)</label>
+                                    <input type="number" id="kgRate" value="20" class="input-field">
+                                </div>
+                                <div>
+                                    <label for="cbmRate" class="label-text">Volume Rate (¥/m³)</label>
+                                    <input type="number" id="cbmRate" value="1700" class="input-field">
+                                </div>
+                                <div>
+                                    <label for="exchangeRate" class="label-text">Exchange Rate (Ks/¥)</label>
+                                    <div class="relative">
+                                        <input type="number" id="exchangeRate" value="630" class="input-field pl-10">
+                                        <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">¥1 =</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="cargo-details-table-container">
+                            <h4 class="font-semibold text-primary mb-4">Cargo Details</h4>
+                            <p class="text-center text-gray-500 py-6">Please add cargo to view details</p>
+                        </div>
+
+                        <div id="results">
+                            <h4 class="font-semibold text-primary mt-6 mb-4">Calculation Results</h4>
+                            <div class="results-grid">
+                                <div class="result-item">
+                                    <div class="label-text">Total Weight</div>
+                                    <div id="totalKg" class="font-semibold text-lg">0.00 kg</div>
+                                </div>
+                                <div class="result-item">
+                                    <div class="label-text">Total Volume</div>
+                                    <div id="totalVolume" class="font-semibold text-lg">0.00 m³</div>
+                                </div>
+                                <div class="result-item">
+                                    <div class="label-text">Weight Freight</div>
+                                    <div id="totalKgCost" class="font-semibold text-lg">0.00 ¥</div>
+                                </div>
+                                <div class="result-item">
+                                    <div class="label-text">Volume Freight</div>
+                                    <div id="totalVolumeCost" class="font-semibold text-lg">0.00 ¥</div>
+                                </div>
+                                <div class="result-total">
+                                    <div class="label-text">Total Freight Cost</div>
+                                    <div id="totalCostRMB" class="total-amount">0.00 ¥</div>
+                                </div>
+                                <div class="result-total">
+                                    <div class="label-text">Total Remittance Amount</div>
+                                    <div id="totalCostMMK" class="total-amount" style="color: #3a0ca3;">0.00 Ks</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button id="export-pdf-btn" class="floating-btn btn btn-danger animate-pulse">
+        <i class="fas fa-file-pdf"></i>
+        Export PDF Report
+    </button>
+
+    <div id="custom-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <p id="modal-message" class="text-xl font-semibold mb-4">Please fill in customer name and at least one order date!</p>
+            <button onclick="closeModal()" class="btn btn-primary w-full py-3">
+                OK
+            </button>
+            <div class="progress-bar mt-6">
+                <div class="progress"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://unpkg.com/jspdf-font-source-han-sans@1.0.0/dist/SourceHanSansCN-Normal.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const cargoList = document.getElementById('cargo-list');
+            const addCargoBtn = document.getElementById('add-cargo-btn');
+            const exportPdfBtn = document.getElementById('export-pdf-btn');
+            const customerNameInput = document.getElementById('customerName');
+
+            const addDateBtn = document.getElementById('add-date-btn');
+            const orderDatesList = document.getElementById('order-dates-list');
+
+            const kgRateInput = document.getElementById('kgRate');
+            const cbmRateInput = document.getElementById('cbmRate');
+            const exchangeRateInput = document.getElementById('exchangeRate');
+            const cargoDetailsTableContainer = document.getElementById('cargo-details-table-container');
+
+            let cargoCount = 0;
+            let dateCount = 0;
+            const cargoData = []; 
+            const cargoImages = {};
+
+            function showModal(message) {
+                const modal = document.getElementById('custom-modal');
+                const modalMessage = document.getElementById('modal-message');
+                const progress = document.querySelector('.progress');
+                modalMessage.textContent = message;
+                modal.classList.remove('hidden');
+
+                // Reset and animate progress bar
+                progress.style.width = '0%';
+                setTimeout(() => {
+                    progress.style.width = '100%';
+                }, 10);
+            }
+
+            window.closeModal = () => {
+                document.getElementById('custom-modal').classList.add('hidden');
+            };
+
+            function updateCargoDetailsTable() {
+                const existingTable = document.getElementById('cargo-details-table');
+                if (existingTable) {
+                    existingTable.remove();
+                }
+
+                if (cargoData.length === 0) {
+                    cargoDetailsTableContainer.innerHTML = `<h4 class="font-semibold text-primary mb-4">Cargo Details</h4><p class="text-center text-gray-500 py-6">Please add cargo to view details</p>`;
+                    return;
+                }
+
+                const totalCostRMB = cargoData.reduce((sum, item) => sum + item.totalCost, 0).toFixed(2);
+
+                const displayData = cargoData.map(item => {
+                    if (item.type === 'weight') {
+                        return {
+                            serialNo: item.id,
+                            type: 'By Weight',
+                            weight: item.kg.toFixed(2),
+                            dimensions: '-',
+                            volume: '-',
+                            totalCost: item.totalCost.toFixed(2)
+                        };
+                    } else {
+                        const dimensionsInM = `${item.length.toFixed(3)}x${item.width.toFixed(3)}x${item.height.toFixed(3)}`;
+                        return {
+                            serialNo: item.id,
+                            type: 'By Volume',
+                            weight: '-',
+                            dimensions: dimensionsInM,
+                            volume: item.volume.toFixed(3),
+                            totalCost: item.totalCost.toFixed(2)
+                        };
+                    }
+                });
+
+                let tableHtml = `
+                    <h4 class="font-semibold text-primary mb-4">Cargo Details</h4>
+                    <div class="overflow-x-auto" id="cargo-details-table">
+                        <table class="min-w-full">
+                            <thead>
+                                <tr>
+                                    <th class="text-left p-3 bg-gray-50">No.</th>
+                                    <th class="text-left p-3 bg-gray-50">Type</th>
+                                    <th class="text-left p-3 bg-gray-50">Weight (kg)</th>
+                                    <th class="text-left p-3 bg-gray-50">Dimensions (m)</th>
+                                    <th class="text-left p-3 bg-gray-50">Volume (m³)</th>
+                                    <th class="text-left p-3 bg-gray-50">Freight (¥)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+
+                displayData.forEach(item => {
+                    tableHtml += `
+                        <tr class="hover:bg-gray-50">
+                            <td class="p-3 border-b">${item.serialNo}</td>
+                            <td class="p-3 border-b">${item.type}</td>
+                            <td class="p-3 border-b">${item.weight}</td>
+                            <td class="p-3 border-b">${item.dimensions}</td>
+                            <td class="p-3 border-b">${item.volume}</td>
+                            <td class="p-3 border-b font-semibold text-blue-600">${item.totalCost}</td>
+                        </tr>
+                    `;
+                });
+
+                tableHtml += `
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="5" class="p-3 text-right font-semibold border-t">Total Freight (¥)</td>
+                                    <td class="p-3 font-semibold text-blue-600 border-t">${totalCostRMB}</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                `;
+
+                cargoDetailsTableContainer.innerHTML = tableHtml;
+            }
+
+            function recalculateAll() {
+                let totalKg = 0;
+                let totalVolumeM3 = 0;
+                let totalKgCost = 0;
+                let totalVolumeCost = 0;
+                cargoData.length = 0;
+
+                const kgRate = parseFloat(kgRateInput.value) || 0;
+                const cbmRate = parseFloat(cbmRateInput.value) || 0; 
+                const exchangeRate = parseFloat(exchangeRateInput.value) || 0;
+
+                document.querySelectorAll('.cargo-item').forEach((item, index) => {
+                    const calcType = item.querySelector(`input[name="calc-type-${index + 1}"]:checked`).value;
+                    let singleCargoTotalCost = 0;
+                    let kg = 0, length = 0, width = 0, height = 0, volumeInM3 = 0;
+
+                    if (calcType === 'weight') {
+                        kg = parseFloat(item.querySelector('.kg-input').value) || 0;
+                        singleCargoTotalCost = kg * kgRate;
+                        totalKgCost += singleCargoTotalCost;
+                        totalKg += kg;
+                    } else {
+                        length = parseFloat(item.querySelector('.length-input').value) || 0;
+                        width = parseFloat(item.querySelector('.width-input').value) || 0;
+                        height = parseFloat(item.querySelector('.height-input').value) || 0;
+
+                        volumeInM3 = length * width * height;
+                        singleCargoTotalCost = volumeInM3 * cbmRate;
+
+                        totalVolumeCost += singleCargoTotalCost;
+                        totalVolumeM3 += volumeInM3;
+                    }
+
+                    cargoData.push({
+                        id: index + 1, type: calcType, kg, length, width, height,
+                        volume: volumeInM3,
+                        totalCost: singleCargoTotalCost
+                    });
+
+                    const detailsDiv = item.querySelector('.calculation-details');
+                    if (calcType === 'weight') {
+                        detailsDiv.innerHTML = `<p class="text-green-600 font-semibold"><i class="fas fa-truck mr-2"></i>Freight: ${singleCargoTotalCost.toFixed(2)} ¥</p>`;
+                    } else {
+                        detailsDiv.innerHTML = `
+                            <p><i class="fas fa-ruler-combined mr-2"></i>Volume: ${volumeInM3.toFixed(3)} m³</p>
+                            <p class="text-green-600 font-semibold"><i class="fas fa-truck mr-2"></i>Freight: ${singleCargoTotalCost.toFixed(2)} ¥</p>
+                        `;
+                    }
+                });
+
+                const totalCostRMB = totalKgCost + totalVolumeCost;
+                const totalCostMMK = totalCostRMB * exchangeRate;
+
+                document.getElementById('totalKg').textContent = totalKg.toFixed(2) + ' kg';
+                document.getElementById('totalVolume').textContent = totalVolumeM3.toFixed(3) + ' m³';
+                document.getElementById('totalKgCost').textContent = totalKgCost.toFixed(2) + ' ¥';
+                document.getElementById('totalVolumeCost').textContent = totalVolumeCost.toFixed(2) + ' ¥';
+                document.getElementById('totalCostRMB').textContent = totalCostRMB.toFixed(2) + ' ¥';
+                document.getElementById('totalCostMMK').textContent = totalCostMMK.toFixed(2) + ' Ks';
+
+                updateCargoDetailsTable();
+            }
+
+            function addDateInput() {
+                dateCount++;
+                const dateItem = document.createElement('div');
+                dateItem.className = 'flex items-center gap-3';
+                dateItem.id = `order-date-${dateCount}`;
+                dateItem.innerHTML = `
+                    <div class="flex-1">
+                        <input type="date" class="order-date-input input-field">
+                    </div>
+                    <button onclick="removeDateInput(${dateCount})" class="remove-btn">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                orderDatesList.appendChild(dateItem);
+                dateItem.querySelector('.order-date-input').addEventListener('input', recalculateAll);
+                recalculateAll();
+            }
+
+            window.removeDateInput = (id) => {
+                const itemToRemove = document.getElementById(`order-date-${id}`);
+                itemToRemove?.remove();
+                recalculateAll();
+            };
+
+            addDateBtn.addEventListener('click', addDateInput);
+
+            function addCargoItem() {
+                cargoCount++;
+                const currentCargoId = cargoCount;
+                cargoImages[currentCargoId] = [];
+
+                const cargoItem = document.createElement('div');
+                cargoItem.className = 'cargo-item card p-5';
+                cargoItem.id = `cargo-${currentCargoId}`;
+                cargoItem.innerHTML = `
+                    <div class="cargo-header">
+                        <h4 class="font-semibold text-lg text-primary">
+                            <i class="fas fa-box mr-2"></i>
+                            Cargo #${currentCargoId}
+                        </h4>
+                        <button onclick="removeCargo(${currentCargoId})" class="remove-btn">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+
+                    <div class="radio-group">
+                        <label class="radio-item">
+                            <input type="radio" name="calc-type-${currentCargoId}" value="weight" checked>
+                            <span>Calculate by Weight</span>
+                        </label>
+                        <label class="radio-item">
+                            <input type="radio" name="calc-type-${currentCargoId}" value="volume">
+                            <span>Calculate by Volume</span>
+                        </label>
+                    </div>
+
+                    <div class="space-y-4 calculation-inputs" id="weight-inputs-${currentCargoId}">
+                        <div>
+                            <label class="label-text">Weight (kg)</label>
+                            <input type="number" class="kg-input input-field" value="0" step="0.01">
+                        </div>
+                    </div>
+
+                    <div class="space-y-4 calculation-inputs hidden" id="volume-inputs-${currentCargoId}">
+                        <div>
+                            <label class="label-text">Length (m)</label>
+                            <input type="number" class="length-input input-field" value="0" step="0.001">
+                        </div>
+                        <div>
+                            <label class="label-text">Width (m)</label>
+                            <input type="number" class="width-input input-field" value="0" step="0.001">
+                        </div>
+                        <div>
+                            <label class="label-text">Height (m)</label>
+                            <input type="number" class="height-input input-field" value="0" step="0.001">
+                        </div>
+                    </div>
+
+                    <div class="mt-5">
+                        <label class="label-text">Add Cargo Images</label>
+                        <input type="file" class="image-upload input-field" accept="image/*" multiple>
+                        <div id="image-preview-${currentCargoId}" class="image-preview"></div>
+                    </div>
+
+                    <div class="calculation-details mt-5"></div>
+                `;
+                cargoList.appendChild(cargoItem);
+
+                cargoItem.querySelectorAll(`input[name="calc-type-${currentCargoId}"]`).forEach(radio => {
+                    radio.addEventListener('change', (event) => {
+                        const showWeight = event.target.value === 'weight';
+                        document.getElementById(`weight-inputs-${currentCargoId}`).classList.toggle('hidden', !showWeight);
+                        document.getElementById(`volume-inputs-${currentCargoId}`).classList.toggle('hidden', showWeight);
+                        recalculateAll();
+                    });
+                });
+
+                cargoItem.querySelectorAll('.kg-input, .length-input, .width-input, .height-input').forEach(input => input.addEventListener('input', recalculateAll));
+
+                cargoItem.querySelector('.image-upload').addEventListener('change', (event) => {
+                    const previewContainer = document.getElementById(`image-preview-${currentCargoId}`);
+                    const files = event.target.files;
+
+                    for (const file of files) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            const imageDataURL = e.target.result;
+                            cargoImages[currentCargoId].push(imageDataURL);
+
+                            const wrapper = document.createElement('div');
+                            wrapper.className = 'preview-item';
+
+                            const img = document.createElement('img');
+                            img.src = imageDataURL;
+
+                            const deleteBtn = document.createElement('div');
+                            deleteBtn.className = 'delete-btn';
+                            deleteBtn.innerHTML = '&times;';
+
+                            deleteBtn.onclick = function() {
+                                const index = cargoImages[currentCargoId].indexOf(imageDataURL);
+                                if (index > -1) {
+                                    cargoImages[currentCargoId].splice(index, 1);
+                                }
+                                wrapper.remove();
+                            };
+
+                            wrapper.appendChild(img);
+                            wrapper.appendChild(deleteBtn);
+                            previewContainer.appendChild(wrapper);
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                    event.target.value = '';
+                });
+
+                recalculateAll();
+            }
+
+            window.removeCargo = (id) => {
+                const itemToRemove = document.getElementById(`cargo-${id}`);
+                itemToRemove?.remove();
+                delete cargoImages[id];
+                recalculateAll();
+            };
+
+            addCargoBtn.addEventListener('click', addCargoItem);
+            kgRateInput.addEventListener('input', recalculateAll);
+            cbmRateInput.addEventListener('input', recalculateAll);
+            exchangeRateInput.addEventListener('input', recalculateAll);
+
+            exportPdfBtn.addEventListener('click', async () => {
+                const { jsPDF } = window.jspdf;
+
+                const customerName = customerNameInput.value.trim();
+                const orderDates = Array.from(document.querySelectorAll('.order-date-input')).map(input => input.value.trim()).filter(Boolean);
+
+                if (!customerName || orderDates.length === 0) {
+                    showModal('Please fill in customer name and at least one order date!');
+                    return;
+                }
+
+                const doc = new jsPDF('p', 'mm', 'a4');
+                const fontName = 'SourceHanSansCN-Normal';
+                doc.addFont(fontName, 'SourceHanSans', 'normal');
+                doc.setFont('SourceHanSans', 'normal');
+
+                const margin = 15;
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const pageHeight = doc.internal.pageSize.getHeight();
+                let yPosition = margin;
+
+                doc.setFontSize(20);
+                doc.setFont(undefined, 'bold');
+                doc.text('Cargo Freight Calculation Report', pageWidth / 2, yPosition, { align: 'center' });
+                yPosition += 12;
+
+                doc.setFontSize(12);
+                doc.setFont(undefined, 'normal');
+                doc.text(`Customer Name: ${customerName}`, margin, yPosition);
+                yPosition += 7;
+                doc.text(`Order Date: ${orderDates.join(', ')}`, margin, yPosition);
+                yPosition += 12;
+
+                const kgRate = parseFloat(kgRateInput.value) || 0;
+                const cbmRate = parseFloat(cbmRateInput.value) || 0;
+
+                const tableHeaders = ["No.", "Type", `Weight(kg/${kgRate}¥)`, "Dimensions(m)", `Volume(m³/${cbmRate}¥)`, "Freight(¥)"];
+                const tableData = cargoData.map(item => {
+                    const cost = item.totalCost.toFixed(2);
+                    if (item.type === 'weight') {
+                        return [item.id, "By Weight", item.kg.toFixed(2), "-", "-", cost];
+                    } else {
+                        const dimensionsInM = `${item.length.toFixed(3)}x${item.width.toFixed(3)}x${item.height.toFixed(3)}`;
+                        const volumeInM3 = item.volume.toFixed(3);
+                        return [item.id, "By Volume", "-", dimensionsInM, volumeInM3, cost];
+                    }
+                });
+
+                doc.autoTable({
+                    startY: yPosition,
+                    head: [tableHeaders],
+                    body: tableData,
+                    theme: 'grid',
+                    styles: { fontSize: 10, cellPadding: 2, lineWidth: 0.1, font: fontName },
+                    headStyles: { fillColor: [230, 230, 230], textColor: [0, 0, 0], fontStyle: 'bold' }
+                });
+
+                yPosition = doc.autoTable.previous.finalY + 15;
+
+                const totalCostRMB = cargoData.reduce((sum, item) => sum + item.totalCost, 0).toFixed(2);
+                const exchangeRate = parseFloat(exchangeRateInput.value) || 0;
+                const totalCostMMK = Math.round(parseFloat(totalCostRMB) * exchangeRate);
+
+                doc.setFontSize(14);
+                doc.setFont(undefined, 'bold');
+                doc.text("Total Freight (RMB):", margin, yPosition);
+                doc.text(`${totalCostRMB}¥`, pageWidth - margin, yPosition, { align: 'right' });
+                yPosition += 8;
+
+                doc.setFontSize(12);
+                doc.setFont(undefined, 'normal');
+                doc.text("Exchange Rate:", margin, yPosition);
+                doc.text(`1 ¥ = ${exchangeRateInput.value} Ks`, pageWidth - margin, yPosition, { align: 'right' });
+                yPosition += 8;
+
+                doc.setFontSize(14);
+                doc.setFont(undefined, 'bold');
+                doc.text("Total Remittance Amount (MMK):", margin, yPosition);
+                doc.text(`${totalCostMMK}Ks`, pageWidth - margin, yPosition, { align: 'right' });
+
+                const cargoIdsWithImages = Object.keys(cargoImages).filter(id => cargoImages[id].length > 0);
+                if (cargoIdsWithImages.length > 0) {
+                    doc.addPage();
+                    let currentY = margin;
+                    const imageableWidth = pageWidth - 2 * margin;
+                    const imagePadding = 15;
+
+                    doc.setFontSize(16);
+                    doc.setFont(undefined, 'bold');
+                    doc.text('Cargo Images', pageWidth / 2, currentY, { align: 'center' });
+                    currentY += 15;
+
+                    for (const cargoId of cargoIdsWithImages) {
+                        const images = cargoImages[cargoId];
+                        for (let i = 0; i < images.length; i++) {
+                            const imgData = images[i];
+                            const img = new Image();
+                            img.src = imgData;
+                            await new Promise(resolve => {
+                                img.onload = resolve;
+                                img.onerror = () => { console.error(`Image for Cargo #${cargoId} failed to load.`); resolve(); };
+                            });
+
+                            if (img.naturalWidth === 0) continue;
+
+                            const aspectRatio = img.naturalHeight / img.naturalWidth;
+                            const imgHeight = imageableWidth * aspectRatio;
+
+                            if (currentY + imgHeight > pageHeight - margin) {
+                                doc.addPage();
+                                currentY = margin;
+                            }
+
+                            doc.setFontSize(10);
+                            doc.setFont(undefined, 'normal');
+                            doc.text(`Cargo #${cargoId} Image`, margin, currentY - 4);
+
+                            doc.addImage(imgData, 'JPEG', margin, currentY, imageableWidth, imgHeight, undefined, 'FAST');
+                            currentY += imgHeight + imagePadding;
+                        }
+                    }
+                }
+
+                const sanitizedCustomerName = customerName.replace(/[\/\\:*?"<>|]/g, '-').trim();
+                const sanitizedOrderDates = orderDates.join('_').replace(/[\/\\:*?"<>|]/g, '-').trim();
+                const filename = `${sanitizedCustomerName}_${sanitizedOrderDates || 'NoDate'}.pdf`;
+                doc.save(filename);
+            });
+
+            addCargoItem();
+            addDateInput();
+        });
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/service-worker.js').then(function(registration) {
+                    console.log('Service Worker registered with scope: ', registration.scope);
+                }, function(err) {
+                    console.log('Service Worker registration failed: ', err);
+                });
+            });
+        }
+    </script>
+</body>
+</html>
