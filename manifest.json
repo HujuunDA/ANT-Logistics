@@ -1,0 +1,20 @@
+{
+  "short_name": "ANT Freight",
+  "name": "ANT China Supplier Freight System",
+  "icons": [
+    {
+      "src": "logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "start_url": "index.html",
+  "background_color": "#4361ee",
+  "theme_color": "#4361ee",
+  "display": "standalone"
+}
