@@ -399,7 +399,7 @@
                     </div>
                     <div class="text-white/80">
                         <div class="text-sm">Intelligent Freight Calculation System</div>
-                        <div class="font-mono text-xs mt-1">v2.1.5</div>
+                        <div class="font-mono text-xs mt-1">v2.1.6</div>
                     </div>
                 </div>
             </div>
@@ -508,8 +508,8 @@
                 
                 <div class="flex justify-center md:flex-row space-y-4 md:space-y-0 md:space-x-4 mb-4">
                     <button id="export-pdf-btn" class="btn btn-danger w-full animate-pulse">
-                        <i class="fas fa-file-pdf"></i>
-                        Export PDF Report
+                        <i class="fas fa-share-nodes"></i>
+                        Export & Share PDF
                     </button>
                 </div>
             </div>
@@ -804,6 +804,7 @@
                 const customerName = customerNameInput.value.trim();
                 const orderDates = Array.from(document.querySelectorAll('.order-date-input')).map(input => input.value.trim()).filter(Boolean);
                 if (!customerName || orderDates.length === 0) { showModal('Please fill in name and at least one order date!'); return; }
+                
                 const dateCountMap = {};
                 const formattedOrderDates = orderDates.map(date => {
                     const [year, month, day] = date.split('-');
@@ -812,6 +813,7 @@
                     return dateCountMap[shortDate] > 1 ? `${shortDate} (${dateCountMap[shortDate]})` : shortDate;
                 });
                 const orderDatesString = formattedOrderDates.join(', ');
+                
                 const doc = new jsPDF('p', 'mm', 'a4');
                 const pageWidth = doc.internal.pageSize.getWidth();
                 const pageHeight = doc.internal.pageSize.getHeight();
@@ -925,12 +927,30 @@
                     }
                 }
 
-                // --- 修改文件名逻辑 ---
+                // 文件名逻辑
                 const sanitizedName = customerName.replace(/[\/\\:*?"<>|]/g, '-');
                 const sanitizedDates = orderDates.join('_').replace(/[\/\\:*?"<>|]/g, '-');
                 const filename = `${sanitizedName}_${sanitizedDates}.pdf`;
-                
-                doc.save(filename);
+
+                // --- 核心：原生分享逻辑 ---
+                const pdfBlob = doc.output('blob');
+                const pdfFile = new File([pdfBlob], filename, { type: 'application/pdf' });
+
+                if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+                    try {
+                        await navigator.share({
+                            files: [pdfFile],
+                            title: filename,
+                            text: `Freight Report for ${customerName}`
+                        });
+                    } catch (err) {
+                        if (err.name !== 'AbortError') {
+                            doc.save(filename); // 分享失败则回退到普通下载
+                        }
+                    }
+                } else {
+                    doc.save(filename); // 不支持分享的浏览器则普通下载
+                }
             });
             loadData();
         }
