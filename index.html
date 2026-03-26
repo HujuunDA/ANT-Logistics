@@ -259,8 +259,8 @@
         }
 
         .preview-item img {
-            width: 120%;
-            height: 120%;
+            width: 100%;
+            height: 100%;
             object-fit: cover;
         }
 
@@ -374,16 +374,15 @@
         }
     </style>
     <script>
-        // 强化版 PWA 注册脚本
+        // --- 核心修改 1: 增强版离线支持 & 自动适配 iPhone 14 Pro Max ---
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js').then(reg => {
                     console.log('ANT Logistics: 离线模式已就绪');
-                }).catch(err => console.log('PWA 注册失败', err));
+                });
             });
         }
 
-        // 屏幕适配逻辑 (iPhone 14 Pro Max 优化)
         (function() {
             const setVp = () => {
                 const vp = document.querySelector('meta[name="viewport"]');
@@ -720,7 +719,7 @@
                 const cargoItem = document.createElement('div');
                 cargoItem.className = 'cargo-item card p-5';
                 cargoItem.id = `cargo-${currentCargoId}`;
-                cargoItem.innerHTML = `<div class="cargo-header"><h4 class="font-semibold text-lg text-primary"><i class="fas fa-box mr-2"></i>Cargo #${currentCargoId}</h4><button onclick="removeCargo(${currentCargoId})" class="remove-btn"><i class="fas fa-times"></i></button></div><div class="radio-group"><label class="radio-item"><input type="radio" name="calc-type-${currentCargoId}" value="weight" ${data.type === 'weight' || !data.type ? 'checked' : ''}><span>by Weight</span></label><label class="radio-item"><input type="radio" name="calc-type-${currentCargoId}" value="volume" ${data.type === 'volume' ? 'checked' : ''}><span>by Volume</span></label></div><div class="space-y-4 calculation-inputs" id="weight-inputs-${currentCargoId}"><div><label class="label-text">Weight (kg)</label><input type="number" value="${data.kg || ''}" class="kg-input input-field" step="0.01"></div></div><div class="space-y-4 calculation-inputs hidden" id="volume-inputs-${currentCargoId}"><div><label class="label-text">Length (m)</label><input type="number" value="${data.length || ''}" class="length-input input-field" step="0.001"></div><div><label class="label-text">Width (m)</label><input type="number" value="${data.width || ''}" class="width-input input-field" step="0.001"></div><div><label class="label-text">Height (m)</label><input type="number" value="${data.height || ''}" class="height-input input-field" step="0.001"></div></div><div class="mt-5"><label class="label-text">Add Cargo Images</label><input type="file" class="image-upload input-field" accept="image/*" multiple><div id="image-preview-${currentCargoId}" class="image-preview"></div></div><div class="calculation-details mt-5"></div>`;
+                cargoItem.innerHTML = `<div class="cargo-header"><h4 class="font-semibold text-lg text-primary"><i class="fas fa-box mr-2"></i>Cargo #${currentCargoId}</h4><button onclick="removeCargo(${currentCargoId})" class="remove-btn"><i class="fas fa-times"></i></button></div><div class="radio-group"><label class="radio-item"><input type="radio" name="calc-type-${currentCargoId}" value="weight" ${data.type === 'weight' || !data.type ? 'checked' : ''}><span>by Weight</span></label><label class="radio-item"><input type="radio" name="calc-type-${currentCargoId}" value="volume" ${data.type === 'volume' ? 'checked' : ''}><span>by Volume</span></label></div><div class="space-y-4 calculation-inputs" id="weight-inputs-${currentCargoId}"><div><label class="label-text">Weight (kg)</label><input type="number" value="${data.kg || ''}" class="kg-input input-field" step="0.01"></div></div><div class="space-y-4 calculation-inputs hidden" id="volume-inputs-${currentCargoId}"><div><label class="label-text">Length (m)</label><input type="number" value="${data.length || ''}" class="length-input input-field" step="0.001"></div><div><label class="label-text">Width (m)</label><input type="number" value="${data.width || ''}" class="width-input input-field" step="0.001"></div><div><label class="label-text">Height (m)</label><input type="number" value="${data.height || ''}" class="width-input input-field" step="0.001"></div></div><div class="mt-5"><label class="label-text">Add Cargo Images</label><input type="file" class="image-upload input-field" accept="image/*" multiple><div id="image-preview-${currentCargoId}" class="image-preview"></div></div><div class="calculation-details mt-5"></div>`;
                 cargoList.appendChild(cargoItem);
                 if (data.type === 'volume') {
                     document.getElementById(`weight-inputs-${currentCargoId}`).classList.add('hidden');
@@ -807,144 +806,152 @@
             exchangeRateInput.addEventListener('input', recalculateAll);
             customerNameInput.addEventListener('input', recalculateAll);
             
+            // --- 核心修改 2: 修复 iOS 分享不响应问题 ---
             exportPdfBtn.addEventListener('click', async () => {
                 const { jsPDF } = window.jspdf;
                 const customerName = customerNameInput.value.trim();
                 const orderDates = Array.from(document.querySelectorAll('.order-date-input')).map(input => input.value.trim()).filter(Boolean);
-                if (!customerName || orderDates.length === 0) { showModal('Please fill in name and at least one order date!'); return; }
                 
-                const dateCountMap = {};
-                const formattedOrderDates = orderDates.map(date => {
-                    const [year, month, day] = date.split('-');
-                    const shortDate = `${month}-${day}`;
-                    dateCountMap[shortDate] = (dateCountMap[shortDate] || 0) + 1;
-                    return dateCountMap[shortDate] > 1 ? `${shortDate} (${dateCountMap[shortDate]})` : shortDate;
-                });
-                const orderDatesString = formattedOrderDates.join(', ');
-                
-                const doc = new jsPDF('p', 'mm', 'a4');
-                const pageWidth = doc.internal.pageSize.getWidth();
-                const pageHeight = doc.internal.pageSize.getHeight();
-                const fontName = 'SourceHanSans';
-                const margin = 15;
-                let yPosition = 30;
-
-                function drawBorder(doc) {
-                    const cornerSize = 45;
-                    const red = '#000000'; const black = '#333333'; const mediumGray = '#e0e0e0';
-                    const offset = 8;
-                    doc.setFillColor(red); doc.triangle(0, 0, cornerSize, 0, 0, cornerSize, 'F');
-                    doc.setFillColor(black); doc.triangle(0, 0, cornerSize - offset, 0, 0, cornerSize - offset, 'F');
-                    doc.setFillColor(mediumGray); doc.triangle(offset, 0, cornerSize, 0, offset, cornerSize, 'F');
-                    doc.setFillColor(red); doc.triangle(pageWidth, 0, pageWidth - cornerSize, 0, pageWidth, cornerSize, 'F');
-                    doc.setFillColor(black); doc.triangle(pageWidth - cornerSize + offset, 0, pageWidth, 0, pageWidth, cornerSize - offset, 'F');
-                    doc.setFillColor(mediumGray); doc.triangle(pageWidth - cornerSize, 0, pageWidth - offset, 0, pageWidth - offset, cornerSize, 'F');
-                    doc.setFillColor(red); doc.triangle(0, pageHeight, cornerSize, pageHeight, 0, pageHeight - cornerSize, 'F');
-                    doc.setFillColor(black); doc.triangle(0, pageHeight - cornerSize + offset, 0, pageHeight, cornerSize - offset, pageHeight, 'F');
-                    doc.setFillColor(mediumGray); doc.triangle(0, pageHeight - cornerSize, cornerSize, pageHeight - cornerSize, 0, pageHeight - offset, 'F');
-                    doc.setFillColor(red); doc.triangle(pageWidth, pageHeight, pageWidth - cornerSize, pageHeight, pageWidth, pageHeight - cornerSize, 'F');
-                    doc.setFillColor(black); doc.triangle(pageWidth - cornerSize + offset, pageHeight, pageWidth, pageHeight, pageWidth, pageHeight - cornerSize + offset, 'F');
-                    doc.setFillColor(mediumGray); doc.triangle(pageWidth - cornerSize, pageHeight, pageWidth, pageHeight - offset, pageWidth - offset, pageHeight, 'F');
+                if (!customerName || orderDates.length === 0) { 
+                    showModal('Please fill in name and at least one order date!'); 
+                    return; 
                 }
 
-                drawBorder(doc);
-                doc.addFont('Montserrat-Regular.ttf', 'Montserrat', 'normal');
-                doc.setFont('Montserrat', 'normal');
-                doc.setFontSize(25);
-                doc.setFont(undefined, 'bold');
-                doc.text('INTERNATIONAL SHIPPING', pageWidth / 2, yPosition, { align: 'center' });
-                yPosition += 12;
-                doc.setFont(fontName, 'normal');
-                doc.setFontSize(12);
-                doc.text(`Name: ${customerName}`, margin, yPosition);
-                yPosition += 7;
-                const orderDateLabel = `Order Date: `;
-                const orderDateText = orderDatesString;
-                const availableWidth = pageWidth - 2 * margin;
-                const labelWidth = doc.getTextWidth(orderDateLabel);
-                const textLines = doc.splitTextToSize(orderDateText, availableWidth - labelWidth);
-                doc.text(orderDateLabel, margin, yPosition);
-                doc.text(textLines, margin + labelWidth, yPosition);
-                yPosition += doc.getTextDimensions(textLines).h + 5;
+                // 在生成前给用户反馈
+                exportPdfBtn.disabled = true;
+                exportPdfBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
 
-                const kgRate = parseFloat(kgRateInput.value) || 0;
-                const cbmRate = parseFloat(cbmRateInput.value) || 0;
-                const tableHeaders = ["No.", "Type", `Weight(kg/${kgRate}¥)`, "Dimensions(m)", `Volume(m³/${cbmRate}¥)`, "Freight(¥)"];
-                const tableData = cargoData.map(item => {
-                    const cost = item.totalCost.toFixed(2);
-                    if (item.type === 'weight') { return [item.id, "By Weight", item.kg.toFixed(2), "-", "-", cost]; }
-                    else { const dimensionsInM = `${item.length.toFixed(3)}x${item.width.toFixed(3)}x${item.height.toFixed(3)}`; return [item.id, "By Volume", "-", dimensionsInM, item.volume.toFixed(3), cost]; }
-                });
-                
-                doc.autoTable({
-                    startY: yPosition, head: [tableHeaders], body: tableData, theme: 'grid',
-                    styles: { fontSize: 12, cellPadding: 2, lineWidth: 0.1, font: fontName, halign: 'center' },
-                    headStyles: { fillColor: [230, 230, 230], textColor: [0, 0, 0], fontStyle: 'bold', fontSize: 14, halign: 'center' }
-                });
+                try {
+                    const dateCountMap = {};
+                    const formattedOrderDates = orderDates.map(date => {
+                        const [year, month, day] = date.split('-');
+                        const shortDate = `${month}-${day}`;
+                        dateCountMap[shortDate] = (dateCountMap[shortDate] || 0) + 1;
+                        return dateCountMap[shortDate] > 1 ? `${shortDate} (${dateCountMap[shortDate]})` : shortDate;
+                    });
+                    const orderDatesString = formattedOrderDates.join(', ');
+                    
+                    const doc = new jsPDF('p', 'mm', 'a4');
+                    const pageWidth = doc.internal.pageSize.getWidth();
+                    const pageHeight = doc.internal.pageSize.getHeight();
+                    const fontName = 'SourceHanSans';
+                    const margin = 15;
+                    let yPosition = 30;
 
-                yPosition = doc.autoTable.previous.finalY + 15;
+                    function drawBorder(doc) {
+                        const cornerSize = 45;
+                        const red = '#000000'; const black = '#333333'; const mediumGray = '#e0e0e0';
+                        const offset = 8;
+                        doc.setFillColor(red); doc.triangle(0, 0, cornerSize, 0, 0, cornerSize, 'F');
+                        doc.setFillColor(black); doc.triangle(0, 0, cornerSize - offset, 0, 0, cornerSize - offset, 'F');
+                        doc.setFillColor(mediumGray); doc.triangle(offset, 0, cornerSize, 0, offset, cornerSize, 'F');
+                        doc.setFillColor(red); doc.triangle(pageWidth, 0, pageWidth - cornerSize, 0, pageWidth, cornerSize, 'F');
+                        doc.setFillColor(black); doc.triangle(pageWidth - cornerSize + offset, 0, pageWidth, 0, pageWidth, cornerSize - offset, 'F');
+                        doc.setFillColor(mediumGray); doc.triangle(pageWidth - cornerSize, 0, pageWidth - offset, 0, pageWidth - offset, cornerSize, 'F');
+                        doc.setFillColor(red); doc.triangle(0, pageHeight, cornerSize, pageHeight, 0, pageHeight - cornerSize, 'F');
+                        doc.setFillColor(black); doc.triangle(0, pageHeight - cornerSize + offset, 0, pageHeight, cornerSize - offset, pageHeight, 'F');
+                        doc.setFillColor(mediumGray); doc.triangle(0, pageHeight - cornerSize, cornerSize, pageHeight - cornerSize, 0, pageHeight - offset, 'F');
+                        doc.setFillColor(red); doc.triangle(pageWidth, pageHeight, pageWidth - cornerSize, pageHeight, pageWidth, pageHeight - cornerSize, 'F');
+                        doc.setFillColor(black); doc.triangle(pageWidth - cornerSize + offset, pageHeight, pageWidth, pageHeight, pageWidth, pageHeight - cornerSize + offset, 'F');
+                        doc.setFillColor(mediumGray); doc.triangle(pageWidth - cornerSize, pageHeight, pageWidth, pageHeight - offset, pageWidth - offset, pageHeight, 'F');
+                    }
 
-                const totalWeight = cargoData.reduce((sum, item) => sum + (parseFloat(item.kg) || 0), 0).toFixed(2);
-                const totalVol = cargoData.reduce((sum, item) => sum + (parseFloat(item.volume) || 0), 0).toFixed(3);
-                doc.setFontSize(12);
-                doc.setFont(undefined, 'normal');
-                doc.text(`Total Weight: ${totalWeight} kg`, margin, yPosition);
-                doc.text(`Total Volume: ${totalVol} m³`, pageWidth - margin, yPosition, { align: 'right' });
-                yPosition += 8; 
+                    drawBorder(doc);
+                    doc.addFont('Montserrat-Regular.ttf', 'Montserrat', 'normal');
+                    doc.setFont('Montserrat', 'normal');
+                    doc.setFontSize(25);
+                    doc.setFont(undefined, 'bold');
+                    doc.text('INTERNATIONAL SHIPPING', pageWidth / 2, yPosition, { align: 'center' });
+                    yPosition += 12;
+                    doc.setFont(fontName, 'normal');
+                    doc.setFontSize(12);
+                    doc.text(`Name: ${customerName}`, margin, yPosition);
+                    yPosition += 7;
+                    const orderDateLabel = `Order Date: `;
+                    const orderDateText = orderDatesString;
+                    const availableWidth = pageWidth - 2 * margin;
+                    const labelWidth = doc.getTextWidth(orderDateLabel);
+                    const textLines = doc.splitTextToSize(orderDateText, availableWidth - labelWidth);
+                    doc.text(orderDateLabel, margin, yPosition);
+                    doc.text(textLines, margin + labelWidth, yPosition);
+                    yPosition += doc.getTextDimensions(textLines).h + 5;
 
-                const totalCostRMB = cargoData.reduce((sum, item) => sum + item.totalCost, 0).toFixed(2);
-                const exchangeRate = parseFloat(exchangeRateInput.value) || 0;
-                const totalCostMMK = Math.round(parseFloat(totalCostRMB) * exchangeRate).toLocaleString('en-US');
+                    const kgRate = parseFloat(kgRateInput.value) || 0;
+                    const cbmRate = parseFloat(cbmRateInput.value) || 0;
+                    const tableHeaders = ["No.", "Type", `Weight(kg/${kgRate}¥)`, "Dimensions(m)", `Volume(m³/${cbmRate}¥)`, "Freight(¥)"];
+                    const tableData = cargoData.map(item => {
+                        const cost = item.totalCost.toFixed(2);
+                        if (item.type === 'weight') { return [item.id, "By Weight", item.kg.toFixed(2), "-", "-", cost]; }
+                        else { const dimensionsInM = `${item.length.toFixed(3)}x${item.width.toFixed(3)}x${item.height.toFixed(3)}`; return [item.id, "By Volume", "-", dimensionsInM, item.volume.toFixed(3), cost]; }
+                    });
+                    
+                    doc.autoTable({
+                        startY: yPosition, head: [tableHeaders], body: tableData, theme: 'grid',
+                        styles: { fontSize: 12, cellPadding: 2, lineWidth: 0.1, font: fontName, halign: 'center' },
+                        headStyles: { fillColor: [230, 230, 230], textColor: [0, 0, 0], fontStyle: 'bold', fontSize: 14, halign: 'center' }
+                    });
 
-                doc.setFontSize(14);
-                doc.setFont(undefined, 'bold');
-                doc.text("Total Freight (RMB):", margin, yPosition);
-                doc.text(`${totalCostRMB}¥`, pageWidth - margin, yPosition, { align: 'right' });
-                yPosition += 8;
-                doc.setFontSize(12);
-                doc.setFont(undefined, 'normal');
-                doc.text("Exchange Rate:", margin, yPosition);
-                doc.text(`1 ¥ = ${exchangeRateInput.value} Ks`, pageWidth - margin, yPosition, { align: 'right' });
-                yPosition += 8;
-                doc.setFontSize(14);
-                doc.setFont(undefined, 'bold');
-                doc.setTextColor(61, 149, 255);
-                doc.text("Total Remittance Amount (MMK):", margin, yPosition);
-                doc.text(`${totalCostMMK}Ks`, pageWidth - margin, yPosition, { align: 'right' });
-                doc.setTextColor(0, 0, 0);
+                    yPosition = doc.autoTable.previous.finalY + 15;
 
-                const cargoIdsWithImages = Object.keys(cargoImages).filter(id => cargoImages[id].length > 0);
-                if (cargoIdsWithImages.length > 0) {
-                    doc.addPage(); let currentY = margin; const imageableWidth = pageWidth - 2 * margin; const imagePadding = 15;
-                    doc.setFontSize(16); doc.setFont(fontName, 'bold');
-                    doc.text('Cargo Images', pageWidth / 2, currentY, { align: 'center' });
-                    currentY += 15;
-                    for (const cargoId of cargoIdsWithImages) {
-                        const images = cargoImages[cargoId];
-                        for (let i = 0; i < images.length; i++) {
-                            const imgData = images[i]; const img = new Image(); img.src = imgData;
-                            await new Promise(resolve => { img.onload = resolve; img.onerror = () => { resolve(); }; });
-                            if (img.naturalWidth === 0) continue;
-                            const aspectRatio = img.naturalHeight / img.naturalWidth; const imgHeight = imageableWidth * aspectRatio;
-                            if (currentY + imgHeight > pageHeight - margin) { doc.addPage(); currentY = margin; }
-                            doc.setFontSize(10); doc.setFont(fontName, 'normal');
-                            doc.text(`Cargo #${cargoId} Image`, margin, currentY - 4);
-                            doc.addImage(imgData, 'JPEG', margin, currentY, imageableWidth, imgHeight, undefined, 'SLOW');
-                            currentY += imgHeight + imagePadding;
+                    const totalWeight = cargoData.reduce((sum, item) => sum + (parseFloat(item.kg) || 0), 0).toFixed(2);
+                    const totalVol = cargoData.reduce((sum, item) => sum + (parseFloat(item.volume) || 0), 0).toFixed(3);
+                    doc.setFontSize(12);
+                    doc.setFont(undefined, 'normal');
+                    doc.text(`Total Weight: ${totalWeight} kg`, margin, yPosition);
+                    doc.text(`Total Volume: ${totalVol} m³`, pageWidth - margin, yPosition, { align: 'right' });
+                    yPosition += 8; 
+
+                    const totalCostRMB = cargoData.reduce((sum, item) => sum + item.totalCost, 0).toFixed(2);
+                    const exchangeRate = parseFloat(exchangeRateInput.value) || 0;
+                    const totalCostMMK = Math.round(parseFloat(totalCostRMB) * exchangeRate).toLocaleString('en-US');
+
+                    doc.setFontSize(14);
+                    doc.setFont(undefined, 'bold');
+                    doc.text("Total Freight (RMB):", margin, yPosition);
+                    doc.text(`${totalCostRMB}¥`, pageWidth - margin, yPosition, { align: 'right' });
+                    yPosition += 8;
+                    doc.setFontSize(12);
+                    doc.setFont(undefined, 'normal');
+                    doc.text("Exchange Rate:", margin, yPosition);
+                    doc.text(`1 ¥ = ${exchangeRateInput.value} Ks`, pageWidth - margin, yPosition, { align: 'right' });
+                    yPosition += 8;
+                    doc.setFontSize(14);
+                    doc.setFont(undefined, 'bold');
+                    doc.setTextColor(61, 149, 255);
+                    doc.text("Total Remittance Amount (MMK):", margin, yPosition);
+                    doc.text(`${totalCostMMK}Ks`, pageWidth - margin, yPosition, { align: 'right' });
+                    doc.setTextColor(0, 0, 0);
+
+                    const cargoIdsWithImages = Object.keys(cargoImages).filter(id => cargoImages[id].length > 0);
+                    if (cargoIdsWithImages.length > 0) {
+                        doc.addPage(); let currentY = margin; const imageableWidth = pageWidth - 2 * margin; const imagePadding = 15;
+                        doc.setFontSize(16); doc.setFont(fontName, 'bold');
+                        doc.text('Cargo Images', pageWidth / 2, currentY, { align: 'center' });
+                        currentY += 15;
+                        for (const cargoId of cargoIdsWithImages) {
+                            const images = cargoImages[cargoId];
+                            for (let i = 0; i < images.length; i++) {
+                                const imgData = images[i]; const img = new Image(); img.src = imgData;
+                                await new Promise(resolve => { img.onload = resolve; img.onerror = () => resolve(); });
+                                if (img.naturalWidth === 0) continue;
+                                const aspectRatio = img.naturalHeight / img.naturalWidth; const imgHeight = imageableWidth * aspectRatio;
+                                if (currentY + imgHeight > pageHeight - margin) { doc.addPage(); currentY = margin; }
+                                doc.setFontSize(10); doc.setFont(fontName, 'normal');
+                                doc.text(`Cargo #${cargoId} Image`, margin, currentY - 4);
+                                doc.addImage(imgData, 'JPEG', margin, currentY, imageableWidth, imgHeight, undefined, 'FAST');
+                                currentY += imgHeight + imagePadding;
+                            }
                         }
                     }
-                }
 
-                // 文件名逻辑
-                const sanitizedName = customerName.replace(/[\/\\:*?"<>|]/g, '-');
-                const sanitizedDates = orderDates.join('_').replace(/[\/\\:*?"<>|]/g, '-');
-                const filename = `${sanitizedName}_${sanitizedDates}.pdf`;
+                    const sanitizedName = customerName.replace(/[\/\\:*?"<>|]/g, '-');
+                    const sanitizedDates = orderDates.join('_').replace(/[\/\\:*?"<>|]/g, '-');
+                    const filename = `${sanitizedName}_${sanitizedDates}.pdf`;
 
-                // --- 优化后的原生分享逻辑 (针对 iOS 响应优化) ---
-                try {
                     const pdfBlob = doc.output('blob');
                     const pdfFile = new File([pdfBlob], filename, { type: 'application/pdf' });
 
+                    // --- 核心修复：直接通过点击流触发分享 ---
                     if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
                         await navigator.share({
                             files: [pdfFile],
@@ -952,14 +959,17 @@
                             text: `Freight Report for ${customerName}`
                         });
                     } else {
-                        doc.save(filename); // PC 端直接下载
+                        doc.save(filename);
                     }
                 } catch (err) {
-                    if (err.name !== 'AbortError') {
-                        doc.save(filename); // 分享出错回退到下载
-                    }
+                    console.error('PDF Export failed:', err);
+                    if (err.name !== 'AbortError') showModal('Export Failed: ' + err.message);
+                } finally {
+                    exportPdfBtn.disabled = false;
+                    exportPdfBtn.innerHTML = '<i class="fas fa-share-nodes"></i> Export & Share PDF';
                 }
             });
+
             loadData();
         }
         document.addEventListener('DOMContentLoaded', initApp);
