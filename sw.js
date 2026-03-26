@@ -1,10 +1,9 @@
-const CACHE_NAME = 'ant-freight-v2.2';
+const CACHE_NAME = 'ant-freight-v2.2.1'; // 更新版本号
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
   './logo.png',
-  // 必须包含所有远程 JS 库，否则断网无法计算和导出
   'https://cdn.tailwindcss.com',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
   'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
@@ -15,12 +14,20 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (e) => {
+  self.skipWaiting();
   e.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
   );
 });
 
-// 核心：拦截所有请求，没网也从缓存拿
+self.addEventListener('activate', (e) => {
+  e.waitUntil(
+    caches.keys().then(keys => Promise.all(
+      keys.map(key => key !== CACHE_NAME ? caches.delete(key) : null)
+    ))
+  );
+});
+
 self.addEventListener('fetch', (e) => {
   e.respondWith(
     caches.match(e.request).then(res => res || fetch(e.request))
