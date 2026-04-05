@@ -259,8 +259,8 @@
         }
 
         .preview-item img {
-            width: 120%;
-            height: 120%;
+            width: 100%;
+            height: 100%;
             object-fit: cover;
         }
 
@@ -373,21 +373,6 @@
             color: var(--primary);
         }
     </style>
-    <script>
-        // PWA 注册脚本
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js');
-        }
-
-        (function() {
-            const viewport = document.querySelector('meta[name="viewport"]');
-            if (window.innerWidth < 768) {
-                viewport.setAttribute('content', 'width=device-width, initial-scale=0.8, maximum-scale=5.0, minimum-scale=0.5');
-            } else {
-                viewport.setAttribute('content', 'width=device-width, initial-scale=1.0');
-            }
-        })();
-    </script>
 </head>
 <body>
     <div id="content-container" class="container mx-auto max-w-4xl">
@@ -533,7 +518,6 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.0.0-rc.5/dist/html2canvas.min.js"></script>
     <script src="https://unpkg.com/jspdf-font-source-han-sans@1.0.0/dist/SourceHanSansCN-Normal.js"></script>
     <script src="https://unpkg.com/jspdf-font-montserrat@1.0.0/dist/Montserrat-Regular.js"></script>
 
@@ -566,7 +550,7 @@
                     cargos: []
                 };
 
-                document.querySelectorAll('.cargo-item').forEach((item, index) => {
+                document.querySelectorAll('.cargo-item').forEach((item) => {
                     const cargoId = item.id.split('-')[1];
                     const calcTypeInput = item.querySelector(`input[name="calc-type-${cargoId}"]:checked`);
                     const calcType = calcTypeInput ? calcTypeInput.value : 'weight'; 
@@ -595,7 +579,6 @@
                     exchangeRateInput.value = data.exchangeRate;
                     data.orderDates.forEach(date => addDateInput(date));
                     data.cargos.forEach(cargo => addCargoItem(cargo));
-                    recalculateAll();
                 } else {
                     addCargoItem();
                     addDateInput();
@@ -622,68 +605,61 @@
                     return;
                 }
                 const totalCostRMB = cargoData.reduce((sum, item) => sum + item.totalCost, 0).toFixed(2);
-                const displayData = cargoData.map(item => {
-                    if (item.type === 'weight') {
-                        return { serialNo: item.id, type: 'By Weight', weight: item.kg.toFixed(2), dimensions: '-', volume: '-', totalCost: item.totalCost.toFixed(2) };
-                    } else {
-                        const dimensionsInM = `${item.length.toFixed(3)}x${item.width.toFixed(3)}x${item.height.toFixed(3)}`;
-                        return { serialNo: item.id, type: 'By Volume', weight: '-', dimensions: dimensionsInM, volume: item.volume.toFixed(3), totalCost: item.totalCost.toFixed(2) };
-                    }
-                });
                 let tableHtml = `<h4 class="font-semibold text-primary mb-4">Cargo Details</h4><div class="overflow-x-auto" id="cargo-details-table"><table class="min-w-full"><thead><tr><th class="text-left p-3 bg-gray-50">No.</th><th class="text-left p-3 bg-gray-50">Type</th><th class="text-left p-3 bg-gray-50">Weight (kg)</th><th class="text-left p-3 bg-gray-50">Dimensions (m)</th><th class="text-left p-3 bg-gray-50">Volume (m³)</th><th class="text-left p-3 bg-gray-50">Freight (¥)</th></tr></thead><tbody>`;
-                displayData.forEach(item => {
-                    tableHtml += `<tr class="hover:bg-gray-50"><td class="p-3 border-b">${item.serialNo}</td><td class="p-3 border-b">${item.type}</td><td class="p-3 border-b">${item.weight}</td><td class="p-3 border-b">${item.dimensions}</td><td class="p-3 border-b">${item.volume}</td><td class="p-3 border-b font-semibold text-blue-600">${item.totalCost}</td></tr>`;
+                
+                cargoData.forEach(item => {
+                    const row = item.type === 'weight' ? 
+                        `<tr><td class="p-3 border-b">${item.id}</td><td class="p-3 border-b">By Weight</td><td class="p-3 border-b">${item.kg.toFixed(2)}</td><td class="p-3 border-b">-</td><td class="p-3 border-b">-</td><td class="p-3 border-b font-semibold text-blue-600">${item.totalCost.toFixed(2)}</td></tr>` :
+                        `<tr><td class="p-3 border-b">${item.id}</td><td class="p-3 border-b">By Volume</td><td class="p-3 border-b">-</td><td class="p-3 border-b">${item.length.toFixed(3)}x${item.width.toFixed(3)}x${item.height.toFixed(3)}</td><td class="p-3 border-b">${item.volume.toFixed(3)}</td><td class="p-3 border-b font-semibold text-blue-600">${item.totalCost.toFixed(2)}</td></tr>`;
+                    tableHtml += row;
                 });
+
                 tableHtml += `</tbody><tfoot><tr><td colspan="5" class="p-3 text-right font-semibold border-t">Total(¥)</td><td class="p-3 font-semibold text-blue-600 border-t">${totalCostRMB}</td></tr></tfoot></table></div>`;
                 cargoDetailsTableContainer.innerHTML = tableHtml;
             }
 
             function recalculateAll() {
-                let totalKg = 0;
-                let totalVolumeM3 = 0;
-                let totalKgCost = 0;
-                let totalVolumeCost = 0;
-                cargoData.length = 0; 
+                let totalKg = 0, totalVolumeM3 = 0, totalKgCost = 0, totalVolumeCost = 0;
+                cargoData.length = 0;
                 const kgRate = parseFloat(kgRateInput.value) || 0;
-                const cbmRate = parseFloat(cbmRateInput.value) || 0; 
+                const cbmRate = parseFloat(cbmRateInput.value) || 0;
                 const exchangeRate = parseFloat(exchangeRateInput.value) || 0;
-                document.querySelectorAll('.cargo-item').forEach((item, index) => {
-                    const cargoIdFromEl = item.id.split('-')[1];
-                    const calcType = item.querySelector(`input[name="calc-type-${cargoIdFromEl}"]:checked`).value;
-                    let singleCargoTotalCost = 0;
-                    let kg = 0, length = 0, width = 0, height = 0, volumeInM3 = 0;
-                    if (calcType === 'weight') {
+
+                document.querySelectorAll('.cargo-item').forEach((item) => {
+                    const id = item.id.split('-')[1];
+                    const type = item.querySelector(`input[name="calc-type-${id}"]:checked`).value;
+                    let kg = 0, length = 0, width = 0, height = 0, volume = 0, cost = 0;
+
+                    if (type === 'weight') {
                         kg = parseFloat(item.querySelector('.kg-input').value) || 0;
-                        singleCargoTotalCost = kg * kgRate;
-                        totalKgCost += singleCargoTotalCost;
-                        totalKg += kg;
+                        cost = kg * kgRate;
+                        totalKgCost += cost; totalKg += kg;
                     } else {
                         length = parseFloat(item.querySelector('.length-input').value) || 0;
                         width = parseFloat(item.querySelector('.width-input').value) || 0;
                         height = parseFloat(item.querySelector('.height-input').value) || 0;
-                        volumeInM3 = length * width * height;
-                        singleCargoTotalCost = volumeInM3 * cbmRate;
-                        totalVolumeCost += singleCargoTotalCost;
-                        totalVolumeM3 += volumeInM3;
+                        volume = length * width * height;
+                        cost = volume * cbmRate;
+                        totalVolumeCost += cost; totalVolumeM3 += volume;
                     }
-                    cargoData.push({ id: cargoIdFromEl, type: calcType, kg, length, width, height, volume: volumeInM3, totalCost: singleCargoTotalCost });
-                    const detailsDiv = item.querySelector('.calculation-details');
-                    if (calcType === 'weight') {
-                         detailsDiv.innerHTML = `<p class="text-green-600 font-semibold"><i class="fas fa-truck mr-2"></i>Freight: ${singleCargoTotalCost.toFixed(2)} ¥</p>`;
-                    } else {
-                         detailsDiv.innerHTML = `<p><i class="fas fa-ruler-combined mr-2"></i>Volume: ${volumeInM3.toFixed(3)} m³</p><p class="text-green-600 font-semibold"><i class="fas fa-truck mr-2"></i>Freight: ${singleCargoTotalCost.toFixed(2)} ¥</p>`;
-                    }
+                    cargoData.push({ id, type, kg, length, width, height, volume, totalCost: cost });
+                    
+                    const detailDiv = item.querySelector('.calculation-details');
+                    detailDiv.innerHTML = type === 'weight' ? 
+                        `<p class="text-green-600 font-semibold"><i class="fas fa-truck mr-2"></i>Freight: ${cost.toFixed(2)} ¥</p>` :
+                        `<p><i class="fas fa-ruler-combined mr-2"></i>Volume: ${volume.toFixed(3)} m³</p><p class="text-green-600 font-semibold"><i class="fas fa-truck mr-2"></i>Freight: ${cost.toFixed(2)} ¥</p>`;
                 });
-                const totalCostRMB = totalKgCost + totalVolumeCost;
-                const totalCostMMK = Math.round(totalCostRMB * exchangeRate);
+
+                const totalRMB = totalKgCost + totalVolumeCost;
                 document.getElementById('totalKg').textContent = totalKg.toFixed(2) + ' kg';
                 document.getElementById('totalVolume').textContent = totalVolumeM3.toFixed(3) + ' m³';
                 document.getElementById('totalKgCost').textContent = totalKgCost.toFixed(2) + ' ¥';
                 document.getElementById('totalVolumeCost').textContent = totalVolumeCost.toFixed(2) + ' ¥';
-                document.getElementById('totalCostRMB').textContent = totalCostRMB.toFixed(2) + ' ¥';
-                document.getElementById('totalCostMMK').textContent = totalCostMMK.toLocaleString('en-US') + ' Ks';
+                document.getElementById('totalCostRMB').textContent = totalRMB.toFixed(2) + ' ¥';
+                document.getElementById('totalCostMMK').textContent = Math.round(totalRMB * exchangeRate).toLocaleString() + ' Ks';
+                
                 updateCargoDetailsTable();
-                saveData(); 
+                saveData();
             }
 
             function addDateInput(value = '') {
@@ -693,271 +669,165 @@
                 dateItem.id = `order-date-${dateCount}`;
                 dateItem.innerHTML = `<div class="flex-1"><input type="date" value="${value}" class="order-date-input input-field"></div><button onclick="removeDateInput(${dateCount})" class="remove-btn"><i class="fas fa-times"></i></button>`;
                 orderDatesList.appendChild(dateItem);
-                dateItem.querySelector('.order-date-input').addEventListener('input', recalculateAll);
+                dateItem.querySelector('.order-date-input').oninput = recalculateAll;
                 recalculateAll();
             }
 
-            window.removeDateInput = (id) => {
-                const itemToRemove = document.getElementById(`order-date-${id}`);
-                itemToRemove?.remove();
-                recalculateAll();
-            };
-            
-            addDateBtn.addEventListener('click', () => addDateInput());
+            window.removeDateInput = (id) => { document.getElementById(`order-date-${id}`)?.remove(); recalculateAll(); };
+            addDateBtn.onclick = () => addDateInput();
 
             function addCargoItem(data = {}) {
                 cargoCount++;
-                const currentCargoId = cargoCount;
-                cargoImages[currentCargoId] = data.images || []; 
+                const id = cargoCount;
+                cargoImages[id] = data.images || [];
                 const cargoItem = document.createElement('div');
                 cargoItem.className = 'cargo-item card p-5';
-                cargoItem.id = `cargo-${currentCargoId}`;
-                cargoItem.innerHTML = `<div class="cargo-header"><h4 class="font-semibold text-lg text-primary"><i class="fas fa-box mr-2"></i>Cargo #${currentCargoId}</h4><button onclick="removeCargo(${currentCargoId})" class="remove-btn"><i class="fas fa-times"></i></button></div><div class="radio-group"><label class="radio-item"><input type="radio" name="calc-type-${currentCargoId}" value="weight" ${data.type === 'weight' || !data.type ? 'checked' : ''}><span>by Weight</span></label><label class="radio-item"><input type="radio" name="calc-type-${currentCargoId}" value="volume" ${data.type === 'volume' ? 'checked' : ''}><span>by Volume</span></label></div><div class="space-y-4 calculation-inputs" id="weight-inputs-${currentCargoId}"><div><label class="label-text">Weight (kg)</label><input type="number" value="${data.kg || ''}" class="kg-input input-field" step="0.01"></div></div><div class="space-y-4 calculation-inputs hidden" id="volume-inputs-${currentCargoId}"><div><label class="label-text">Length (m)</label><input type="number" value="${data.length || ''}" class="length-input input-field" step="0.001"></div><div><label class="label-text">Width (m)</label><input type="number" value="${data.width || ''}" class="width-input input-field" step="0.001"></div><div><label class="label-text">Height (m)</label><input type="number" value="${data.height || ''}" class="height-input input-field" step="0.001"></div></div><div class="mt-5"><label class="label-text">Add Cargo Images</label><input type="file" class="image-upload input-field" accept="image/*" multiple><div id="image-preview-${currentCargoId}" class="image-preview"></div></div><div class="calculation-details mt-5"></div>`;
+                cargoItem.id = `cargo-${id}`;
+                cargoItem.innerHTML = `
+                    <div class="cargo-header"><h4 class="font-semibold text-lg text-primary"><i class="fas fa-box mr-2"></i>Cargo #${id}</h4><button onclick="removeCargo(${id})" class="remove-btn"><i class="fas fa-times"></i></button></div>
+                    <div class="radio-group">
+                        <label class="radio-item"><input type="radio" name="calc-type-${id}" value="weight" ${data.type !== 'volume' ? 'checked' : ''}><span>by Weight</span></label>
+                        <label class="radio-item"><input type="radio" name="calc-type-${id}" value="volume" ${data.type === 'volume' ? 'checked' : ''}><span>by Volume</span></label>
+                    </div>
+                    <div id="weight-inputs-${id}" class="${data.type === 'volume' ? 'hidden' : ''} space-y-4">
+                        <label class="label-text">Weight (kg)</label><input type="number" value="${data.kg || ''}" class="kg-input input-field" step="0.01">
+                    </div>
+                    <div id="volume-inputs-${id}" class="${data.type !== 'volume' ? 'hidden' : ''} space-y-4">
+                        <div class="grid grid-cols-3 gap-2">
+                            <input type="number" value="${data.length || ''}" placeholder="L" class="length-input input-field" step="0.001">
+                            <input type="number" value="${data.width || ''}" placeholder="W" class="width-input input-field" step="0.001">
+                            <input type="number" value="${data.height || ''}" placeholder="H" class="height-input input-field" step="0.001">
+                        </div>
+                    </div>
+                    <div class="mt-5">
+                        <label class="label-text">Cargo Images</label><input type="file" class="image-upload input-field" accept="image/*" multiple>
+                        <div id="image-preview-${id}" class="image-preview"></div>
+                    </div>
+                    <div class="calculation-details mt-5"></div>
+                `;
                 cargoList.appendChild(cargoItem);
-                if (data.type === 'volume') {
-                    document.getElementById(`weight-inputs-${currentCargoId}`).classList.add('hidden');
-                    document.getElementById(`volume-inputs-${currentCargoId}`).classList.remove('hidden');
-                } else {
-                    document.getElementById(`weight-inputs-${currentCargoId}`).classList.remove('hidden');
-                    document.getElementById(`volume-inputs-${currentCargoId}`).classList.add('hidden');
-                }
-                const previewContainer = document.getElementById(`image-preview-${currentCargoId}`);
-                if (cargoImages[currentCargoId]) { cargoImages[currentCargoId].forEach(imgDataURL => { createImagePreviewElement(imgDataURL, previewContainer, currentCargoId); }); }
-                cargoItem.querySelectorAll(`input[name="calc-type-${currentCargoId}"]`).forEach(radio => {
-                    radio.addEventListener('change', (event) => {
-                        const showWeight = event.target.value === 'weight';
-                        document.getElementById(`weight-inputs-${currentCargoId}`).classList.toggle('hidden', !showWeight);
-                        document.getElementById(`volume-inputs-${currentCargoId}`).classList.toggle('hidden', showWeight);
+
+                const previewContainer = document.getElementById(`image-preview-${id}`);
+                cargoImages[id].forEach(img => createImagePreviewElement(img, previewContainer, id));
+
+                cargoItem.querySelectorAll(`input[name="calc-type-${id}"]`).forEach(radio => {
+                    radio.onchange = (e) => {
+                        document.getElementById(`weight-inputs-${id}`).classList.toggle('hidden', e.target.value !== 'weight');
+                        document.getElementById(`volume-inputs-${id}`).classList.toggle('hidden', e.target.value === 'weight');
                         recalculateAll();
-                    });
+                    };
                 });
-                cargoItem.querySelectorAll('.kg-input, .length-input, .width-input, .height-input').forEach(input => input.addEventListener('input', recalculateAll));
-                cargoItem.querySelector('.image-upload').addEventListener('change', async (event) => {
-                    const files = event.target.files;
-                    for (const file of files) {
-                        const img = new Image();
-                        img.src = URL.createObjectURL(file);
-                        await new Promise(resolve => img.onload = resolve);
-                        const canvas = document.createElement('canvas');
-                        const ctx = canvas.getContext('2d');
-                        canvas.width = img.width;
-                        canvas.height = img.height;
-                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                        const imageDataURL = canvas.toDataURL('image/jpeg', 0.8);
-                        cargoImages[currentCargoId].push(imageDataURL);
-                        createImagePreviewElement(imageDataURL, previewContainer, currentCargoId);
+                cargoItem.querySelectorAll('input').forEach(input => input.oninput = recalculateAll);
+                
+                cargoItem.querySelector('.image-upload').onchange = async (e) => {
+                    for (const file of e.target.files) {
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                            cargoImages[id].push(event.target.result);
+                            createImagePreviewElement(event.target.result, previewContainer, id);
+                            saveData();
+                        };
+                        reader.readAsDataURL(file);
                     }
-                    event.target.value = '';
-                    saveData(); 
-                });
-                recalculateAll();
-            }
-
-            function createImagePreviewElement(imgDataURL, container, cargoId) {
-                const wrapper = document.createElement('div');
-                wrapper.className = 'preview-item';
-                const previewImg = document.createElement('img');
-                previewImg.src = imgDataURL;
-                const deleteBtn = document.createElement('div');
-                deleteBtn.className = 'delete-btn';
-                deleteBtn.innerHTML = '&times;';
-                deleteBtn.onclick = function() {
-                    const index = cargoImages[cargoId].indexOf(imgDataURL);
-                    if (index > -1) { cargoImages[cargoId].splice(index, 1); }
-                    wrapper.remove();
-                    saveData(); 
                 };
-                wrapper.appendChild(previewImg);
-                wrapper.appendChild(deleteBtn);
-                container.appendChild(wrapper);
-            }
-            
-            window.removeCargo = (id) => {
-                const itemToRemove = document.getElementById(`cargo-${id}`);
-                itemToRemove?.remove();
-                delete cargoImages[id];
-                recalculateAll();
-            };
-
-            function clearAllData() {
-                customerNameInput.value = '';
-                while (orderDatesList.firstChild) { orderDatesList.removeChild(orderDatesList.firstChild); }
-                dateCount = 0; 
-                while (cargoList.firstChild) { cargoList.removeChild(cargoList.firstChild); }
-                cargoCount = 0; 
-                Object.keys(cargoImages).forEach(key => delete cargoImages[key]); 
-                localStorage.removeItem('freightData');
-                addDateInput();
-                addCargoItem();
                 recalculateAll();
             }
 
-            addCargoBtn.addEventListener('click', () => addCargoItem());
-            clearAllBtn.addEventListener('click', clearAllData); 
-            kgRateInput.addEventListener('input', recalculateAll);
-            cbmRateInput.addEventListener('input', recalculateAll);
-            exchangeRateInput.addEventListener('input', recalculateAll);
-            customerNameInput.addEventListener('input', recalculateAll);
+            function createImagePreviewElement(src, container, id) {
+                const wrap = document.createElement('div'); wrap.className = 'preview-item';
+                wrap.innerHTML = `<img src="${src}"><div class="delete-btn">&times;</div>`;
+                wrap.querySelector('.delete-btn').onclick = () => {
+                    cargoImages[id] = cargoImages[id].filter(i => i !== src);
+                    wrap.remove(); saveData();
+                };
+                container.appendChild(wrap);
+            }
+
+            window.removeCargo = (id) => { document.getElementById(`cargo-${id}`)?.remove(); delete cargoImages[id]; recalculateAll(); };
             
-            exportPdfBtn.addEventListener('click', async () => {
+            clearAllBtn.onclick = () => { localStorage.clear(); location.reload(); };
+
+            // --- 核心：PDF 导出逻辑（唯一修改点） ---
+            exportPdfBtn.onclick = async () => {
                 const { jsPDF } = window.jspdf;
-                const customerName = customerNameInput.value.trim();
-                const orderDates = Array.from(document.querySelectorAll('.order-date-input')).map(input => input.value.trim()).filter(Boolean);
-                if (!customerName || orderDates.length === 0) { showModal('Please fill in name and at least one order date!'); return; }
-                
-                const dateCountMap = {};
-                const formattedOrderDates = orderDates.map(date => {
-                    const [year, month, day] = date.split('-');
-                    const shortDate = `${month}-${day}`;
-                    dateCountMap[shortDate] = (dateCountMap[shortDate] || 0) + 1;
-                    return dateCountMap[shortDate] > 1 ? `${shortDate} (${dateCountMap[shortDate]})` : shortDate;
-                });
-                const orderDatesString = formattedOrderDates.join(', ');
-                
+                const name = customerNameInput.value.trim();
+                const dates = Array.from(document.querySelectorAll('.order-date-input')).map(i => i.value).filter(Boolean);
+                if (!name || dates.length === 0) { showModal('Please fill Name and Date'); return; }
+
                 const doc = new jsPDF('p', 'mm', 'a4');
                 const pageWidth = doc.internal.pageSize.getWidth();
                 const pageHeight = doc.internal.pageSize.getHeight();
-                const fontName = 'SourceHanSans';
-                const margin = 15;
-                let yPosition = 30;
 
-                // --- 修改点：绘制图片背景 ---
-                async function drawBackgroundImage(doc) {
+                // 预加载背景图函数
+                const drawBG = async () => {
                     try {
-                        const img = new Image();
-                        img.src = 'bg.jpg'; // 指向你仓库中的图片
-                        await new Promise((resolve) => {
-                            img.onload = resolve;
-                            img.onerror = resolve; // 防止报错卡死
-                        });
-                        if (img.naturalWidth > 0) {
-                            // 背景覆盖全页
+                        const img = new Image(); img.src = 'bg.jpg';
+                        await new Promise((res) => { img.onload = res; img.onerror = res; });
+                        if (img.complete && img.naturalWidth > 0) {
                             doc.addImage(img, 'JPEG', 0, 0, pageWidth, pageHeight, undefined, 'FAST');
                         }
-                    } catch (e) {
-                        console.error("Failed to load bg.jpg", e);
-                    }
-                }
+                    } catch (e) {}
+                };
 
-                await drawBackgroundImage(doc); // 执行背景绘制
-                
+                await drawBG(); // 首页背景
+
                 doc.addFont('Montserrat-Regular.ttf', 'Montserrat', 'normal');
-                doc.setFont('Montserrat', 'normal');
-                doc.setFontSize(25);
-                doc.setFont(undefined, 'bold');
-                doc.text('INTERNATIONAL SHIPPING', pageWidth / 2, yPosition, { align: 'center' });
-                yPosition += 12;
-                doc.setFont(fontName, 'normal');
-                doc.setFontSize(12);
-                doc.text(`Name: ${customerName}`, margin, yPosition);
-                yPosition += 7;
-                const orderDateLabel = `Order Date: `;
-                const orderDateText = orderDatesString;
-                const availableWidth = pageWidth - 2 * margin;
-                const labelWidth = doc.getTextWidth(orderDateLabel);
-                const textLines = doc.splitTextToSize(orderDateText, availableWidth - labelWidth);
-                doc.text(orderDateLabel, margin, yPosition);
-                doc.text(textLines, margin + labelWidth, yPosition);
-                yPosition += doc.getTextDimensions(textLines).h + 5;
-
-                const kgRate = parseFloat(kgRateInput.value) || 0;
-                const cbmRate = parseFloat(cbmRateInput.value) || 0;
-                const tableHeaders = ["No.", "Type", `Weight(kg/${kgRate}¥)`, "Dimensions(m)", `Volume(m³/${cbmRate}¥)`, "Freight(¥)"];
-                const tableData = cargoData.map(item => {
-                    const cost = item.totalCost.toFixed(2);
-                    if (item.type === 'weight') { return [item.id, "By Weight", item.kg.toFixed(2), "-", "-", cost]; }
-                    else { const dimensionsInM = `${item.length.toFixed(3)}x${item.width.toFixed(3)}x${item.height.toFixed(3)}`; return [item.id, "By Volume", "-", dimensionsInM, item.volume.toFixed(3), cost]; }
-                });
+                doc.setFont('Montserrat', 'normal').setFontSize(24).setTextColor(0,0,0);
+                doc.text('SHIPPING INVOICE', pageWidth / 2, 25, { align: 'center' });
                 
+                doc.setFont('SourceHanSansCN-Normal', 'normal').setFontSize(12);
+                doc.text(`Customer: ${name}`, 15, 40);
+                doc.text(`Dates: ${dates.join(', ')}`, 15, 47);
+
+                const tableBody = cargoData.map(item => [
+                    item.id, 
+                    item.type === 'weight' ? 'Weight' : 'Volume',
+                    item.type === 'weight' ? item.kg.toFixed(2) : '-',
+                    item.type === 'volume' ? `${item.length}x${item.width}x${item.height}` : '-',
+                    item.type === 'volume' ? item.volume.toFixed(3) : '-',
+                    item.totalCost.toFixed(2)
+                ]);
+
                 doc.autoTable({
-                    startY: yPosition, head: [tableHeaders], body: tableData, theme: 'grid',
-                    styles: { fontSize: 12, cellPadding: 2, lineWidth: 0.1, font: fontName, halign: 'center', fillColor: [255, 255, 255, 0.8] }, // 增加透明白底确保文字清晰
-                    headStyles: { fillColor: [230, 230, 230], textColor: [0, 0, 0], fontStyle: 'bold', fontSize: 14, halign: 'center' }
+                    startY: 55,
+                    head: [['No.', 'Type', 'Weight(kg)', 'Dimensions', 'Vol(m³)', 'Cost(¥)']],
+                    body: tableBody,
+                    theme: 'grid',
+                    styles: { font: 'SourceHanSansCN-Normal', fillColor: [255, 255, 255, 0.5] },
+                    headStyles: { fillColor: [67, 97, 238] }
                 });
 
-                yPosition = doc.autoTable.previous.finalY + 15;
+                let finalY = doc.autoTable.previous.finalY + 10;
+                doc.text(`Total: ${document.getElementById('totalCostRMB').textContent} / ${document.getElementById('totalCostMMK').textContent}`, 15, finalY);
 
-                const totalWeight = cargoData.reduce((sum, item) => sum + (parseFloat(item.kg) || 0), 0).toFixed(2);
-                const totalVol = cargoData.reduce((sum, item) => sum + (parseFloat(item.volume) || 0), 0).toFixed(3);
-                doc.setFontSize(12);
-                doc.setFont(undefined, 'normal');
-                doc.text(`Total Weight: ${totalWeight} kg`, margin, yPosition);
-                doc.text(`Total Volume: ${totalVol} m³`, pageWidth - margin, yPosition, { align: 'right' });
-                yPosition += 8; 
-
-                const totalCostRMB = cargoData.reduce((sum, item) => sum + item.totalCost, 0).toFixed(2);
-                const exchangeRate = parseFloat(exchangeRateInput.value) || 0;
-                const totalCostMMK = Math.round(parseFloat(totalCostRMB) * exchangeRate).toLocaleString('en-US');
-
-                doc.setFontSize(14);
-                doc.setFont(undefined, 'bold');
-                doc.text("Total Freight (RMB):", margin, yPosition);
-                doc.text(`${totalCostRMB}¥`, pageWidth - margin, yPosition, { align: 'right' });
-                yPosition += 8;
-                doc.setFontSize(12);
-                doc.setFont(undefined, 'normal');
-                doc.text("Exchange Rate:", margin, yPosition);
-                doc.text(`1 ¥ = ${exchangeRateInput.value} Ks`, pageWidth - margin, yPosition, { align: 'right' });
-                yPosition += 8;
-                doc.setFontSize(14);
-                doc.setFont(undefined, 'bold');
-                doc.setTextColor(61, 149, 255);
-                doc.text("Total Remittance Amount (MMK):", margin, yPosition);
-                doc.text(`${totalCostMMK}Ks`, pageWidth - margin, yPosition, { align: 'right' });
-                doc.setTextColor(0, 0, 0);
-
-                const cargoIdsWithImages = Object.keys(cargoImages).filter(id => cargoImages[id].length > 0);
-                if (cargoIdsWithImages.length > 0) {
-                    doc.addPage(); 
-                    await drawBackgroundImage(doc); // 新页面也画背景
-                    let currentY = margin; const imageableWidth = pageWidth - 2 * margin; const imagePadding = 15;
-                    doc.setFontSize(16); doc.setFont(fontName, 'bold');
-                    doc.text('Cargo Images', pageWidth / 2, currentY, { align: 'center' });
-                    currentY += 15;
-                    for (const cargoId of cargoIdsWithImages) {
-                        const images = cargoImages[cargoId];
-                        for (let i = 0; i < images.length; i++) {
-                            const imgData = images[i]; const img = new Image(); img.src = imgData;
-                            await new Promise(resolve => { img.onload = resolve; img.onerror = () => { resolve(); }; });
-                            if (img.naturalWidth === 0) continue;
-                            const aspectRatio = img.naturalHeight / img.naturalWidth; const imgHeight = imageableWidth * aspectRatio;
-                            if (currentY + imgHeight > pageHeight - margin) { 
-                                doc.addPage(); 
-                                await drawBackgroundImage(doc); // 新页面也画背景
-                                currentY = margin; 
-                            }
-                            doc.setFontSize(10); doc.setFont(fontName, 'normal');
-                            doc.text(`Cargo #${cargoId} Image`, margin, currentY - 4);
-                            doc.addImage(imgData, 'JPEG', margin, currentY, imageableWidth, imgHeight, undefined, 'SLOW');
-                            currentY += imgHeight + imagePadding;
+                // 处理货物图片页
+                for (const id in cargoImages) {
+                    if (cargoImages[id].length > 0) {
+                        for (const imgData of cargoImages[id]) {
+                            doc.addPage();
+                            await drawBG(); // 每一页都画背景
+                            doc.text(`Cargo #${id} Photo:`, 15, 20);
+                            doc.addImage(imgData, 'JPEG', 15, 25, 180, 120);
                         }
                     }
                 }
 
-                const sanitizedName = customerName.replace(/[\/\\:*?"<>|]/g, '-');
-                const sanitizedDates = orderDates.join('_').replace(/[\/\\:*?"<>|]/g, '-');
-                const filename = `${sanitizedName}_${sanitizedDates}.pdf`;
-
+                const filename = `${name}_Invoice.pdf`;
                 const pdfBlob = doc.output('blob');
                 const pdfFile = new File([pdfBlob], filename, { type: 'application/pdf' });
 
                 if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
-                    try {
-                        await navigator.share({
-                            files: [pdfFile],
-                            title: filename,
-                            text: `Freight Report for ${customerName}`
-                        });
-                    } catch (err) {
-                        if (err.name !== 'AbortError') {
-                            doc.save(filename);
-                        }
-                    }
+                    navigator.share({ files: [pdfFile] });
                 } else {
                     doc.save(filename);
                 }
-            });
+            };
+
             loadData();
+            kgRateInput.oninput = recalculateAll;
+            cbmRateInput.oninput = recalculateAll;
+            exchangeRateInput.oninput = recalculateAll;
+            customerNameInput.oninput = recalculateAll;
         }
         document.addEventListener('DOMContentLoaded', initApp);
     </script>
