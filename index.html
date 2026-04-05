@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ANT China Supplier - Intelligent Freight Calculation System</title>
     
     <link rel="manifest" href="manifest.json">
@@ -259,8 +259,8 @@
         }
 
         .preview-item img {
-            width: 100%;
-            height: 100%;
+            width: 120%;
+            height: 120%;
             object-fit: cover;
         }
 
@@ -374,9 +374,11 @@
         }
     </style>
     <script>
+        // PWA 注册脚本
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').catch(e => console.log("SW registration failed", e));
+            navigator.serviceWorker.register('sw.js');
         }
+
         (function() {
             const viewport = document.querySelector('meta[name="viewport"]');
             if (window.innerWidth < 768) {
@@ -392,10 +394,12 @@
         <div class="card overflow-hidden mb-8">
             <div class="header-gradient py-6 px-8">
                 <div class="flex justify-between items-center">
-                    <div class="logo"><span>ANT China Supplier</span></div>
+                    <div class="logo">
+                        <span>ANT China Supplier</span>
+                    </div>
                     <div class="text-white/80">
                         <div class="text-sm">Intelligent Freight Calculation System</div>
-                        <div class="font-mono text-xs mt-1">v2.2.0</div>
+                        <div class="font-mono text-xs mt-1">v2.1.6</div>
                     </div>
                 </div>
             </div>
@@ -403,55 +407,129 @@
             <div class="card-body">
                 <div class="card mb-6">
                     <div class="card-header">
-                        <h3 class="section-title"><i class="fas fa-user"></i>Customer Information</h3>
-                        <button id="clear-all-btn" class="btn btn-clear"><i class="fas fa-eraser"></i>Clear</button>
+                        <h3 class="section-title">
+                            <i class="fas fa-user"></i>
+                            Customer Information
+                        </h3>
+                        <button id="clear-all-btn" class="btn btn-clear">
+                            <i class="fas fa-eraser"></i>
+                            Clear
+                        </button>
                     </div>
                     <div class="card-body">
                         <div class="mb-5">
                             <label for="customerName" class="label-text">Name</label>
                             <input type="text" id="customerName" placeholder="Enter name" class="input-field">
                         </div>
+                        
                         <div class="mb-4">
                             <label class="label-text">Order Date</label>
                             <div id="order-dates-list" class="space-y-3 mb-3"></div>
-                            <button id="add-date-btn" class="btn btn-secondary w-full"><i class="fas fa-plus"></i>Add Order Date</button>
+                            <button id="add-date-btn" class="btn btn-secondary w-full">
+                                <i class="fas fa-plus"></i>
+                                Add Order Date
+                            </button>
                         </div>
                     </div>
                 </div>
 
                 <div id="cargo-list" class="space-y-6 mb-6"></div>
-                <button id="add-cargo-btn" class="btn btn-primary w-full mb-8"><i class="fas fa-plus-circle"></i>Add Cargo</button>
+
+                <button id="add-cargo-btn" class="btn btn-primary w-full mb-8">
+                    <i class="fas fa-plus-circle"></i>
+                    Add Cargo
+                </button>
 
                 <div id="combined-details-and-results" class="card mb-6">
-                    <div class="card-header"><h3 class="section-title"><i class="fas fa-cog"></i>Calculation Overview</h3></div>
+                    <div class="card-header">
+                        <h3 class="section-title">
+                            <i class="fas fa-cog"></i>
+                            Calculation Overview
+                        </h3>
+                    </div>
                     <div class="card-body">
                         <div class="mb-6">
                             <h4 class="font-semibold text-primary mb-4">Rate Settings</h4>
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-                                <div><label for="kgRate" class="label-text">Weight Rate (¥/kg)</label><input type="number" id="kgRate" value="20" class="input-field"></div>
-                                <div><label for="cbmRate" class="label-text">Volume Rate (¥/m³)</label><input type="number" id="cbmRate" value="1700" class="input-field"></div>
-                                <div><label for="exchangeRate" class="label-text">Exchange Rate (Ks/¥)</label><div class="relative"><input type="number" id="exchangeRate" value="630" class="input-field pl-10"><span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">¥1 =</span></div></div>
+                                <div>
+                                    <label for="kgRate" class="label-text">Weight Rate (¥/kg)</label>
+                                    <input type="number" id="kgRate" value="20" class="input-field">
+                                </div>
+                                <div>
+                                    <label for="cbmRate" class="label-text">Volume Rate (¥/m³)</label>
+                                    <input type="number" id="cbmRate" value="1700" class="input-field">
+                                </div>
+                                <div>
+                                    <label for="exchangeRate" class="label-text">Exchange Rate (Ks/¥)</label>
+                                    <div class="relative">
+                                        <input type="number" id="exchangeRate" value="630" class="input-field pl-10">
+                                        <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">¥1 =</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div id="cargo-details-table-container"><h4 class="font-semibold text-primary mb-4">Cargo Details</h4><p class="text-center text-gray-500 py-6">Please add cargo to view details</p></div>
+
+                        <div id="cargo-details-table-container">
+                            <h4 class="font-semibold text-primary mb-4">Cargo Details</h4>
+                            <p class="text-center text-gray-500 py-6">Please add cargo to view details</p>
+                        </div>
+
                         <div id="results">
                             <h4 class="font-semibold text-primary mt-6 mb-4">Results</h4>
                             <div class="results-grid">
-                                <div class="result-item"><div class="label-text">Total Weight</div><div id="totalKg" class="font-semibold text-lg">0.00 kg</div></div>
-                                <div class="result-item"><div class="label-text">Total Volume</div><div id="totalVolume" class="font-semibold text-lg">0.00 m³</div></div>
-                                <div class="result-item"><div class="label-text">Weight Freight</div><div id="totalKgCost" class="font-semibold text-lg">0.00 ¥</div></div>
-                                <div class="result-item"><div class="label-text">Volume Freight</div><div id="totalVolumeCost" class="font-semibold text-lg">0.00 ¥</div></div>
-                                <div class="result-total"><div class="label-text">Total Cost</div><div id="totalCostRMB" class="total-amount">0.00 ¥</div></div>
-                                <div class="result-total"><div class="label-text">Total Remittance Amount</div><div id="totalCostMMK" class="total-amount" style="color: #3a0ca3;">0 Ks</div></div>
+                                <div class="result-item">
+                                    <div class="label-text">Total Weight</div>
+                                    <div id="totalKg" class="font-semibold text-lg">0.00 kg</div>
+                                </div>
+                                <div class="result-item">
+                                    <div class="label-text">Total Volume</div>
+                                    <div id="totalVolume" class="font-semibold text-lg">0.00 m³</div>
+                                </div>
+                                <div class="result-item">
+                                    <div class="label-text">Weight Freight</div>
+                                    <div id="totalKgCost" class="font-semibold text-lg">0.00 ¥</div>
+                                </div>
+                                <div class="result-item">
+                                    <div class="label-text">Volume Freight</div>
+                                    <div id="totalVolumeCost" class="font-semibold text-lg">0.00 ¥</div>
+                                </div>
+                                <div class="result-total">
+                                    <div class="label-text">Total Cost</div>
+                                    <div id="totalCostRMB" class="total-amount">0.00 ¥</div>
+                                </div>
+                                <div class="result-total">
+                                    <div class="label-text">Total Remittance Amount</div>
+                                    <div id="totalCostMMK" class="total-amount" style="color: #3a0ca3;">0 Ks</div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="flex justify-center mb-4"><button id="export-pdf-btn" class="btn btn-danger w-full animate-pulse"><i class="fas fa-share-nodes"></i>Export & Share PDF</button></div>
+                
+                <div class="flex justify-center md:flex-row space-y-4 md:space-y-0 md:space-x-4 mb-4">
+                    <button id="export-pdf-btn" class="btn btn-danger w-full animate-pulse">
+                        <i class="fas fa-share-nodes"></i>
+                        Export & Share PDF
+                    </button>
+                </div>
             </div>
         </div>
     </div>
-    <div id="custom-modal" class="modal-overlay hidden"><div class="modal-content"><div class="modal-icon"><i class="fas fa-exclamation-triangle"></i></div><p id="modal-message" class="text-xl font-semibold mb-4">Please fill in name and at least one order date!</p><button onclick="closeModal()" class="btn btn-primary w-full py-3">OK</button><div class="progress-bar mt-6"><div class="progress"></div></div></div></div>
+    
+    <div id="custom-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <p id="modal-message" class="text-xl font-semibold mb-4">Please fill in name and at least one order date!</p>
+            <button onclick="closeModal()" class="btn btn-primary w-full py-3">
+                OK
+            </button>
+            <div class="progress-bar mt-6">
+                <div class="progress"></div>
+            </div>
+        </div>
+    </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
@@ -487,17 +565,19 @@
                     exchangeRate: exchangeRateInput.value,
                     cargos: []
                 };
-                document.querySelectorAll('.cargo-item').forEach((item) => {
+
+                document.querySelectorAll('.cargo-item').forEach((item, index) => {
                     const cargoId = item.id.split('-')[1];
                     const calcTypeInput = item.querySelector(`input[name="calc-type-${cargoId}"]:checked`);
                     const calcType = calcTypeInput ? calcTypeInput.value : 'weight'; 
+                    
                     const cargo = {
                         id: cargoId,
                         type: calcType,
-                        kg: item.querySelector('.kg-input')?.value || '',
-                        length: item.querySelector('.length-input')?.value || '',
-                        width: item.querySelector('.width-input')?.value || '',
-                        height: item.querySelector('.height-input')?.value || '',
+                        kg: item.querySelector('.kg-input').value,
+                        length: item.querySelector('.length-input').value,
+                        width: item.querySelector('.width-input').value,
+                        height: item.querySelector('.height-input').value,
                         images: cargoImages[cargoId] || []
                     };
                     data.cargos.push(cargo);
@@ -514,12 +594,7 @@
                     cbmRateInput.value = data.cbmRate;
                     exchangeRateInput.value = data.exchangeRate;
                     data.orderDates.forEach(date => addDateInput(date));
-                    data.cargos.forEach(cargo => {
-                        if (cargo.images && cargo.images.length) {
-                            cargoImages[cargo.id] = cargo.images;
-                        }
-                        addCargoItem(cargo);
-                    });
+                    data.cargos.forEach(cargo => addCargoItem(cargo));
                     recalculateAll();
                 } else {
                     addCargoItem();
@@ -536,19 +611,24 @@
                 progress.style.width = '0%';
                 setTimeout(() => { progress.style.width = '100%'; }, 10);
             }
+
             window.closeModal = () => { document.getElementById('custom-modal').classList.add('hidden'); };
 
             function updateCargoDetailsTable() {
                 const existingTable = document.getElementById('cargo-details-table');
-                if (existingTable) existingTable.remove();
+                if (existingTable) { existingTable.remove(); }
                 if (cargoData.length === 0) {
                     cargoDetailsTableContainer.innerHTML = `<h4 class="font-semibold text-primary mb-4">Cargo Details</h4><p class="text-center text-gray-500 py-6">Please add cargo to view details</p>`;
                     return;
                 }
                 const totalCostRMB = cargoData.reduce((sum, item) => sum + item.totalCost, 0).toFixed(2);
                 const displayData = cargoData.map(item => {
-                    if (item.type === 'weight') return { serialNo: item.id, type: 'By Weight', weight: item.kg.toFixed(2), dimensions: '-', volume: '-', totalCost: item.totalCost.toFixed(2) };
-                    else { const dim = `${item.length.toFixed(3)}x${item.width.toFixed(3)}x${item.height.toFixed(3)}`; return { serialNo: item.id, type: 'By Volume', weight: '-', dimensions: dim, volume: item.volume.toFixed(3), totalCost: item.totalCost.toFixed(2) }; }
+                    if (item.type === 'weight') {
+                        return { serialNo: item.id, type: 'By Weight', weight: item.kg.toFixed(2), dimensions: '-', volume: '-', totalCost: item.totalCost.toFixed(2) };
+                    } else {
+                        const dimensionsInM = `${item.length.toFixed(3)}x${item.width.toFixed(3)}x${item.height.toFixed(3)}`;
+                        return { serialNo: item.id, type: 'By Volume', weight: '-', dimensions: dimensionsInM, volume: item.volume.toFixed(3), totalCost: item.totalCost.toFixed(2) };
+                    }
                 });
                 let tableHtml = `<h4 class="font-semibold text-primary mb-4">Cargo Details</h4><div class="overflow-x-auto" id="cargo-details-table"><table class="min-w-full"><thead><tr><th class="text-left p-3 bg-gray-50">No.</th><th class="text-left p-3 bg-gray-50">Type</th><th class="text-left p-3 bg-gray-50">Weight (kg)</th><th class="text-left p-3 bg-gray-50">Dimensions (m)</th><th class="text-left p-3 bg-gray-50">Volume (m³)</th><th class="text-left p-3 bg-gray-50">Freight (¥)</th></tr></thead><tbody>`;
                 displayData.forEach(item => {
@@ -559,12 +639,15 @@
             }
 
             function recalculateAll() {
-                let totalKg = 0, totalVolumeM3 = 0, totalKgCost = 0, totalVolumeCost = 0;
+                let totalKg = 0;
+                let totalVolumeM3 = 0;
+                let totalKgCost = 0;
+                let totalVolumeCost = 0;
                 cargoData.length = 0; 
                 const kgRate = parseFloat(kgRateInput.value) || 0;
                 const cbmRate = parseFloat(cbmRateInput.value) || 0; 
                 const exchangeRate = parseFloat(exchangeRateInput.value) || 0;
-                document.querySelectorAll('.cargo-item').forEach((item) => {
+                document.querySelectorAll('.cargo-item').forEach((item, index) => {
                     const cargoIdFromEl = item.id.split('-')[1];
                     const calcType = item.querySelector(`input[name="calc-type-${cargoIdFromEl}"]:checked`).value;
                     let singleCargoTotalCost = 0;
@@ -585,8 +668,11 @@
                     }
                     cargoData.push({ id: cargoIdFromEl, type: calcType, kg, length, width, height, volume: volumeInM3, totalCost: singleCargoTotalCost });
                     const detailsDiv = item.querySelector('.calculation-details');
-                    if (calcType === 'weight') detailsDiv.innerHTML = `<p class="text-green-600 font-semibold"><i class="fas fa-truck mr-2"></i>Freight: ${singleCargoTotalCost.toFixed(2)} ¥</p>`;
-                    else detailsDiv.innerHTML = `<p><i class="fas fa-ruler-combined mr-2"></i>Volume: ${volumeInM3.toFixed(3)} m³</p><p class="text-green-600 font-semibold"><i class="fas fa-truck mr-2"></i>Freight: ${singleCargoTotalCost.toFixed(2)} ¥</p>`;
+                    if (calcType === 'weight') {
+                         detailsDiv.innerHTML = `<p class="text-green-600 font-semibold"><i class="fas fa-truck mr-2"></i>Freight: ${singleCargoTotalCost.toFixed(2)} ¥</p>`;
+                    } else {
+                         detailsDiv.innerHTML = `<p><i class="fas fa-ruler-combined mr-2"></i>Volume: ${volumeInM3.toFixed(3)} m³</p><p class="text-green-600 font-semibold"><i class="fas fa-truck mr-2"></i>Freight: ${singleCargoTotalCost.toFixed(2)} ¥</p>`;
+                    }
                 });
                 const totalCostRMB = totalKgCost + totalVolumeCost;
                 const totalCostMMK = Math.round(totalCostRMB * exchangeRate);
@@ -610,13 +696,19 @@
                 dateItem.querySelector('.order-date-input').addEventListener('input', recalculateAll);
                 recalculateAll();
             }
-            window.removeDateInput = (id) => { const el = document.getElementById(`order-date-${id}`); if(el) el.remove(); recalculateAll(); };
+
+            window.removeDateInput = (id) => {
+                const itemToRemove = document.getElementById(`order-date-${id}`);
+                itemToRemove?.remove();
+                recalculateAll();
+            };
+            
             addDateBtn.addEventListener('click', () => addDateInput());
 
             function addCargoItem(data = {}) {
                 cargoCount++;
                 const currentCargoId = cargoCount;
-                if (!cargoImages[currentCargoId]) cargoImages[currentCargoId] = (data.images || []);
+                cargoImages[currentCargoId] = data.images || []; 
                 const cargoItem = document.createElement('div');
                 cargoItem.className = 'cargo-item card p-5';
                 cargoItem.id = `cargo-${currentCargoId}`;
@@ -630,9 +722,7 @@
                     document.getElementById(`volume-inputs-${currentCargoId}`).classList.add('hidden');
                 }
                 const previewContainer = document.getElementById(`image-preview-${currentCargoId}`);
-                if (cargoImages[currentCargoId] && cargoImages[currentCargoId].length) {
-                    cargoImages[currentCargoId].forEach(imgDataURL => { createImagePreviewElement(imgDataURL, previewContainer, currentCargoId); });
-                }
+                if (cargoImages[currentCargoId]) { cargoImages[currentCargoId].forEach(imgDataURL => { createImagePreviewElement(imgDataURL, previewContainer, currentCargoId); }); }
                 cargoItem.querySelectorAll(`input[name="calc-type-${currentCargoId}"]`).forEach(radio => {
                     radio.addEventListener('change', (event) => {
                         const showWeight = event.target.value === 'weight';
@@ -691,9 +781,9 @@
 
             function clearAllData() {
                 customerNameInput.value = '';
-                while (orderDatesList.firstChild) orderDatesList.removeChild(orderDatesList.firstChild);
+                while (orderDatesList.firstChild) { orderDatesList.removeChild(orderDatesList.firstChild); }
                 dateCount = 0; 
-                while (cargoList.firstChild) cargoList.removeChild(cargoList.firstChild);
+                while (cargoList.firstChild) { cargoList.removeChild(cargoList.firstChild); }
                 cargoCount = 0; 
                 Object.keys(cargoImages).forEach(key => delete cargoImages[key]); 
                 localStorage.removeItem('freightData');
@@ -701,6 +791,7 @@
                 addCargoItem();
                 recalculateAll();
             }
+
             addCargoBtn.addEventListener('click', () => addCargoItem());
             clearAllBtn.addEventListener('click', clearAllData); 
             kgRateInput.addEventListener('input', recalculateAll);
@@ -708,26 +799,20 @@
             exchangeRateInput.addEventListener('input', recalculateAll);
             customerNameInput.addEventListener('input', recalculateAll);
             
-            // ========= 导出PDF - 完全保持原始逻辑，仅增加背景图片 =========
             exportPdfBtn.addEventListener('click', async () => {
                 const { jsPDF } = window.jspdf;
                 const customerName = customerNameInput.value.trim();
                 const orderDates = Array.from(document.querySelectorAll('.order-date-input')).map(input => input.value.trim()).filter(Boolean);
                 if (!customerName || orderDates.length === 0) { showModal('Please fill in name and at least one order date!'); return; }
                 
-                // 预加载背景图片 (仅增加这一部分)
-                let bgImageData = null;
-                try {
-                    const response = await fetch('bg.png');
-                    if (response.ok) {
-                        const blob = await response.blob();
-                        bgImageData = await new Promise((resolve) => {
-                            const reader = new FileReader();
-                            reader.onloadend = () => resolve(reader.result);
-                            reader.readAsDataURL(blob);
-                        });
-                    }
-                } catch (err) { console.warn("背景加载失败，继续生成无背景PDF", err); }
+                const dateCountMap = {};
+                const formattedOrderDates = orderDates.map(date => {
+                    const [year, month, day] = date.split('-');
+                    const shortDate = `${month}-${day}`;
+                    dateCountMap[shortDate] = (dateCountMap[shortDate] || 0) + 1;
+                    return dateCountMap[shortDate] > 1 ? `${shortDate} (${dateCountMap[shortDate]})` : shortDate;
+                });
+                const orderDatesString = formattedOrderDates.join(', ');
                 
                 const doc = new jsPDF('p', 'mm', 'a4');
                 const pageWidth = doc.internal.pageSize.getWidth();
@@ -735,16 +820,27 @@
                 const fontName = 'SourceHanSans';
                 const margin = 15;
                 let yPosition = 30;
-                
-                // 添加背景图片的函数（每页调用）
-                const applyBackground = (docInstance, imgData) => { 
-                    if (imgData) docInstance.addImage(imgData, 'PNG', 0, 0, pageWidth, pageHeight, undefined, 'FAST'); 
-                };
-                
-                // 第一页背景
-                if (bgImageData) applyBackground(doc, bgImageData);
-                
-                // 以下完全保持原始代码的绘制逻辑
+
+                function drawBorder(doc) {
+                    const cornerSize = 45;
+                    const red = '#000000'; const black = '#333333'; const mediumGray = '#e0e0e0';
+                    const offset = 8;
+                    doc.setFillColor(red); doc.triangle(0, 0, cornerSize, 0, 0, cornerSize, 'F');
+                    doc.setFillColor(black); doc.triangle(0, 0, cornerSize - offset, 0, 0, cornerSize - offset, 'F');
+                    doc.setFillColor(mediumGray); doc.triangle(offset, 0, cornerSize, 0, offset, cornerSize, 'F');
+                    doc.setFillColor(red); doc.triangle(pageWidth, 0, pageWidth - cornerSize, 0, pageWidth, cornerSize, 'F');
+                    doc.setFillColor(black); doc.triangle(pageWidth - cornerSize + offset, 0, pageWidth, 0, pageWidth, cornerSize - offset, 'F');
+                    doc.setFillColor(mediumGray); doc.triangle(pageWidth - cornerSize, 0, pageWidth - offset, 0, pageWidth - offset, cornerSize, 'F');
+                    doc.setFillColor(red); doc.triangle(0, pageHeight, cornerSize, pageHeight, 0, pageHeight - cornerSize, 'F');
+                    doc.setFillColor(black); doc.triangle(0, pageHeight - cornerSize + offset, 0, pageHeight, cornerSize - offset, pageHeight, 'F');
+                    doc.setFillColor(mediumGray); doc.triangle(0, pageHeight - cornerSize, cornerSize, pageHeight - cornerSize, 0, pageHeight - offset, 'F');
+                    doc.setFillColor(red); doc.triangle(pageWidth, pageHeight, pageWidth - cornerSize, pageHeight, pageWidth, pageHeight - cornerSize, 'F');
+                    doc.setFillColor(black); doc.triangle(pageWidth - cornerSize + offset, pageHeight, pageWidth, pageHeight, pageWidth, pageHeight - cornerSize + offset, 'F');
+                    doc.setFillColor(mediumGray); doc.triangle(pageWidth - cornerSize, pageHeight, pageWidth, pageHeight - offset, pageWidth - offset, pageHeight, 'F');
+                }
+
+                drawBorder(doc);
+                doc.addFont('Montserrat-Regular.ttf', 'Montserrat', 'normal');
                 doc.setFont('Montserrat', 'normal');
                 doc.setFontSize(25);
                 doc.setFont(undefined, 'bold');
@@ -754,14 +850,15 @@
                 doc.setFontSize(12);
                 doc.text(`Name: ${customerName}`, margin, yPosition);
                 yPosition += 7;
-                const orderDatesString = orderDates.map((date, idx) => {
-                    const [year, month, day] = date.split('-');
-                    const short = `${month}-${day}`;
-                    return short;
-                }).join(', ');
-                doc.text(`Order Date: ${orderDatesString}`, margin, yPosition);
-                yPosition += 12;
-                
+                const orderDateLabel = `Order Date: `;
+                const orderDateText = orderDatesString;
+                const availableWidth = pageWidth - 2 * margin;
+                const labelWidth = doc.getTextWidth(orderDateLabel);
+                const textLines = doc.splitTextToSize(orderDateText, availableWidth - labelWidth);
+                doc.text(orderDateLabel, margin, yPosition);
+                doc.text(textLines, margin + labelWidth, yPosition);
+                yPosition += doc.getTextDimensions(textLines).h + 5;
+
                 const kgRate = parseFloat(kgRateInput.value) || 0;
                 const cbmRate = parseFloat(cbmRateInput.value) || 0;
                 const tableHeaders = ["No.", "Type", `Weight(kg/${kgRate}¥)`, "Dimensions(m)", `Volume(m³/${cbmRate}¥)`, "Freight(¥)"];
@@ -772,91 +869,88 @@
                 });
                 
                 doc.autoTable({
-                    startY: yPosition,
-                    head: [tableHeaders],
-                    body: tableData,
-                    theme: 'grid',
-                    styles: { fontSize: 11, cellPadding: 2, lineWidth: 0.1, font: fontName, halign: 'center', textColor: [0,0,0] },
-                    headStyles: { fillColor: [230, 240, 255], textColor: [0,0,0], fontStyle: 'bold', fontSize: 12, halign: 'center' },
-                    alternateRowStyles: { fillColor: [248, 250, 252] }
+                    startY: yPosition, head: [tableHeaders], body: tableData, theme: 'grid',
+                    styles: { fontSize: 12, cellPadding: 2, lineWidth: 0.1, font: fontName, halign: 'center' },
+                    headStyles: { fillColor: [230, 230, 230], textColor: [0, 0, 0], fontStyle: 'bold', fontSize: 14, halign: 'center' }
                 });
-                
-                yPosition = doc.autoTable.previous.finalY + 12;
+
+                yPosition = doc.autoTable.previous.finalY + 15;
+
                 const totalWeight = cargoData.reduce((sum, item) => sum + (parseFloat(item.kg) || 0), 0).toFixed(2);
                 const totalVol = cargoData.reduce((sum, item) => sum + (parseFloat(item.volume) || 0), 0).toFixed(3);
                 doc.setFontSize(12);
                 doc.setFont(undefined, 'normal');
                 doc.text(`Total Weight: ${totalWeight} kg`, margin, yPosition);
                 doc.text(`Total Volume: ${totalVol} m³`, pageWidth - margin, yPosition, { align: 'right' });
-                yPosition += 10;
+                yPosition += 8; 
+
                 const totalCostRMB = cargoData.reduce((sum, item) => sum + item.totalCost, 0).toFixed(2);
                 const exchangeRate = parseFloat(exchangeRateInput.value) || 0;
                 const totalCostMMK = Math.round(parseFloat(totalCostRMB) * exchangeRate).toLocaleString('en-US');
+
                 doc.setFontSize(14);
                 doc.setFont(undefined, 'bold');
                 doc.text("Total Freight (RMB):", margin, yPosition);
-                doc.text(`${totalCostRMB} ¥`, pageWidth - margin, yPosition, { align: 'right' });
+                doc.text(`${totalCostRMB}¥`, pageWidth - margin, yPosition, { align: 'right' });
                 yPosition += 8;
-                doc.setFontSize(11);
+                doc.setFontSize(12);
                 doc.setFont(undefined, 'normal');
                 doc.text("Exchange Rate:", margin, yPosition);
                 doc.text(`1 ¥ = ${exchangeRateInput.value} Ks`, pageWidth - margin, yPosition, { align: 'right' });
-                yPosition += 9;
+                yPosition += 8;
                 doc.setFontSize(14);
                 doc.setFont(undefined, 'bold');
                 doc.setTextColor(61, 149, 255);
                 doc.text("Total Remittance Amount (MMK):", margin, yPosition);
-                doc.text(`${totalCostMMK} Ks`, pageWidth - margin, yPosition, { align: 'right' });
+                doc.text(`${totalCostMMK}Ks`, pageWidth - margin, yPosition, { align: 'right' });
                 doc.setTextColor(0, 0, 0);
-                
-                // ========= 原始图片导出逻辑（完全恢复，全宽显示，多图正常） =========
+
                 const cargoIdsWithImages = Object.keys(cargoImages).filter(id => cargoImages[id].length > 0);
                 if (cargoIdsWithImages.length > 0) {
-                    doc.addPage();
-                    if (bgImageData) applyBackground(doc, bgImageData);
-                    let currentY = margin;
-                    const imageableWidth = pageWidth - 2 * margin;
-                    const imagePadding = 15;
-                    doc.setFontSize(16);
-                    doc.setFont(fontName, 'bold');
+                    doc.addPage(); let currentY = margin; const imageableWidth = pageWidth - 2 * margin; const imagePadding = 15;
+                    doc.setFontSize(16); doc.setFont(fontName, 'bold');
                     doc.text('Cargo Images', pageWidth / 2, currentY, { align: 'center' });
                     currentY += 15;
                     for (const cargoId of cargoIdsWithImages) {
                         const images = cargoImages[cargoId];
                         for (let i = 0; i < images.length; i++) {
-                            const imgData = images[i];
-                            const img = new Image(); img.src = imgData;
-                            await new Promise(resolve => { img.onload = resolve; img.onerror = () => resolve(); });
+                            const imgData = images[i]; const img = new Image(); img.src = imgData;
+                            await new Promise(resolve => { img.onload = resolve; img.onerror = () => { resolve(); }; });
                             if (img.naturalWidth === 0) continue;
-                            const aspectRatio = img.naturalHeight / img.naturalWidth;
-                            const imgHeight = imageableWidth * aspectRatio;
-                            if (currentY + imgHeight > pageHeight - margin) {
-                                doc.addPage();
-                                if (bgImageData) applyBackground(doc, bgImageData);
-                                currentY = margin;
-                                doc.setFontSize(12);
-                                doc.setFont(fontName, 'bold');
-                                doc.text('Cargo Images (continued)', pageWidth / 2, currentY, { align: 'center' });
-                                currentY += 12;
-                            }
-                            doc.setFontSize(10);
-                            doc.setFont(fontName, 'normal');
+                            const aspectRatio = img.naturalHeight / img.naturalWidth; const imgHeight = imageableWidth * aspectRatio;
+                            if (currentY + imgHeight > pageHeight - margin) { doc.addPage(); currentY = margin; }
+                            doc.setFontSize(10); doc.setFont(fontName, 'normal');
                             doc.text(`Cargo #${cargoId} Image`, margin, currentY - 4);
                             doc.addImage(imgData, 'JPEG', margin, currentY, imageableWidth, imgHeight, undefined, 'SLOW');
                             currentY += imgHeight + imagePadding;
                         }
                     }
                 }
-                
+
+                // 文件名逻辑
                 const sanitizedName = customerName.replace(/[\/\\:*?"<>|]/g, '-');
                 const sanitizedDates = orderDates.join('_').replace(/[\/\\:*?"<>|]/g, '-');
                 const filename = `${sanitizedName}_${sanitizedDates}.pdf`;
+
+                // --- 核心：原生分享逻辑 ---
                 const pdfBlob = doc.output('blob');
                 const pdfFile = new File([pdfBlob], filename, { type: 'application/pdf' });
+
                 if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
-                    try { await navigator.share({ files: [pdfFile], title: filename, text: `Freight Report for ${customerName}` }); } 
-                    catch (err) { if (err.name !== 'AbortError') doc.save(filename); }
-                } else { doc.save(filename); }
+                    try {
+                        await navigator.share({
+                            files: [pdfFile],
+                            title: filename,
+                            text: `Freight Report for ${customerName}`
+                        });
+                    } catch (err) {
+                        if (err.name !== 'AbortError') {
+                            doc.save(filename); // 分享失败则回退到普通下载
+                        }
+                    }
+                } else {
+                    doc.save(filename); // 不支持分享的浏览器则普通下载
+                }
             });
             loadData();
         }
