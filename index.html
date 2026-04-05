@@ -485,7 +485,8 @@
                     kgRate: kgRateInput.value,
                     cbmRate: cbmRateInput.value,
                     exchangeRate: exchangeRateInput.value,
-                    cargos: []
+                    cargos: [],
+                    cargoImages: cargoImages  // 保存图片数据
                 };
                 document.querySelectorAll('.cargo-item').forEach((item) => {
                     const cargoId = item.id.split('-')[1];
@@ -497,8 +498,7 @@
                         kg: item.querySelector('.kg-input')?.value || '',
                         length: item.querySelector('.length-input')?.value || '',
                         width: item.querySelector('.width-input')?.value || '',
-                        height: item.querySelector('.height-input')?.value || '',
-                        images: cargoImages[cargoId] || []
+                        height: item.querySelector('.height-input')?.value || ''
                     };
                     data.cargos.push(cargo);
                 });
@@ -514,6 +514,12 @@
                     cbmRateInput.value = data.cbmRate;
                     exchangeRateInput.value = data.exchangeRate;
                     data.orderDates.forEach(date => addDateInput(date));
+                    // 先恢复图片数据
+                    if (data.cargoImages) {
+                        Object.keys(data.cargoImages).forEach(key => {
+                            cargoImages[key] = data.cargoImages[key];
+                        });
+                    }
                     data.cargos.forEach(cargo => addCargoItem(cargo));
                     recalculateAll();
                 } else {
@@ -610,7 +616,7 @@
 
             function addCargoItem(data = {}) {
                 cargoCount++;
-                const currentCargoId = cargoCount;
+                const currentCargoId = String(cargoCount);  // 使用字符串作为key
                 if (!cargoImages[currentCargoId]) cargoImages[currentCargoId] = (data.images || []);
                 const cargoItem = document.createElement('div');
                 cargoItem.className = 'cargo-item card p-5';
@@ -680,7 +686,7 @@
             window.removeCargo = (id) => {
                 const itemToRemove = document.getElementById(`cargo-${id}`);
                 itemToRemove?.remove();
-                delete cargoImages[id];
+                delete cargoImages[String(id)];
                 recalculateAll();
             };
 
@@ -805,7 +811,7 @@
                 doc.setTextColor(0, 0, 0);
                 
                 // ========= 原始图片导出逻辑（完全恢复，全宽显示，多图正常） =========
-                const cargoIdsWithImages = Object.keys(cargoImages).filter(id => cargoImages[id].length > 0);
+                const cargoIdsWithImages = Object.keys(cargoImages).filter(id => cargoImages[id] && cargoImages[id].length > 0);
                 if (cargoIdsWithImages.length > 0) {
                     doc.addPage();
                     if (bgImageData) applyBackground(doc, bgImageData);
