@@ -703,13 +703,14 @@
             exchangeRateInput.addEventListener('input', recalculateAll);
             customerNameInput.addEventListener('input', recalculateAll);
             
-            // ========= 导出PDF (保留所有图片 + 背景) =========
+            // ========= 导出PDF - 完全保持原始逻辑，仅增加背景图片 =========
             exportPdfBtn.addEventListener('click', async () => {
                 const { jsPDF } = window.jspdf;
                 const customerName = customerNameInput.value.trim();
                 const orderDates = Array.from(document.querySelectorAll('.order-date-input')).map(input => input.value.trim()).filter(Boolean);
                 if (!customerName || orderDates.length === 0) { showModal('Please fill in name and at least one order date!'); return; }
                 
+                // 预加载背景图片 (仅增加这一部分)
                 let bgImageData = null;
                 try {
                     const response = await fetch('bg.png');
@@ -721,7 +722,7 @@
                             reader.readAsDataURL(blob);
                         });
                     }
-                } catch (err) { console.warn("背景加载失败", err); }
+                } catch (err) { console.warn("背景加载失败，继续生成无背景PDF", err); }
                 
                 const doc = new jsPDF('p', 'mm', 'a4');
                 const pageWidth = doc.internal.pageSize.getWidth();
@@ -730,21 +731,29 @@
                 const margin = 15;
                 let yPosition = 30;
                 
-                const applyBackground = (docInstance, imgData) => { if (imgData) docInstance.addImage(imgData, 'PNG', 0, 0, pageWidth, pageHeight, undefined, 'FAST'); };
+                // 添加背景图片的函数（每页调用）
+                const applyBackground = (docInstance, imgData) => { 
+                    if (imgData) docInstance.addImage(imgData, 'PNG', 0, 0, pageWidth, pageHeight, undefined, 'FAST'); 
+                };
+                
+                // 第一页背景
                 if (bgImageData) applyBackground(doc, bgImageData);
                 
+                // 以下完全保持原始代码的绘制逻辑
                 doc.setFont('Montserrat', 'normal');
                 doc.setFontSize(25);
                 doc.setFont(undefined, 'bold');
-                doc.setTextColor(40, 40, 80);
                 doc.text('INTERNATIONAL SHIPPING', pageWidth / 2, yPosition, { align: 'center' });
                 yPosition += 12;
                 doc.setFont(fontName, 'normal');
                 doc.setFontSize(12);
-                doc.setTextColor(0, 0, 0);
                 doc.text(`Name: ${customerName}`, margin, yPosition);
                 yPosition += 7;
-                const orderDatesString = orderDates.map(d => { const [y,m,day] = d.split('-'); return `${m}-${day}`; }).join(', ');
+                const orderDatesString = orderDates.map((date, idx) => {
+                    const [year, month, day] = date.split('-');
+                    const short = `${month}-${day}`;
+                    return short;
+                }).join(', ');
                 doc.text(`Order Date: ${orderDatesString}`, margin, yPosition);
                 yPosition += 12;
                 
@@ -753,73 +762,83 @@
                 const tableHeaders = ["No.", "Type", `Weight(kg/${kgRate}¥)`, "Dimensions(m)", `Volume(m³/${cbmRate}¥)`, "Freight(¥)"];
                 const tableData = cargoData.map(item => {
                     const cost = item.totalCost.toFixed(2);
-                    if (item.type === 'weight') return [item.id, "By Weight", item.kg.toFixed(2), "-", "-", cost];
-                    else return [item.id, "By Volume", "-", `${item.length.toFixed(3)}x${item.width.toFixed(3)}x${item.height.toFixed(3)}`, item.volume.toFixed(3), cost];
+                    if (item.type === 'weight') { return [item.id, "By Weight", item.kg.toFixed(2), "-", "-", cost]; }
+                    else { const dimensionsInM = `${item.length.toFixed(3)}x${item.width.toFixed(3)}x${item.height.toFixed(3)}`; return [item.id, "By Volume", "-", dimensionsInM, item.volume.toFixed(3), cost]; }
                 });
+                
                 doc.autoTable({
-                    startY: yPosition, head: [tableHeaders], body: tableData, theme: 'grid',
+                    startY: yPosition,
+                    head: [tableHeaders],
+                    body: tableData,
+                    theme: 'grid',
                     styles: { fontSize: 11, cellPadding: 2, lineWidth: 0.1, font: fontName, halign: 'center', textColor: [0,0,0] },
                     headStyles: { fillColor: [230, 240, 255], textColor: [0,0,0], fontStyle: 'bold', fontSize: 12, halign: 'center' },
                     alternateRowStyles: { fillColor: [248, 250, 252] }
                 });
+                
                 yPosition = doc.autoTable.previous.finalY + 12;
                 const totalWeight = cargoData.reduce((sum, item) => sum + (parseFloat(item.kg) || 0), 0).toFixed(2);
                 const totalVol = cargoData.reduce((sum, item) => sum + (parseFloat(item.volume) || 0), 0).toFixed(3);
-                doc.setFontSize(12); doc.setFont(undefined, 'normal');
+                doc.setFontSize(12);
+                doc.setFont(undefined, 'normal');
                 doc.text(`Total Weight: ${totalWeight} kg`, margin, yPosition);
                 doc.text(`Total Volume: ${totalVol} m³`, pageWidth - margin, yPosition, { align: 'right' });
                 yPosition += 10;
                 const totalCostRMB = cargoData.reduce((sum, item) => sum + item.totalCost, 0).toFixed(2);
                 const exchangeRate = parseFloat(exchangeRateInput.value) || 0;
                 const totalCostMMK = Math.round(parseFloat(totalCostRMB) * exchangeRate).toLocaleString('en-US');
-                doc.setFontSize(14); doc.setFont(undefined, 'bold');
+                doc.setFontSize(14);
+                doc.setFont(undefined, 'bold');
                 doc.text("Total Freight (RMB):", margin, yPosition);
                 doc.text(`${totalCostRMB} ¥`, pageWidth - margin, yPosition, { align: 'right' });
                 yPosition += 8;
-                doc.setFontSize(11); doc.setFont(undefined, 'normal');
+                doc.setFontSize(11);
+                doc.setFont(undefined, 'normal');
                 doc.text("Exchange Rate:", margin, yPosition);
                 doc.text(`1 ¥ = ${exchangeRateInput.value} Ks`, pageWidth - margin, yPosition, { align: 'right' });
                 yPosition += 9;
-                doc.setFontSize(14); doc.setFont(undefined, 'bold');
+                doc.setFontSize(14);
+                doc.setFont(undefined, 'bold');
                 doc.setTextColor(61, 149, 255);
                 doc.text("Total Remittance Amount (MMK):", margin, yPosition);
                 doc.text(`${totalCostMMK} Ks`, pageWidth - margin, yPosition, { align: 'right' });
                 doc.setTextColor(0, 0, 0);
                 
-                // 关键修复：遍历所有 cargoImages 并确保图片被添加到 PDF 中（包括不同货柜）
-                const imageEntries = Object.entries(cargoImages).filter(([_, imgs]) => imgs && imgs.length > 0);
-                if (imageEntries.length > 0) {
-                    for (let idx = 0; idx < imageEntries.length; idx++) {
-                        const [cargoId, images] = imageEntries[idx];
+                // ========= 原始图片导出逻辑（完全恢复，全宽显示，多图正常） =========
+                const cargoIdsWithImages = Object.keys(cargoImages).filter(id => cargoImages[id].length > 0);
+                if (cargoIdsWithImages.length > 0) {
+                    doc.addPage();
+                    if (bgImageData) applyBackground(doc, bgImageData);
+                    let currentY = margin;
+                    const imageableWidth = pageWidth - 2 * margin;
+                    const imagePadding = 15;
+                    doc.setFontSize(16);
+                    doc.setFont(fontName, 'bold');
+                    doc.text('Cargo Images', pageWidth / 2, currentY, { align: 'center' });
+                    currentY += 15;
+                    for (const cargoId of cargoIdsWithImages) {
+                        const images = cargoImages[cargoId];
                         for (let i = 0; i < images.length; i++) {
-                            const imgDataURL = images[i];
-                            // 如果当前页剩余空间不足则新开页并添加背景
-                            const remainingHeight = pageHeight - yPosition;
-                            const imgObj = new Image(); imgObj.src = imgDataURL;
-                            await new Promise(resolve => { imgObj.onload = resolve; imgObj.onerror = resolve; });
-                            if (imgObj.naturalWidth === 0) continue;
-                            const imgWidthMM = 80; // 固定显示宽度 80mm 美观
-                            const aspect = imgObj.naturalHeight / imgObj.naturalWidth;
-                            const imgHeightMM = imgWidthMM * aspect;
-                            if (remainingHeight < imgHeightMM + 15) {
+                            const imgData = images[i];
+                            const img = new Image(); img.src = imgData;
+                            await new Promise(resolve => { img.onload = resolve; img.onerror = () => resolve(); });
+                            if (img.naturalWidth === 0) continue;
+                            const aspectRatio = img.naturalHeight / img.naturalWidth;
+                            const imgHeight = imageableWidth * aspectRatio;
+                            if (currentY + imgHeight > pageHeight - margin) {
                                 doc.addPage();
                                 if (bgImageData) applyBackground(doc, bgImageData);
-                                yPosition = margin + 10;
-                                doc.setFontSize(14); doc.setFont(fontName, 'bold');
-                                doc.setTextColor(0,0,0);
-                                doc.text("Cargo Images (continued)", pageWidth/2, yPosition-5, { align: 'center' });
+                                currentY = margin;
+                                doc.setFontSize(12);
+                                doc.setFont(fontName, 'bold');
+                                doc.text('Cargo Images (continued)', pageWidth / 2, currentY, { align: 'center' });
+                                currentY += 12;
                             }
-                            if (yPosition + imgHeightMM + 10 > pageHeight - margin) {
-                                doc.addPage();
-                                if (bgImageData) applyBackground(doc, bgImageData);
-                                yPosition = margin + 10;
-                                doc.setFontSize(14); doc.setFont(fontName, 'bold');
-                                doc.text("Cargo Images (continued)", pageWidth/2, yPosition-5, { align: 'center' });
-                            }
-                            doc.setFontSize(10); doc.setFont(fontName, 'normal');
-                            doc.text(`Cargo #${cargoId} Image ${i+1}`, margin, yPosition - 2);
-                            doc.addImage(imgDataURL, 'JPEG', margin, yPosition, imgWidthMM, imgHeightMM, undefined, 'SLOW');
-                            yPosition += imgHeightMM + 8;
+                            doc.setFontSize(10);
+                            doc.setFont(fontName, 'normal');
+                            doc.text(`Cargo #${cargoId} Image`, margin, currentY - 4);
+                            doc.addImage(imgData, 'JPEG', margin, currentY, imageableWidth, imgHeight, undefined, 'SLOW');
+                            currentY += imgHeight + imagePadding;
                         }
                     }
                 }
