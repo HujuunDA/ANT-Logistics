@@ -676,11 +676,11 @@
             });
             const cameraDiv = document.createElement('div');
             cameraDiv.className = 'camera-block';
-            cameraDiv.innerHTML = '<i class="fas fa-camera"></i><span>Take Photo</span>';
+            cameraDiv.innerHTML = '<i class="fas fa-camera"></i><span>Add Photo</span>';
             const hiddenInput = document.createElement('input');
             hiddenInput.type = 'file';
+            // 关键修改: 允许从相册选择，移除 capture 属性，并添加 accept="image/*"
             hiddenInput.accept = 'image/*';
-            hiddenInput.capture = 'environment';
             hiddenInput.classList.add('hidden-file-input');
             hiddenInput.onchange = async (e) => {
                 const file = e.target.files[0];
@@ -713,7 +713,7 @@
                 <div class="radio-group-ios mb-4"><label class="radio-item-ios"><input type="radio" name="calc-type-${cid}" value="weight" ${data.type === 'weight' || !data.type ? 'checked' : ''}> <span>By Weight</span></label><label class="radio-item-ios"><input type="radio" name="calc-type-${cid}" value="volume" ${data.type === 'volume' ? 'checked' : ''}> <span>By Volume</span></label></div>
                 <div id="weight-inputs-${cid}"><label class="label-text">Weight (kg)</label><input type="number" value="${data.kg || ''}" class="kg-input ios-input" step="0.01"></div>
                 <div id="volume-inputs-${cid}" class="hidden space-y-4"><div><label class="label-text">Length (m)</label><input type="number" value="${data.length || ''}" class="length-input ios-input" step="0.001"></div><div><label class="label-text">Width (m)</label><input type="number" value="${data.width || ''}" class="width-input ios-input" step="0.001"></div><div><label class="label-text">Height (m)</label><input type="number" value="${data.height || ''}" class="height-input ios-input" step="0.001"></div></div>
-                <div class="mt-4"><label class="label-text">Cargo Images (tap camera)</label><div id="image-grid-${cid}" class="image-grid"></div></div>
+                <div class="mt-4"><label class="label-text">Cargo Images (tap to add from gallery)</label><div id="image-grid-${cid}" class="image-grid"></div></div>
                 <div class="calculation-details mt-3"></div>
             `;
             cargoListDiv.appendChild(cargoDiv);
@@ -762,7 +762,7 @@
         }
         function hideLoadingToast() { if(loadingToast){ loadingToast.remove(); loadingToast = null; } }
 
-        // generate PDF Blob without saving (for share)
+        // 生成PDF Blob，文件名基于客户名称+订单日期（取第一个有效日期）
         async function generatePdfBlob() {
             const { jsPDF } = window.jspdf;
             const customerName = customerNameInput.value.trim();
@@ -832,7 +832,7 @@
             return doc.output('blob');
         }
 
-        // 核心：直接分享到 Telegram (使用 tg:// 协议)
+        // 导出并分享: 生成PDF文件名 = 客户名_订单日期.pdf (取第一个订单日期)
         async function shareToTelegram() {
             const customerName = customerNameInput.value.trim();
             const orderDates = Array.from(document.querySelectorAll('.order-date-input')).map(inp => inp.value.trim()).filter(Boolean);
@@ -841,10 +841,13 @@
                 return;
             }
             try {
-                showLoadingToast('Generating PDF & opening Telegram...');
+                showLoadingToast('Generating PDF & sharing...');
                 const pdfBlob = await generatePdfBlob();
-                const file = new File([pdfBlob], `ANT_${customerName}_Freight.pdf`, { type: 'application/pdf' });
-                // 使用 Web Share API 优先，如果支持文件分享且是移动端 (Telegram 能接收)
+                // 构建文件名: 客户名称_第一个订单日期.pdf (例如 JohnSmith_2025-02-18.pdf)
+                const firstOrderDate = orderDates[0] || 'nodate';
+                const safeName = customerName.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '_');
+                const fileName = `${safeName}_${firstOrderDate}_Freight.pdf`;
+                const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
                 if (navigator.canShare && navigator.canShare({ files: [file] })) {
                     await navigator.share({
                         title: 'Freight Calculation',
@@ -853,12 +856,11 @@
                     });
                     hideLoadingToast();
                 } else {
-                    // fallback: 使用 Telegram Intent (tg://) 传递文件url - 但本地blob无法直接url, 用数据URI过长不可行，因此生成临时ObjectURL 并用分享或提示用户保存后手动发
-                    // 更友好的方式: 直接保存PDF 并引导用户分享到Telegram
+                    // fallback 保存PDF并提示手动分享
                     const url = URL.createObjectURL(pdfBlob);
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = `ANT_${customerName}_Freight.pdf`;
+                    a.download = fileName;
                     document.body.appendChild(a);
                     a.click();
                     document.body.removeChild(a);
@@ -873,17 +875,8 @@
             }
         }
 
-        // 覆盖原有导出按钮: 保留原有PDF保存逻辑并额外增加Telegram分享流程，让用户一键直达Telegram分享
-        // 修改按钮行为: 先尝试调起分享/直接telegram分享。同时兼容原先保存PDF体验
         exportPdfBtn.addEventListener('click', async (e) => {
             e.preventDefault();
-            const customerName = customerNameInput.value.trim();
-            const orderDates = Array.from(document.querySelectorAll('.order-date-input')).map(inp => inp.value.trim()).filter(Boolean);
-            if (!customerName || orderDates.length === 0) {
-                showModal('Please enter customer name and at least one order date!');
-                return;
-            }
-            // 展示双选项？为了纯粹“直接分享到telegram”，我们直接调用shareToTelegram (优先使用Web Share API)
             await shareToTelegram();
         });
         
