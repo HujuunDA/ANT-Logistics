@@ -478,54 +478,144 @@
             const cargoData = []; 
             const cargoImages = {}; 
 
-            function saveData() {
-                const data = {
-                    customerName: customerNameInput.value,
-                    orderDates: Array.from(orderDatesList.querySelectorAll('.order-date-input')).map(input => input.value),
-                    kgRate: kgRateInput.value,
-                    cbmRate: cbmRateInput.value,
-                    exchangeRate: exchangeRateInput.value,
-                    cargos: [],
-                    cargoImages: cargoImages
-                };
-                document.querySelectorAll('.cargo-item').forEach((item) => {
-                    const cargoId = item.id.split('-')[1];
-                    const calcTypeInput = item.querySelector(`input[name="calc-type-${cargoId}"]:checked`);
-                    const calcType = calcTypeInput ? calcTypeInput.value : 'weight'; 
-                    const cargo = {
-                        id: cargoId,
-                        type: calcType,
-                        kg: item.querySelector('.kg-input')?.value || '',
-                        length: item.querySelector('.length-input')?.value || '',
-                        width: item.querySelector('.width-input')?.value || '',
-                        height: item.querySelector('.height-input')?.value || ''
+            // ========== IndexedDB 存储 ==========
+            const DB_NAME = 'FreightDB';
+            const DB_VERSION = 1;
+            const STORE_NAME = 'freightData';
+            let db = null;
+
+            function openDB() {
+                return new Promise((resolve, reject) => {
+                    if (db && db.name === DB_NAME) {
+                        resolve(db);
+                        return;
+                    }
+                    const request = indexedDB.open(DB_NAME, DB_VERSION);
+                    request.onerror = () => reject(request.error);
+                    request.onsuccess = () => {
+                        db = request.result;
+                        resolve(db);
                     };
-                    data.cargos.push(cargo);
+                    request.onupgradeneeded = (event) => {
+                        const dbRef = event.target.result;
+                        if (!dbRef.objectStoreNames.contains(STORE_NAME)) {
+                            dbRef.createObjectStore(STORE_NAME);
+                        }
+                    };
                 });
-                localStorage.setItem('freightData', JSON.stringify(data));
             }
 
-            function loadData() {
-                const savedData = localStorage.getItem('freightData');
-                if (savedData) {
-                    const data = JSON.parse(savedData);
-                    customerNameInput.value = data.customerName;
-                    kgRateInput.value = data.kgRate;
-                    cbmRateInput.value = data.cbmRate;
-                    exchangeRateInput.value = data.exchangeRate;
-                    data.orderDates.forEach(date => addDateInput(date));
-                    if (data.cargoImages) {
-                        Object.keys(data.cargoImages).forEach(key => {
-                            cargoImages[key] = data.cargoImages[key];
-                        });
+            async function saveData() {
+                try {
+                    const database = await openDB();
+                    const data = {
+                        customerName: customerNameInput.value,
+                        orderDates: Array.from(orderDatesList.querySelectorAll('.order-date-input')).map(input => input.value),
+                        kgRate: kgRateInput.value,
+                        cbmRate: cbmRateInput.value,
+                        exchangeRate: exchangeRateInput.value,
+                        cargos: [],
+                        cargoImages: cargoImages
+                    };
+                    
+                    document.querySelectorAll('.cargo-item').forEach((item) => {
+                        const cargoId = item.id.split('-')[1];
+                        const calcTypeInput = item.querySelector(`input[name="calc-type-${cargoId}"]:checked`);
+                        const calcType = calcTypeInput ? calcTypeInput.value : 'weight';
+                        const cargo = {
+                            id: cargoId,
+                            type: calcType,
+                            kg: item.querySelector('.kg-input')?.value || '',
+                            length: item.querySelector('.length-input')?.value || '',
+                            width: item.querySelector('.width-input')?.value || '',
+                            height: item.querySelector('.height-input')?.value || ''
+                        };
+                        data.cargos.push(cargo);
+                    });
+                    
+                    const transaction = database.transaction([STORE_NAME], 'readwrite');
+                    const store = transaction.objectStore(STORE_NAME);
+                    store.put(data, 'freightData');
+                    
+                    return new Promise((resolve, reject) => {
+                        transaction.oncomplete = () => resolve();
+                        transaction.onerror = () => reject(transaction.error);
+                    });
+                } catch (e) {
+                    console.error('保存失败:', e);
+                }
+            }
+
+            async function loadData() {
+                try {
+                    const database = await openDB();
+                    const transaction = database.transaction([STORE_NAME], 'readonly');
+                    const store = transaction.objectStore(STORE_NAME);
+                    const request = store.get('freightData');
+                    
+                    const data = await new Promise((resolve, reject) => {
+                        request.onsuccess = () => resolve(request.result);
+                        request.onerror = () => reject(request.error);
+                    });
+                    
+                    if (data) {
+                        customerNameInput.value = data.customerName || '';
+                        kgRateInput.value = data.kgRate || '20';
+                        cbmRateInput.value = data.cbmRate || '1700';
+                        exchangeRateInput.value = data.exchangeRate || '630';
+                        
+                        if (data.orderDates && data.orderDates.length) {
+                            data.orderDates.forEach(date => addDateInput(date));
+                        } else {
+                            addDateInput();
+                        }
+                        
+                        if (data.cargoImages) {
+                            Object.keys(data.cargoImages).forEach(key => {
+                                cargoImages[key] = data.cargoImages[key];
+                            });
+                        }
+                        
+                        if (data.cargos && data.cargos.length) {
+                            data.cargos.forEach(cargo => addCargoItem(cargo));
+                        } else {
+                            addCargoItem();
+                        }
+                        
+                        recalculateAll();
+                    } else {
+                        addCargoItem();
+                        addDateInput();
                     }
-                    data.cargos.forEach(cargo => addCargoItem(cargo));
-                    recalculateAll();
-                } else {
+                } catch (e) {
+                    console.error('加载失败:', e);
                     addCargoItem();
                     addDateInput();
                 }
             }
+
+            async function clearAllData() {
+                customerNameInput.value = '';
+                while (orderDatesList.firstChild) orderDatesList.removeChild(orderDatesList.firstChild);
+                dateCount = 0;
+                while (cargoList.firstChild) cargoList.removeChild(cargoList.firstChild);
+                cargoCount = 0;
+                Object.keys(cargoImages).forEach(key => delete cargoImages[key]);
+                
+                try {
+                    const database = await openDB();
+                    const transaction = database.transaction([STORE_NAME], 'readwrite');
+                    const store = transaction.objectStore(STORE_NAME);
+                    store.delete('freightData');
+                } catch (e) {
+                    console.error('清除失败:', e);
+                }
+                
+                addDateInput();
+                addCargoItem();
+                recalculateAll();
+            }
+            // ========== IndexedDB 存储结束 ==========
 
             function showModal(message) {
                 const modal = document.getElementById('custom-modal');
@@ -689,18 +779,6 @@
                 recalculateAll();
             };
 
-            function clearAllData() {
-                customerNameInput.value = '';
-                while (orderDatesList.firstChild) orderDatesList.removeChild(orderDatesList.firstChild);
-                dateCount = 0; 
-                while (cargoList.firstChild) cargoList.removeChild(cargoList.firstChild);
-                cargoCount = 0; 
-                Object.keys(cargoImages).forEach(key => delete cargoImages[key]); 
-                localStorage.removeItem('freightData');
-                addDateInput();
-                addCargoItem();
-                recalculateAll();
-            }
             addCargoBtn.addEventListener('click', () => addCargoItem());
             clearAllBtn.addEventListener('click', clearAllData); 
             kgRateInput.addEventListener('input', recalculateAll);
@@ -708,7 +786,6 @@
             exchangeRateInput.addEventListener('input', recalculateAll);
             customerNameInput.addEventListener('input', recalculateAll);
             
-            // ========= 修复版PDF导出：确保分页、汇率、总价完整显示 =========
             exportPdfBtn.addEventListener('click', async () => {
                 const { jsPDF } = window.jspdf;
                 const customerName = customerNameInput.value.trim();
@@ -740,7 +817,6 @@
                 };
                 if (bgImageData) applyBackground(doc, bgImageData);
                 
-                // 头部信息
                 doc.setFont('Montserrat', 'normal');
                 doc.setFontSize(25);
                 doc.setFont(undefined, 'bold');
@@ -754,7 +830,6 @@
                 doc.text(`Order Date: ${orderDatesString}`, margin, yPosition);
                 yPosition += 12;
                 
-                // 准备表格数据
                 const kgRate = parseFloat(kgRateInput.value) || 0;
                 const cbmRate = parseFloat(cbmRateInput.value) || 0;
                 const exchangeRate = parseFloat(exchangeRateInput.value) || 0;
@@ -765,7 +840,6 @@
                     else { const dimensionsInM = `${item.length.toFixed(3)}x${item.width.toFixed(3)}x${item.height.toFixed(3)}`; return [item.id, "By Volume", "-", dimensionsInM, item.volume.toFixed(3), cost]; }
                 });
                 
-                // 关键修复: 使用autoTable时保留足够的底部空间给后续汇总信息，并且自动分页
                 doc.autoTable({
                     startY: yPosition,
                     head: [tableHeaders],
@@ -774,21 +848,18 @@
                     styles: { fontSize: 10, cellPadding: 2, lineWidth: 0.1, font: fontName, halign: 'center', textColor: [0,0,0] },
                     headStyles: { fillColor: [230, 240, 255], textColor: [0,0,0], fontStyle: 'bold', fontSize: 11, halign: 'center' },
                     alternateRowStyles: { fillColor: [248, 250, 252] },
-                    margin: { top: margin, bottom: 45, left: margin, right: margin }, // 底部留空45mm给汇总信息
+                    margin: { top: margin, bottom: 45, left: margin, right: margin },
                     pageBreak: 'auto'
                 });
                 
-                // 获取表格结束后的Y坐标，并确保汇总信息不会被切到下一页(如果剩余空间不足则强制分页)
                 let finalY = doc.autoTable.previous.finalY;
                 const remainingSpace = pageHeight - finalY - 15;
-                // 汇总信息大约需要35mm高度，如果剩余不足则新开一页
                 if (remainingSpace < 35) {
                     doc.addPage();
                     if (bgImageData) applyBackground(doc, bgImageData);
                     finalY = margin;
                 }
                 
-                // 计算总重量与总体积
                 const totalWeight = cargoData.reduce((sum, item) => sum + (parseFloat(item.kg) || 0), 0).toFixed(2);
                 const totalVol = cargoData.reduce((sum, item) => sum + (parseFloat(item.volume) || 0), 0).toFixed(3);
                 doc.setFontSize(11);
@@ -813,7 +884,6 @@
                 doc.text(`${totalCostMMK} Ks`, pageWidth - margin, finalY + 33, { align: 'right' });
                 doc.setTextColor(0, 0, 0);
                 
-                // 图片导出：确保不覆盖汇总信息，并且分页正确
                 const cargoIdsWithImages = Object.keys(cargoImages).filter(id => cargoImages[id] && cargoImages[id].length > 0);
                 if (cargoIdsWithImages.length > 0) {
                     doc.addPage();
