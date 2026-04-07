@@ -25,6 +25,8 @@
             background: #f2f2f6;
             padding: 12px 12px 32px;
             min-height: 100vh;
+            /* 增加顶部安全区适配，避免与灵动岛/状态栏重叠 */
+            padding-top: env(safe-area-inset-top, 20px);
         }
 
         .main-container {
@@ -32,7 +34,7 @@
             margin: 0 auto;
         }
 
-        /* iOS 风格头部 */
+        /* iOS 风格头部 - 增加顶部边距避免与灵动岛重叠 */
         .compact-header {
             background: rgba(255, 255, 255, 0.96);
             backdrop-filter: blur(20px);
@@ -44,6 +46,7 @@
             align-items: baseline;
             box-shadow: 0 2px 8px rgba(0,0,0,0.04), 0 1px 0 rgba(255,255,255,0.5) inset;
             border: 0.5px solid rgba(224, 224, 230, 0.6);
+            margin-top: 0;
         }
         .brand {
             display: flex;
@@ -105,7 +108,7 @@
             padding: 14px 16px;
         }
         
-        /* ========= 全局输入框统一样式：内边距10px，文字居中 ========= */
+        /* 全局输入框统一样式 */
         input, .ios-input, .date-item input, .dimension-row input, .kg-input, .length-input, .width-input, .height-input, .order-date-input {
             background: #f9f9fb;
             border: 0.5px solid #e5e5ea;
@@ -127,7 +130,6 @@
             box-shadow: 0 0 0 3px rgba(0,122,255,0.1);
         }
         
-        /* 针对type="number"保持居中 */
         input[type="number"] {
             text-align: center;
             -moz-appearance: textfield;
@@ -153,7 +155,6 @@
             text-align: left;
         }
         
-        /* 日期列表 */
         .date-item {
             display: flex;
             gap: 8px;
@@ -179,7 +180,6 @@
             transform: scale(0.96);
         }
         
-        /* 货物卡片 */
         .cargo-card {
             background: #ffffff;
             border-radius: 18px;
@@ -204,7 +204,6 @@
             margin-right: 6px;
         }
         
-        /* 单选组 */
         .radio-group {
             display: flex;
             gap: 20px;
@@ -229,7 +228,6 @@
             accent-color: #007aff;
         }
         
-        /* 三列输入 - 保证每个输入框也是居中+10px内边距 */
         .dimension-row {
             display: flex;
             gap: 10px;
@@ -240,7 +238,6 @@
             text-align: center;
         }
         
-        /* 按钮样式 */
         .btn-primary, .btn-secondary, .btn-clear, .btn-danger {
             transition: all 0.08s linear;
             cursor: pointer;
@@ -315,7 +312,6 @@
             margin-bottom: 0;
         }
         
-        /* 结果网格 */
         .results-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -355,7 +351,7 @@
             letter-spacing: -0.3px;
         }
         
-        /* 可折叠 */
+        /* 可折叠区域 + 限制Cargo Details最大高度，超过7行滚动 */
         .collapsible-header {
             display: flex;
             justify-content: space-between;
@@ -391,6 +387,18 @@
         .collapsible-content.collapsed {
             max-height: 0;
         }
+        /* 新增：限制 cargo-details-table-container 最大高度，最多显示约7行（超出滚动） */
+        .cargo-details-scroll {
+            max-height: 320px;
+            overflow-y: auto;
+            border-top: 0.5px solid #e5e5ea;
+            border-bottom: 0.5px solid #e5e5ea;
+            margin-top: 8px;
+        }
+        .cargo-details-scroll table {
+            margin-bottom: 0;
+        }
+        
         .collapsed-preview {
             background: #f9f9fb;
             border-radius: 14px;
@@ -404,10 +412,9 @@
             display: none;
         }
         
-        /* 表格 */
         .cargo-table-wrapper {
             overflow-x: auto;
-            margin-top: 10px;
+            margin-top: 0;
         }
         .cargo-table-wrapper table {
             width: 100%;
@@ -425,7 +432,6 @@
             border-bottom: 0.5px solid #e5e5ea;
         }
         
-        /* ========= 图片网格 - 预览图片更大 ========= */
         .image-grid {
             display: flex;
             flex-wrap: wrap;
@@ -434,7 +440,7 @@
             align-items: flex-start;
         }
         .preview-block {
-            width: 100px;        /* 放大预览尺寸 */
+            width: 100px;
             height: 100px;
             border-radius: 16px;
             overflow: hidden;
@@ -492,7 +498,6 @@
             font-weight: 500;
         }
         
-        /* 进度条模态框 */
         .progress-overlay {
             position: fixed;
             top: 0;
@@ -638,9 +643,10 @@
 </head>
 <body>
 <div class="main-container">
+    <!-- 增加顶部安全区占位避免与灵动岛重叠，使用padding-top已处理 -->
     <div class="compact-header">
         <div class="brand"><span class="brand-name">ANT China Supplier</span><span class="brand-sub">Smart Calculator</span></div>
-        <div class="version">v2.5</div>
+        <div class="version">v2.6</div>
     </div>
 
     <!-- Customer Info -->
@@ -670,7 +676,12 @@
                     <div class="collapse-icon" id="collapseIcon"><i class="fas fa-chevron-up"></i></div>
                 </div>
                 <div id="collapsedPreview" class="collapsed-preview hidden"><span>Total Freight</span><span class="preview-total" id="previewTotalRMB">0.00 ¥</span></div>
-                <div id="cargoDetailsContent" class="collapsible-content"><div id="cargo-details-table-container"></div></div>
+                <div id="cargoDetailsContent" class="collapsible-content">
+                    <!-- 增加滚动容器，最多显示约7行高度 -->
+                    <div id="cargo-details-scroll-wrapper" class="cargo-details-scroll">
+                        <div id="cargo-details-table-container"></div>
+                    </div>
+                </div>
             </div>
             <div class="mt-3">
                 <div class="results-grid" id="results">
@@ -745,7 +756,8 @@
     
     addCargoBtn.addEventListener('click', () => addCargoItem()); clearAllBtn.addEventListener('click', clearAllData); kgRateInput.addEventListener('input', recalculateAll); cbmRateInput.addEventListener('input', recalculateAll); exchangeRateInput.addEventListener('input', recalculateAll); customerNameInput.addEventListener('input', recalculateAll);
     
-    async function generatePdfBlob(progress) { const { jsPDF } = window.jspdf; progress.update(10, "读取信息..."); const customerName = customerNameInput.value.trim(); const orderDates = Array.from(document.querySelectorAll('.order-date-input')).map(inp => inp.value.trim()).filter(Boolean); if (!customerName || orderDates.length === 0) throw new Error('Missing customer or dates'); progress.update(20, "准备文档..."); let bgImageData = null; try { const resp = await fetch('bg.png'); if(resp.ok) { const blob = await resp.blob(); bgImageData = await new Promise(r => { const fr = new FileReader(); fr.onloadend = () => r(fr.result); fr.readAsDataURL(blob); }); } } catch(e){} const doc = new jsPDF('p', 'mm', 'a4'); const pageWidth = doc.internal.pageSize.getWidth(); const pageHeight = doc.internal.pageSize.getHeight(); const margin = 15; let yPos = 30; const applyBg = (d, img) => { if(img) d.addImage(img, 'PNG', 0, 0, pageWidth, pageHeight, undefined, 'FAST'); }; if(bgImageData) applyBg(doc, bgImageData); doc.setFont('Montserrat', 'normal'); doc.setFontSize(22); doc.setFont(undefined, 'bold'); doc.text('INTERNATIONAL SHIPPING', pageWidth/2, yPos, {align:'center'}); yPos+=10; doc.setFont('SourceHanSans', 'normal'); doc.setFontSize(11); doc.text(`Name: ${customerName}`, margin, yPos); yPos+=6; const dateStr = orderDates.map(d=>d.split('-').slice(1,3).join('-')).join(', '); doc.text(`Order Date: ${dateStr}`, margin, yPos); yPos+=10; const kgRate = parseFloat(kgRateInput.value)||0, cbmRate = parseFloat(cbmRateInput.value)||0, exRate = parseFloat(exchangeRateInput.value)||0; const headers = ["No.", "Type", `Weight(kg/${kgRate}¥)`, "Dimensions(m)", `Volume(m³/${cbmRate}¥)`, "Freight(¥)"]; const body = cargoData.map(i => i.type==='weight' ? [i.id, "By Weight", i.kg.toFixed(2), "-", "-", i.totalCost.toFixed(2)] : [i.id, "By Volume", "-", `${i.length.toFixed(3)}x${i.width.toFixed(3)}x${i.height.toFixed(3)}`, i.volume.toFixed(3), i.totalCost.toFixed(2)]); progress.update(40, "生成表格..."); doc.autoTable({ startY: yPos, head: [headers], body: body, theme: 'grid', styles: { fontSize: 9, font: 'SourceHanSans', halign: 'center', textColor: [0,0,0] }, headStyles: { fillColor: [0,0,0], textColor: [255,255,255], fontStyle: 'bold' }, margin: { top: margin, bottom: 45 } }); let finalY = doc.autoTable.previous.finalY; const totalWeight = cargoData.reduce((s,i)=>s+(i.kg||0),0).toFixed(2); const totalVol = cargoData.reduce((s,i)=>s+(i.volume||0),0).toFixed(3); doc.setFontSize(10); doc.text(`Total Weight: ${totalWeight} kg`, margin, finalY+5); doc.text(`Total Volume: ${totalVol} m³`, pageWidth-margin, finalY+5, {align:'right'}); const totalRMB = cargoData.reduce((s,i)=>s+i.totalCost,0).toFixed(2); const totalMMK = Math.round(parseFloat(totalRMB)*exRate).toLocaleString('en-US'); doc.setFontSize(11); doc.setFont(undefined, 'bold'); doc.text("Total Freight (RMB):", margin, finalY+13); doc.text(`${totalRMB} ¥`, pageWidth-margin, finalY+13, {align:'right'}); doc.setFontSize(9); doc.text("Exchange Rate:", margin, finalY+20); doc.text(`1 ¥ = ${exRate.toFixed(2)} Ks`, pageWidth-margin, finalY+20, {align:'right'}); doc.setFontSize(12); doc.setTextColor(61,149,255); doc.text("Total Remittance Amount (MMK):", margin, finalY+28); doc.text(`${totalMMK} Ks`, pageWidth-margin, finalY+28, {align:'right'}); doc.setTextColor(0,0,0); progress.update(60, "处理图片..."); const idsWithImg = Object.keys(cargoImages).filter(id=>cargoImages[id]?.length); if(idsWithImg.length){ doc.addPage(); if(bgImageData) applyBg(doc, bgImageData); let cy = margin; doc.setFontSize(14); doc.text('Cargo Images', pageWidth/2, cy, {align:'center'}); cy+=12; let imgCount = 0; const totalImgs = idsWithImg.reduce((s,id)=>s+cargoImages[id].length,0); for(const cid of idsWithImg){ for(const imgSrc of cargoImages[cid]){ imgCount++; progress.update(60 + Math.floor(35 * imgCount / totalImgs), `图片 ${imgCount}/${totalImgs}...`); const imgObj = new Image(); imgObj.src=imgSrc; await new Promise(r=>{ imgObj.onload=r; imgObj.onerror=r; }); if(imgObj.naturalWidth===0) continue; const ratio = imgObj.naturalHeight/imgObj.naturalWidth; const imgW = pageWidth-2*margin; const imgH = imgW*ratio; if(cy+imgH>pageHeight-margin){ doc.addPage(); if(bgImageData) applyBg(doc, bgImageData); cy=margin; doc.setFontSize(12); doc.text('Cargo Images (continued)', pageWidth/2, cy, {align:'center'}); cy+=10; } doc.text(`Cargo #${cid} Image`, margin, cy-3); doc.addImage(imgSrc, 'JPEG', margin, cy, imgW, imgH, undefined, 'SLOW'); cy += imgH+12; } } } progress.update(95, "生成PDF..."); const result = doc.output('blob'); progress.update(100, "完成!"); await new Promise(r => setTimeout(r, 300)); return result; }
+    // 改进版generatePdfBlob：支持每页背景 + 表格跨页背景保持
+    async function generatePdfBlob(progress) { const { jsPDF } = window.jspdf; progress.update(10, "读取信息..."); const customerName = customerNameInput.value.trim(); const orderDates = Array.from(document.querySelectorAll('.order-date-input')).map(inp => inp.value.trim()).filter(Boolean); if (!customerName || orderDates.length === 0) throw new Error('Missing customer or dates'); progress.update(20, "准备文档..."); let bgImageData = null; try { const resp = await fetch('bg.png'); if(resp.ok) { const blob = await resp.blob(); bgImageData = await new Promise(r => { const fr = new FileReader(); fr.onloadend = () => r(fr.result); fr.readAsDataURL(blob); }); } } catch(e){} const doc = new jsPDF('p', 'mm', 'a4'); const pageWidth = doc.internal.pageSize.getWidth(); const pageHeight = doc.internal.pageSize.getHeight(); const margin = 15; let yPos = 30; const applyBg = (d, img) => { if(img) d.addImage(img, 'PNG', 0, 0, pageWidth, pageHeight, undefined, 'FAST'); }; if(bgImageData) applyBg(doc, bgImageData); doc.setFont('Montserrat', 'normal'); doc.setFontSize(22); doc.setFont(undefined, 'bold'); doc.text('INTERNATIONAL SHIPPING', pageWidth/2, yPos, {align:'center'}); yPos+=10; doc.setFont('SourceHanSans', 'normal'); doc.setFontSize(11); doc.text(`Name: ${customerName}`, margin, yPos); yPos+=6; const dateStr = orderDates.map(d=>d.split('-').slice(1,3).join('-')).join(', '); doc.text(`Order Date: ${dateStr}`, margin, yPos); yPos+=10; const kgRate = parseFloat(kgRateInput.value)||0, cbmRate = parseFloat(cbmRateInput.value)||0, exRate = parseFloat(exchangeRateInput.value)||0; const headers = ["No.", "Type", `Weight(kg/${kgRate}¥)`, "Dimensions(m)", `Volume(m³/${cbmRate}¥)`, "Freight(¥)"]; const body = cargoData.map(i => i.type==='weight' ? [i.id, "By Weight", i.kg.toFixed(2), "-", "-", i.totalCost.toFixed(2)] : [i.id, "By Volume", "-", `${i.length.toFixed(3)}x${i.width.toFixed(3)}x${i.height.toFixed(3)}`, i.volume.toFixed(3), i.totalCost.toFixed(2)]); progress.update(40, "生成表格..."); doc.autoTable({ startY: yPos, head: [headers], body: body, theme: 'grid', styles: { fontSize: 9, font: 'SourceHanSans', halign: 'center', textColor: [0,0,0] }, headStyles: { fillColor: [0,0,0], textColor: [255,255,255], fontStyle: 'bold' }, margin: { top: margin, bottom: 45 }, addPageContent: function(data) { if(bgImageData) { doc.addImage(bgImageData, 'PNG', 0, 0, pageWidth, pageHeight, undefined, 'FAST'); } } }); let finalY = doc.autoTable.previous.finalY; const totalWeight = cargoData.reduce((s,i)=>s+(i.kg||0),0).toFixed(2); const totalVol = cargoData.reduce((s,i)=>s+(i.volume||0),0).toFixed(3); doc.setFontSize(10); doc.text(`Total Weight: ${totalWeight} kg`, margin, finalY+5); doc.text(`Total Volume: ${totalVol} m³`, pageWidth-margin, finalY+5, {align:'right'}); const totalRMB = cargoData.reduce((s,i)=>s+i.totalCost,0).toFixed(2); const totalMMK = Math.round(parseFloat(totalRMB)*exRate).toLocaleString('en-US'); doc.setFontSize(11); doc.setFont(undefined, 'bold'); doc.text("Total Freight (RMB):", margin, finalY+13); doc.text(`${totalRMB} ¥`, pageWidth-margin, finalY+13, {align:'right'}); doc.setFontSize(9); doc.text("Exchange Rate:", margin, finalY+20); doc.text(`1 ¥ = ${exRate.toFixed(2)} Ks`, pageWidth-margin, finalY+20, {align:'right'}); doc.setFontSize(12); doc.setTextColor(61,149,255); doc.text("Total Remittance Amount (MMK):", margin, finalY+28); doc.text(`${totalMMK} Ks`, pageWidth-margin, finalY+28, {align:'right'}); doc.setTextColor(0,0,0); progress.update(60, "处理图片..."); const idsWithImg = Object.keys(cargoImages).filter(id=>cargoImages[id]?.length); if(idsWithImg.length){ doc.addPage(); if(bgImageData) applyBg(doc, bgImageData); let cy = margin; doc.setFontSize(14); doc.text('Cargo Images', pageWidth/2, cy, {align:'center'}); cy+=12; let imgCount = 0; const totalImgs = idsWithImg.reduce((s,id)=>s+cargoImages[id].length,0); for(const cid of idsWithImg){ for(const imgSrc of cargoImages[cid]){ imgCount++; progress.update(60 + Math.floor(35 * imgCount / totalImgs), `图片 ${imgCount}/${totalImgs}...`); const imgObj = new Image(); imgObj.src=imgSrc; await new Promise(r=>{ imgObj.onload=r; imgObj.onerror=r; }); if(imgObj.naturalWidth===0) continue; const ratio = imgObj.naturalHeight/imgObj.naturalWidth; const imgW = pageWidth-2*margin; const imgH = imgW*ratio; if(cy+imgH>pageHeight-margin){ doc.addPage(); if(bgImageData) applyBg(doc, bgImageData); cy=margin; doc.setFontSize(12); doc.text('Cargo Images (continued)', pageWidth/2, cy, {align:'center'}); cy+=10; } doc.text(`Cargo #${cid} Image`, margin, cy-3); doc.addImage(imgSrc, 'JPEG', margin, cy, imgW, imgH, undefined, 'SLOW'); cy += imgH+12; } } } progress.update(95, "生成PDF..."); const result = doc.output('blob'); progress.update(100, "完成!"); await new Promise(r => setTimeout(r, 300)); return result; }
     
     let isExporting = false;
     async function shareToTelegram() { if (isExporting) { playTapFeedback(); showModal('请稍等，上一任务还在处理中...'); return; } const customerName = customerNameInput.value.trim(); const orderDates = Array.from(document.querySelectorAll('.order-date-input')).map(inp => inp.value.trim()).filter(Boolean); if (!customerName || orderDates.length === 0) { playTapFeedback(); showModal('Please enter customer name and order date!'); return; } isExporting = true; const progress = showProgress("生成货运报告...", 5); try { playTapFeedback(); progress.update(5, "准备数据..."); await new Promise(r => setTimeout(r, 100)); const pdfBlob = await generatePdfBlob(progress); progress.update(98, "准备分享..."); const firstOrderDate = orderDates[0] || 'nodate'; const safeName = customerName.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '_'); const fileName = `${safeName}_${firstOrderDate}_Freight.pdf`; const file = new File([pdfBlob], fileName, { type: 'application/pdf' }); if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ title: 'Freight Calculation', text: `Freight quote for ${customerName}`, files: [file] }); } else { const url = URL.createObjectURL(pdfBlob); const a = document.createElement('a'); a.href = url; a.download = fileName; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); showModal('PDF saved!'); } progress.close(); } catch (err) { console.error(err); progress.close(); showModal('Failed: ' + (err.message || 'Unknown error')); } finally { isExporting = false; } }
