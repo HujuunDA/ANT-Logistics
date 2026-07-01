@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
+        /* ---- 所有原有样式（完全不变） ---- */
         * {
             margin: 0;
             padding: 0;
@@ -37,7 +38,6 @@
             margin: 0 auto;
         }
 
-        /* ========= 玻璃态头部 + 悬停动画 ========= */
         .compact-header {
             background: rgba(255, 255, 255, 0.12);
             backdrop-filter: blur(16px);
@@ -84,7 +84,6 @@
             border-radius: 40px;
         }
 
-        /* ========= 玻璃态卡片 + 悬停动画 ========= */
         .card {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(14px);
@@ -129,7 +128,6 @@
             padding: 14px 16px;
         }
 
-        /* ========= 玻璃态输入框 ========= */
         input,
         .ios-input,
         .date-item input,
@@ -214,7 +212,6 @@
             transform: scale(0.94);
         }
 
-        /* ========= 玻璃态货物卡片 + 悬停 ========= */
         .cargo-card {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(14px);
@@ -281,7 +278,6 @@
             text-align: center;
         }
 
-        /* ========= 玻璃态按钮 + 悬停动画 ========= */
         .btn-primary,
         .btn-secondary,
         .btn-clear,
@@ -375,7 +371,6 @@
             margin-bottom: 0;
         }
 
-        /* ========= 结果区域玻璃态 ========= */
         .results-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -427,7 +422,6 @@
             letter-spacing: -0.3px;
         }
 
-        /* ========= 折叠面板 ========= */
         .collapsible-header {
             display: flex;
             justify-content: space-between;
@@ -478,7 +472,6 @@
             display: none;
         }
 
-        /* 货物表格 - 玻璃滚动区 */
         .cargo-table-wrapper {
             overflow-x: auto;
             overflow-y: auto;
@@ -511,7 +504,6 @@
             background: transparent;
         }
 
-        /* 图片区域 */
         .image-grid {
             display: flex;
             flex-wrap: wrap;
@@ -583,7 +575,6 @@
             font-weight: 500;
         }
 
-        /* 进度遮罩 / 模态框 玻璃感增强 */
         .progress-overlay {
             position: fixed;
             top: 0;
@@ -693,6 +684,20 @@
         .border-t {
             border-top: 1px solid rgba(255, 255, 255, 0.2);
         }
+
+        /* 自定义确认对话框按钮容器 - 圆润风格 */
+        .confirm-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        .confirm-actions .btn-secondary,
+        .confirm-actions .btn-danger {
+            flex: 1;
+            padding: 10px 0;
+            font-size: 14px;
+            border-radius: 30px !important;
+        }
     </style>
 
     <script>
@@ -759,7 +764,7 @@
     <div class="main-container">
         <div class="compact-header">
             <div class="brand"><span class="brand-name">ANT China Supplier</span><span class="brand-sub">Smart Calculator</span></div>
-            <div class="version">v3.0</div>
+            <div class="version">v 7.1</div>
         </div>
 
         <div class="card">
@@ -803,7 +808,30 @@
         </div>
         <button id="export-pdf-btn" class="btn-primary btn-danger"><i class="fas fa-share-nodes"></i> Export & Share PDF</button>
     </div>
-    <div id="custom-modal" class="modal-overlay hidden"><div class="modal-card"><i class="fas fa-exclamation-circle" style="font-size: 40px; color: #60a5fa; margin-bottom: 12px;"></i><p id="modal-message" style="margin-bottom: 20px; font-weight: 500;">Please enter customer name and order date!</p><button onclick="closeModal()" class="btn-primary" style="padding: 10px;">OK</button></div></div>
+
+    <!-- 错误提示模态框 -->
+    <div id="custom-modal" class="modal-overlay hidden">
+        <div class="modal-card">
+            <i class="fas fa-exclamation-circle" style="font-size: 40px; color: #60a5fa; margin-bottom: 12px;"></i>
+            <p id="modal-message" style="margin-bottom: 20px; font-weight: 500;">Please enter customer name and order date!</p>
+            <button onclick="closeModal()" class="btn-primary" style="padding: 10px;">OK</button>
+        </div>
+    </div>
+
+    <!-- 自定义确认清除模态框（玻璃态 + 缅甸语 + 圆润按钮） -->
+    <div id="confirm-modal" class="modal-overlay hidden">
+        <div class="modal-card" style="width: 280px;">
+            <i class="fas fa-trash-alt" style="font-size: 36px; color: #f87171; margin-bottom: 10px;"></i>
+            <h3 style="font-size: 18px; font-weight: 600; color: #fff; margin-bottom: 6px;">⚠️ သေချာပါသလား</h3>
+            <p style="font-size: 14px; color: rgba(255,255,255,0.75); margin-bottom: 16px; line-height: 1.5;">
+                ဒေတာအားလုံး ဖျက်ပစ်မှာ သေချာပါသလား?
+            </p>
+            <div class="confirm-actions">
+                <button id="confirm-cancel-btn" class="btn-secondary" style="flex:1;">No</button>
+                <button id="confirm-ok-btn" class="btn-danger" style="flex:1;">Yes</button>
+            </div>
+        </div>
+    </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">
     </script>
@@ -899,17 +927,44 @@
                     addDateInput();
                     recalculateAll(); } }
 
-            async function clearAllData() { playTapFeedback();
-                customerNameInput.value = ''; while (orderDatesList.firstChild) orderDatesList.removeChild(orderDatesList
-                    .firstChild);
-                dateCounter = 0; while (cargoListDiv.firstChild) cargoListDiv.removeChild(cargoListDiv.firstChild);
+            // 自定义确认对话框
+            function showConfirm() {
+                return new Promise((resolve) => {
+                    const modal = document.getElementById('confirm-modal');
+                    const cancelBtn = document.getElementById('confirm-cancel-btn');
+                    const okBtn = document.getElementById('confirm-ok-btn');
+                    modal.classList.remove('hidden');
+                    const cleanup = () => {
+                        modal.classList.add('hidden');
+                        cancelBtn.removeEventListener('click', onCancel);
+                        okBtn.removeEventListener('click', onOk);
+                    };
+                    const onCancel = () => { cleanup();
+                        resolve(false); };
+                    const onOk = () => { cleanup();
+                        resolve(true); };
+                    cancelBtn.addEventListener('click', onCancel);
+                    okBtn.addEventListener('click', onOk);
+                });
+            }
+
+            async function clearAllData() {
+                const confirmed = await showConfirm();
+                if (!confirmed) return;
+                playTapFeedback();
+                customerNameInput.value = '';
+                while (orderDatesList.firstChild) orderDatesList.removeChild(orderDatesList.firstChild);
+                dateCounter = 0;
+                while (cargoListDiv.firstChild) cargoListDiv.removeChild(cargoListDiv.firstChild);
                 cargoCounter = 0;
-                Object.keys(cargoImages).forEach(k => delete cargoImages[k]); try { const database = await openDB(); const transaction =
+                Object.keys(cargoImages).forEach(k => delete cargoImages[k]);
+                try { const database = await openDB(); const transaction =
                         database.transaction([STORE_NAME], 'readwrite');
                     transaction.objectStore(STORE_NAME).delete('freightData'); } catch (e) {}
                 addDateInput();
                 addCargoItem();
-                recalculateAll(); }
+                recalculateAll();
+            }
 
             function showModal(msg) { const modal = document.getElementById('custom-modal');
                 document.getElementById('modal-message').innerText = msg;
@@ -990,21 +1045,35 @@
                 recalculateAll(); };
             addDateBtn.addEventListener('click', () => addDateInput());
 
-            function renderImageGrid(cargoId, container) { const images = cargoImages[cargoId] || [];
+            // ==============================================================
+            //  ★★★ Canvas 高质量图片压缩逻辑（仅此部分被修改） ★★★
+            // ==============================================================
+            // 可调参数（您可根据清晰度要求修改）
+            const MAX_WIDTH = 1600;   // 最大宽度（像素），推荐 1600~1920
+            const QUALITY = 0.92;     // JPEG 质量 (0~1)，推荐 0.85~0.95
+
+            function renderImageGrid(cargoId, container) {
+                const images = cargoImages[cargoId] || [];
                 container.innerHTML = '';
-                images.forEach((imgUrl, idx) => { const previewDiv = document.createElement('div');
-                    previewDiv.className = 'preview-block'; const img = document.createElement('img');
-                    img.src = imgUrl; const delBtn = document.createElement('div');
+                images.forEach((imgUrl, idx) => {
+                    const previewDiv = document.createElement('div');
+                    previewDiv.className = 'preview-block';
+                    const img = document.createElement('img');
+                    img.src = imgUrl;
+                    const delBtn = document.createElement('div');
                     delBtn.className = 'delete-img-btn';
                     delBtn.innerHTML = '✕';
-                    delBtn.onclick = (e) => { e.stopPropagation();
+                    delBtn.onclick = (e) => {
+                        e.stopPropagation();
                         playTapFeedback();
                         images.splice(idx, 1);
                         renderImageGrid(cargoId, container);
-                        saveData(); };
+                        saveData();
+                    };
                     previewDiv.appendChild(img);
                     previewDiv.appendChild(delBtn);
-                    container.appendChild(previewDiv); });
+                    container.appendChild(previewDiv);
+                });
                 const cameraDiv = document.createElement('div');
                 cameraDiv.className = 'camera-block';
                 cameraDiv.innerHTML = '<i class="fas fa-camera"></i><span>Add</span>';
@@ -1012,22 +1081,71 @@
                 hiddenInput.type = 'file';
                 hiddenInput.accept = 'image/*';
                 hiddenInput.style.display = 'none';
-                hiddenInput.onchange = async (e) => { const file = e.target.files[0]; if (!file) return;
-                    playTapFeedback(); const reader = new FileReader();
-                    reader.onload = (ev) => { const dataURL = ev.target.result; if (!cargoImages[cargoId]) cargoImages[
-                            cargoId] = [];
-                        cargoImages[cargoId].push(dataURL);
-                        renderImageGrid(cargoId, container);
-                        saveData(); };
-                    reader.readAsDataURL(file);
-                    hiddenInput.value = ''; };
-                cameraDiv.onclick = () => { playTapFeedback();
-                    hiddenInput.click(); };
-                container.appendChild(cameraDiv);
-                container.appendChild(hiddenInput); }
 
-            function addCargoItem(data = {}) { cargoCounter++; const cid = String(cargoCounter); if (!cargoImages[cid]) cargoImages[
-                    cid] = (data.images ? [...data.images] : []); const cargoDiv = document.createElement('div');
+                // ─── 修改后的上传处理（带 Canvas 压缩） ───
+                hiddenInput.onchange = async (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    playTapFeedback();
+
+                    // 1. 加载原始图片
+                    const img = new Image();
+                    const url = URL.createObjectURL(file);
+                    img.src = url;
+                    await new Promise(resolve => { img.onload = resolve;
+                        img.onerror = resolve; });
+                    URL.revokeObjectURL(url);
+
+                    if (img.naturalWidth === 0) {
+                        showModal('图片加载失败，请重试');
+                        hiddenInput.value = '';
+                        return;
+                    }
+
+                    // 2. 使用 Canvas 缩放（保持长边不超过 MAX_WIDTH）
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    let w = img.naturalWidth,
+                        h = img.naturalHeight;
+                    if (w > h) {
+                        if (w > MAX_WIDTH) { h = h * MAX_WIDTH / w;
+                            w = MAX_WIDTH; }
+                    } else {
+                        if (h > MAX_WIDTH) { w = w * MAX_WIDTH / h;
+                            h = MAX_WIDTH; }
+                    }
+                    canvas.width = Math.round(w);
+                    canvas.height = Math.round(h);
+                    ctx.imageSmoothingEnabled = true;
+                    ctx.imageSmoothingQuality = 'high';
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                    // 3. 导出为高质量 JPEG Base64
+                    const compressedDataURL = canvas.toDataURL('image/jpeg', QUALITY);
+
+                    // 4. 存储压缩后的图片（替换原 FileReader 方式）
+                    if (!cargoImages[cargoId]) cargoImages[cargoId] = [];
+                    cargoImages[cargoId].push(compressedDataURL);
+                    renderImageGrid(cargoId, container);
+                    saveData();
+                    hiddenInput.value = '';
+                };
+                // ─── 修改结束 ───
+
+                cameraDiv.onclick = () => {
+                    playTapFeedback();
+                    hiddenInput.click();
+                };
+                container.appendChild(cameraDiv);
+                container.appendChild(hiddenInput);
+            }
+            // ==============================================================
+
+            function addCargoItem(data = {}) {
+                cargoCounter++;
+                const cid = String(cargoCounter);
+                if (!cargoImages[cid]) cargoImages[cid] = (data.images ? [...data.images] : []);
+                const cargoDiv = document.createElement('div');
                 cargoDiv.className = 'cargo-item cargo-card';
                 cargoDiv.id = `cargo-${cid}`;
                 cargoDiv.innerHTML =
@@ -1048,7 +1166,8 @@
                 cargoDiv.querySelectorAll('.kg-input, .length-input, .width-input, .height-input').forEach(inp => inp
                     .addEventListener('input', recalculateAll));
                 addTapFeedbackToElement(cargoDiv.querySelector('.remove-date-btn'));
-                recalculateAll(); }
+                recalculateAll();
+            }
             window.removeCargo = (id) => { playTapFeedback();
                 document.getElementById(`cargo-${id}`)?.remove();
                 delete cargoImages[String(id)];
