@@ -1334,7 +1334,7 @@
                     progress.update(98, "shareရန်...");
                     const firstOrderDate = orderDates[0] || 'nodate';
                     const safeName = customerName.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '_');
-                    const fileName = `${safeName}_${firstOrderDate}_Freight.pdf`;
+                    const fileName = `${safeName}_${firstOrderDate}.pdf`;
                     const file = new File([pdfBlob], fileName, { type: 'application/pdf' }); if (navigator.canShare && navigator
                         .canShare({ files: [file] })) { await navigator.share({ title: 'Freight Calculation', text: ` ${customerName}`,
                             files: [file] }); } else { const url = URL.createObjectURL(pdfBlob); const a = document
