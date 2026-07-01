@@ -4,15 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
     <title>ANT China Supplier - Smart Freight Calculator</title>
-    
+
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="logo.png">
-    
-    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script src="https://cdn.tailwindcss.com">
+    </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <style>
         * {
             margin: 0;
@@ -22,12 +23,11 @@
 
         body {
             font-family: -apple-system, 'SF Pro Text', 'SF Pro Display', 'Helvetica Neue', system-ui, 'Segoe UI', Roboto, sans-serif;
-            /* 深色渐变背景 + 略微放大，凸显玻璃感 */
-background: 
-    radial-gradient(circle at 15% 20%, #3b82f6 0%, transparent 40%),
-    radial-gradient(circle at 75% 80%, #a855f7 0%, transparent 40%),
-    radial-gradient(circle at 40% 40%, #ec4899 0%, transparent 70%),
-    #0f0f1a;
+            background:
+                radial-gradient(circle at 15% 20%, #3b82f6 0%, transparent 40%),
+                radial-gradient(circle at 75% 80%, #a855f7 0%, transparent 40%),
+                radial-gradient(circle at 40% 40%, #ec4899 0%, transparent 70%),
+                #0f0f1a;
             padding: calc(env(safe-area-inset-top) + 20px) 12px 32px;
             min-height: 100vh;
         }
@@ -69,7 +69,7 @@ background:
             font-size: 18px;
             color: #ffffff;
             letter-spacing: -0.3px;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
         }
         .brand-sub {
             font-size: 11px;
@@ -102,7 +102,7 @@ background:
             box-shadow: 0 18px 30px rgba(0, 0, 0, 0.25);
             border-color: rgba(255, 255, 255, 0.35);
         }
-        
+
         .card-header {
             padding: 14px 16px 8px 16px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.15);
@@ -118,19 +118,27 @@ background:
             display: flex;
             align-items: center;
             gap: 8px;
-            text-shadow: 0 1px 1px rgba(0,0,0,0.1);
+            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
         }
         .card-header h3 i {
             font-size: 16px;
             color: #60a5fa;
         }
-        
+
         .card-body {
             padding: 14px 16px;
         }
-        
+
         /* ========= 玻璃态输入框 ========= */
-        input, .ios-input, .date-item input, .dimension-row input, .kg-input, .length-input, .width-input, .height-input, .order-date-input {
+        input,
+        .ios-input,
+        .date-item input,
+        .dimension-row input,
+        .kg-input,
+        .length-input,
+        .width-input,
+        .height-input,
+        .order-date-input {
             background: rgba(255, 255, 255, 0.12);
             border: 1px solid rgba(255, 255, 255, 0.25);
             border-radius: 14px;
@@ -144,26 +152,26 @@ background:
             text-align: center !important;
             box-sizing: border-box;
         }
-        
+
         input:focus {
             border-color: #60a5fa;
             background: rgba(255, 255, 255, 0.22);
             box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.25);
         }
-        
+
         input::placeholder {
             color: rgba(255, 255, 255, 0.55);
         }
-        
+
         input[type="number"] {
             text-align: center;
             -moz-appearance: textfield;
         }
-        input[type="number"]::-webkit-inner-spin-button, 
+        input[type="number"]::-webkit-inner-spin-button,
         input[type="number"]::-webkit-outer-spin-button {
             opacity: 0.5;
         }
-        
+
         .form-row {
             margin-bottom: 14px;
         }
@@ -179,7 +187,7 @@ background:
             letter-spacing: -0.2px;
             text-align: left;
         }
-        
+
         .date-item {
             display: flex;
             gap: 8px;
@@ -205,7 +213,7 @@ background:
             background: rgba(255, 255, 255, 0.25);
             transform: scale(0.94);
         }
-        
+
         /* ========= 玻璃态货物卡片 + 悬停 ========= */
         .cargo-card {
             background: rgba(255, 255, 255, 0.1);
@@ -238,7 +246,7 @@ background:
             color: #60a5fa;
             margin-right: 6px;
         }
-        
+
         .radio-group {
             display: flex;
             gap: 20px;
@@ -262,7 +270,7 @@ background:
             margin: 0;
             accent-color: #60a5fa;
         }
-        
+
         .dimension-row {
             display: flex;
             gap: 10px;
@@ -272,17 +280,23 @@ background:
             padding: 10px 10px !important;
             text-align: center;
         }
-        
+
         /* ========= 玻璃态按钮 + 悬停动画 ========= */
-        .btn-primary, .btn-secondary, .btn-clear, .btn-danger {
+        .btn-primary,
+        .btn-secondary,
+        .btn-clear,
+        .btn-danger {
             transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
             cursor: pointer;
             -webkit-tap-highlight-color: transparent;
         }
-        .btn-primary:active, .btn-secondary:active, .btn-clear:active, .btn-danger:active {
+        .btn-primary:active,
+        .btn-secondary:active,
+        .btn-clear:active,
+        .btn-danger:active {
             transform: scale(0.96);
         }
-        
+
         .btn-primary {
             background: rgba(96, 165, 250, 0.8);
             backdrop-filter: blur(4px);
@@ -307,7 +321,7 @@ background:
         .btn-primary:active {
             transform: translateY(1px);
         }
-        
+
         .btn-secondary {
             background: rgba(255, 255, 255, 0.12);
             border: 1px solid rgba(255, 255, 255, 0.3);
@@ -326,7 +340,7 @@ background:
             background: rgba(255, 255, 255, 0.22);
             transform: translateY(-2px);
         }
-        
+
         .btn-clear {
             background: rgba(255, 255, 255, 0.12);
             border: 1px solid rgba(255, 255, 255, 0.3);
@@ -340,7 +354,7 @@ background:
             background: rgba(255, 255, 255, 0.22);
             transform: translateY(-1px);
         }
-        
+
         .btn-danger {
             background: rgba(239, 68, 68, 0.8);
             box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
@@ -350,7 +364,7 @@ background:
             background: rgba(239, 68, 68, 0.95);
             transform: translateY(-2px);
         }
-        
+
         .rate-row {
             display: flex;
             gap: 12px;
@@ -360,7 +374,7 @@ background:
             flex: 1;
             margin-bottom: 0;
         }
-        
+
         /* ========= 结果区域玻璃态 ========= */
         .results-grid {
             display: grid;
@@ -412,7 +426,7 @@ background:
             color: #93c5fd;
             letter-spacing: -0.3px;
         }
-        
+
         /* ========= 折叠面板 ========= */
         .collapsible-header {
             display: flex;
@@ -463,7 +477,7 @@ background:
         .collapsed-preview.hidden {
             display: none;
         }
-        
+
         /* 货物表格 - 玻璃滚动区 */
         .cargo-table-wrapper {
             overflow-x: auto;
@@ -496,7 +510,7 @@ background:
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             background: transparent;
         }
-        
+
         /* 图片区域 */
         .image-grid {
             display: flex;
@@ -568,7 +582,7 @@ background:
             color: #bfdbfe;
             font-weight: 500;
         }
-        
+
         /* 进度遮罩 / 模态框 玻璃感增强 */
         .progress-overlay {
             position: fixed;
@@ -632,19 +646,41 @@ background:
             border: 1px solid rgba(255, 255, 255, 0.25);
             color: #ffffff;
         }
-        .hidden { display: none; }
-        
-        .mt-2 { margin-top: 8px; }
-        .mb-2 { margin-bottom: 8px; }
-        .mt-3 { margin-top: 12px; }
-        .w-full { width: 100%; }
-        .text-right { text-align: right; }
-        .text-center { text-align: center; }
-        .flex { display: flex; }
-        .items-center { align-items: center; }
-        .justify-between { justify-content: space-between; }
-        .gap-2 { gap: 8px; }
-        
+        .hidden {
+            display: none;
+        }
+
+        .mt-2 {
+            margin-top: 8px;
+        }
+        .mb-2 {
+            margin-bottom: 8px;
+        }
+        .mt-3 {
+            margin-top: 12px;
+        }
+        .w-full {
+            width: 100%;
+        }
+        .text-right {
+            text-align: right;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .flex {
+            display: flex;
+        }
+        .items-center {
+            align-items: center;
+        }
+        .justify-between {
+            justify-content: space-between;
+        }
+        .gap-2 {
+            gap: 8px;
+        }
+
         .calculation-details {
             color: #93c5fd;
         }
@@ -663,14 +699,14 @@ background:
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js').catch(e => console.log("SW registration failed", e));
         }
-        
+
         function playTapFeedback() {
             if (window.navigator && window.navigator.vibrate) {
                 window.navigator.vibrate(10);
             }
             try {
                 if (window.AudioContext || window.webkitAudioContext) {
-                    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    const audioCtx = new(window.AudioContext || window.webkitAudioContext)();
                     const oscillator = audioCtx.createOscillator();
                     const gainNode = audioCtx.createGain();
                     oscillator.connect(gainNode);
@@ -682,28 +718,29 @@ background:
                     oscillator.stop(audioCtx.currentTime + 0.1);
                     if (audioCtx.state === 'suspended') audioCtx.resume();
                 }
-            } catch(e) {}
+            } catch (e) {}
         }
-        
+
         function addTapFeedbackToElement(el) {
             if (el) el.addEventListener('click', (e) => { playTapFeedback(); }, { passive: false });
         }
-        
+
         let progressOverlay = null;
+
         function showProgress(title, steps = 3) {
             if (progressOverlay) progressOverlay.remove();
             progressOverlay = document.createElement('div');
             progressOverlay.className = 'progress-overlay';
             progressOverlay.innerHTML = `
-                <div class="progress-card">
-                    <i class="fas fa-file-pdf" style="font-size: 40px; color: #60a5fa; margin-bottom: 8px;"></i>
-                    <div class="progress-text" id="progressTitle">${title}</div>
-                    <div class="progress-bar-container">
-                        <div class="progress-bar-fill" id="progressFill"></div>
+                    <div class="progress-card">
+                        <i class="fas fa-file-pdf" style="font-size: 40px; color: #60a5fa; margin-bottom: 8px;"></i>
+                        <div class="progress-text" id="progressTitle">${title}</div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill" id="progressFill"></div>
+                        </div>
+                        <div class="progress-sub" id="progressSub">准备中...</div>
                     </div>
-                    <div class="progress-sub" id="progressSub">准备中...</div>
-                </div>
-            `;
+                `;
             document.body.appendChild(progressOverlay);
             return {
                 update: (percent, message) => {
@@ -712,251 +749,490 @@ background:
                     if (fill) fill.style.width = percent + '%';
                     if (sub && message) sub.innerText = message;
                 },
-                close: () => { if (progressOverlay) { progressOverlay.remove(); progressOverlay = null; } }
+                close: () => { if (progressOverlay) { progressOverlay.remove();
+                        progressOverlay = null; } }
             };
         }
     </script>
 </head>
 <body>
-<div class="main-container">
-    <div class="compact-header">
-        <div class="brand"><span class="brand-name">ANT China Supplier</span><span class="brand-sub">Smart Calculator</span></div>
-        <div class="version">v3.0</div>
-    </div>
-
-    <div class="card">
-        <div class="card-header"><h3><i class="fas fa-user-circle"></i>Customer</h3><button id="clear-all-btn" class="btn-clear"><i class="fas fa-eraser"></i> Clear</button></div>
-        <div class="card-body">
-            <div class="form-row"><label class="label">Name</label><input type="text" id="customerName" placeholder="Customer name"></div>
-            <div class="form-row"><label class="label">Order Date(s)</label><div id="order-dates-list"></div><button id="add-date-btn" class="btn-secondary mt-2"><i class="fas fa-plus"></i> Add Date</button></div>
+    <div class="main-container">
+        <div class="compact-header">
+            <div class="brand"><span class="brand-name">ANT China Supplier</span><span class="brand-sub">Smart Calculator</span></div>
+            <div class="version">v3.0</div>
         </div>
-    </div>
 
-    <div id="cargo-list"></div>
-    <button id="add-cargo-btn" class="btn-primary mb-2"><i class="fas fa-plus-circle"></i> Add Cargo</button>
-
-    <div class="card">
-        <div class="card-header"><h3><i class="fas fa-sliders-h"></i>Rates</h3></div>
-        <div class="card-body">
-            <div class="rate-row">
-                <div class="form-row"><label class="label">¥/kg</label><input type="number" id="kgRate" value="20" step="1"></div>
-                <div class="form-row"><label class="label">¥/m³</label><input type="number" id="cbmRate" value="1700" step="10"></div>
-                <div class="form-row"><label class="label">Ks/¥</label><input type="number" id="exchangeRate" value="630" step="5"></div>
-            </div>
-            <div id="cargo-details-container">
-                <div class="collapsible-header" id="cargoDetailsHeader">
-                    <h4><i class="fas fa-list-ul"></i> Cargo Details</h4>
-                    <div class="collapse-icon" id="collapseIcon"><i class="fas fa-chevron-up"></i></div>
-                </div>
-                <div id="collapsedPreview" class="collapsed-preview hidden"><span>Total Freight</span><span class="preview-total" id="previewTotalRMB">0.00 ¥</span></div>
-                <div id="cargoDetailsContent" class="collapsible-content"><div id="cargo-details-table-container"></div></div>
-            </div>
-            <div class="mt-3">
-                <div class="results-grid" id="results">
-                    <div class="result-item"><div class="result-label">Weight</div><div class="result-value" id="totalKg">0 kg</div></div>
-                    <div class="result-item"><div class="result-label">Volume</div><div class="result-value" id="totalVolume">0 m³</div></div>
-                    <div class="result-item"><div class="result-label">Weight ¥</div><div class="result-value" id="totalKgCost">0 ¥</div></div>
-                    <div class="result-item"><div class="result-label">Volume ¥</div><div class="result-value" id="totalVolumeCost">0 ¥</div></div>
-                    <div class="result-total"><div class="result-label">Total (RMB)</div><div class="total-value" id="totalCostRMB">0 ¥</div></div>
-                    <div class="result-total"><div class="result-label">Total (MMK)</div><div class="total-value" id="totalCostMMK">0 Ks</div></div>
-                </div>
+        <div class="card">
+            <div class="card-header"><h3><i class="fas fa-user-circle"></i>Customer</h3><button id="clear-all-btn" class="btn-clear"><i class="fas fa-eraser"></i> Clear</button></div>
+            <div class="card-body">
+                <div class="form-row"><label class="label">Name</label><input type="text" id="customerName" placeholder="Customer name"></div>
+                <div class="form-row"><label class="label">Order Date(s)</label><div id="order-dates-list"></div><button id="add-date-btn" class="btn-secondary mt-2"><i class="fas fa-plus"></i> Add Date</button></div>
             </div>
         </div>
+
+        <div id="cargo-list"></div>
+        <button id="add-cargo-btn" class="btn-primary mb-2"><i class="fas fa-plus-circle"></i> Add Cargo</button>
+
+        <div class="card">
+            <div class="card-header"><h3><i class="fas fa-sliders-h"></i>Rates</h3></div>
+            <div class="card-body">
+                <div class="rate-row">
+                    <div class="form-row"><label class="label">¥/kg</label><input type="number" id="kgRate" value="20" step="1" inputmode="decimal"></div>
+                    <div class="form-row"><label class="label">¥/m³</label><input type="number" id="cbmRate" value="1700" step="10" inputmode="decimal"></div>
+                    <div class="form-row"><label class="label">Ks/¥</label><input type="number" id="exchangeRate" value="630" step="5" inputmode="decimal"></div>
+                </div>
+                <div id="cargo-details-container">
+                    <div class="collapsible-header" id="cargoDetailsHeader">
+                        <h4><i class="fas fa-list-ul"></i> Cargo Details</h4>
+                        <div class="collapse-icon" id="collapseIcon"><i class="fas fa-chevron-up"></i></div>
+                    </div>
+                    <div id="collapsedPreview" class="collapsed-preview hidden"><span>Total Freight</span><span class="preview-total" id="previewTotalRMB">0.00 ¥</span></div>
+                    <div id="cargoDetailsContent" class="collapsible-content"><div id="cargo-details-table-container"></div></div>
+                </div>
+                <div class="mt-3">
+                    <div class="results-grid" id="results">
+                        <div class="result-item"><div class="result-label">Weight</div><div class="result-value" id="totalKg">0 kg</div></div>
+                        <div class="result-item"><div class="result-label">Volume</div><div class="result-value" id="totalVolume">0 m³</div></div>
+                        <div class="result-item"><div class="result-label">Weight ¥</div><div class="result-value" id="totalKgCost">0 ¥</div></div>
+                        <div class="result-item"><div class="result-label">Volume ¥</div><div class="result-value" id="totalVolumeCost">0 ¥</div></div>
+                        <div class="result-total"><div class="result-label">Total (RMB)</div><div class="total-value" id="totalCostRMB">0 ¥</div></div>
+                        <div class="result-total"><div class="result-label">Total (MMK)</div><div class="total-value" id="totalCostMMK">0 Ks</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button id="export-pdf-btn" class="btn-primary btn-danger"><i class="fas fa-share-nodes"></i> Export & Share PDF</button>
     </div>
-    <button id="export-pdf-btn" class="btn-primary btn-danger"><i class="fas fa-share-nodes"></i> Export & Share PDF</button>
-</div>
-<div id="custom-modal" class="modal-overlay hidden"><div class="modal-card"><i class="fas fa-exclamation-circle" style="font-size: 40px; color: #60a5fa; margin-bottom: 12px;"></i><p id="modal-message" style="margin-bottom: 20px; font-weight: 500;">Please enter customer name and order date!</p><button onclick="closeModal()" class="btn-primary" style="padding: 10px;">OK</button></div></div>
+    <div id="custom-modal" class="modal-overlay hidden"><div class="modal-card"><i class="fas fa-exclamation-circle" style="font-size: 40px; color: #60a5fa; margin-bottom: 12px;"></i><p id="modal-message" style="margin-bottom: 20px; font-weight: 500;">Please enter customer name and order date!</p><button onclick="closeModal()" class="btn-primary" style="padding: 10px;">OK</button></div></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.0.0-rc.5/dist/html2canvas.min.js"></script>
-<script src="https://unpkg.com/jspdf-font-source-han-sans@1.0.0/dist/SourceHanSansCN-Normal.js"></script>
-<script src="https://unpkg.com/jspdf-font-montserrat@1.0.0/dist/Montserrat-Regular.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.0.0-rc.5/dist/html2canvas.min.js">
+    </script>
+    <script src="https://unpkg.com/jspdf-font-source-han-sans@1.0.0/dist/SourceHanSansCN-Normal.js">
+    </script>
+    <script src="https://unpkg.com/jspdf-font-montserrat@1.0.0/dist/Montserrat-Regular.js">
+    </script>
 
-<script>
-(function(){
-    const cargoListDiv = document.getElementById('cargo-list');
-    const addCargoBtn = document.getElementById('add-cargo-btn');
-    const exportPdfBtn = document.getElementById('export-pdf-btn');
-    const clearAllBtn = document.getElementById('clear-all-btn');
-    const customerNameInput = document.getElementById('customerName');
-    const addDateBtn = document.getElementById('add-date-btn');
-    const orderDatesList = document.getElementById('order-dates-list');
-    const kgRateInput = document.getElementById('kgRate');
-    const cbmRateInput = document.getElementById('cbmRate');
-    const exchangeRateInput = document.getElementById('exchangeRate');
-    const cargoDetailsTableContainer = document.getElementById('cargo-details-table-container');
-    
-    addTapFeedbackToElement(addCargoBtn); addTapFeedbackToElement(exportPdfBtn); addTapFeedbackToElement(clearAllBtn); addTapFeedbackToElement(addDateBtn);
-    
-    const cargoDetailsHeader = document.getElementById('cargoDetailsHeader');
-    const cargoDetailsContent = document.getElementById('cargoDetailsContent');
-    const collapseIcon = document.getElementById('collapseIcon');
-    const collapsedPreview = document.getElementById('collapsedPreview');
-    let isCollapsed = false;
-    function toggleCollapse() { isCollapsed = !isCollapsed; if (isCollapsed) { cargoDetailsContent.classList.add('collapsed'); collapseIcon.classList.add('collapsed'); collapsedPreview.classList.remove('hidden'); } else { cargoDetailsContent.classList.remove('collapsed'); collapseIcon.classList.remove('collapsed'); collapsedPreview.classList.add('hidden'); } playTapFeedback(); }
-    cargoDetailsHeader.addEventListener('click', toggleCollapse);
-    
-    let cargoCounter = 0, dateCounter = 0;
-    const cargoData = [];
-    const cargoImages = {};
-    const DB_NAME = 'FreightDB', DB_VERSION = 1, STORE_NAME = 'freightData';
-    let db = null;
-    function openDB() { return new Promise((resolve, reject) => { if (db && db.name === DB_NAME) { resolve(db); return; } const request = indexedDB.open(DB_NAME, DB_VERSION); request.onerror = () => reject(request.error); request.onsuccess = () => { db = request.result; resolve(db); }; request.onupgradeneeded = (event) => { const dbRef = event.target.result; if (!dbRef.objectStoreNames.contains(STORE_NAME)) dbRef.createObjectStore(STORE_NAME); }; }); }
-    async function saveData() { try { const database = await openDB(); const data = { customerName: customerNameInput.value, orderDates: Array.from(orderDatesList.querySelectorAll('.order-date-input')).map(inp => inp.value), kgRate: kgRateInput.value, cbmRate: cbmRateInput.value, exchangeRate: exchangeRateInput.value, cargos: [], cargoImages: cargoImages, isDetailsCollapsed: isCollapsed }; document.querySelectorAll('.cargo-item').forEach(item => { const cargoId = item.id.split('-')[1]; const calcTypeRadio = item.querySelector(`input[name="calc-type-${cargoId}"]:checked`); const calcType = calcTypeRadio ? calcTypeRadio.value : 'weight'; data.cargos.push({ id: cargoId, type: calcType, kg: item.querySelector('.kg-input')?.value || '', length: item.querySelector('.length-input')?.value || '', width: item.querySelector('.width-input')?.value || '', height: item.querySelector('.height-input')?.value || '' }); }); const transaction = database.transaction([STORE_NAME], 'readwrite'); transaction.objectStore(STORE_NAME).put(data, 'freightData'); await new Promise((resolve, reject) => { transaction.oncomplete = resolve; transaction.onerror = () => reject(transaction.error); }); } catch(e) { console.warn(e); } }
-    async function loadData() { try { const database = await openDB(); const store = database.transaction([STORE_NAME], 'readonly').objectStore(STORE_NAME); const data = await new Promise(resolve => { const req = store.get('freightData'); req.onsuccess = () => resolve(req.result); }); if (data) { customerNameInput.value = data.customerName || ''; kgRateInput.value = data.kgRate || '20'; cbmRateInput.value = data.cbmRate || '1700'; exchangeRateInput.value = data.exchangeRate || '630'; if (data.orderDates && data.orderDates.length) data.orderDates.forEach(d => addDateInput(d)); else addDateInput(); if (data.cargoImages) Object.assign(cargoImages, data.cargoImages); if (data.cargos && data.cargos.length) data.cargos.forEach(c => addCargoItem(c)); else addCargoItem(); if (data.isDetailsCollapsed !== undefined && data.isDetailsCollapsed) { isCollapsed = false; toggleCollapse(); } } else { addCargoItem(); addDateInput(); } recalculateAll(); } catch(e) { addCargoItem(); addDateInput(); recalculateAll(); } }
-    async function clearAllData() { playTapFeedback(); customerNameInput.value = ''; while(orderDatesList.firstChild) orderDatesList.removeChild(orderDatesList.firstChild); dateCounter = 0; while(cargoListDiv.firstChild) cargoListDiv.removeChild(cargoListDiv.firstChild); cargoCounter = 0; Object.keys(cargoImages).forEach(k => delete cargoImages[k]); try { const database = await openDB(); const transaction = database.transaction([STORE_NAME], 'readwrite'); transaction.objectStore(STORE_NAME).delete('freightData'); } catch(e) {} addDateInput(); addCargoItem(); recalculateAll(); }
-    function showModal(msg) { const modal = document.getElementById('custom-modal'); document.getElementById('modal-message').innerText = msg; modal.classList.remove('hidden'); setTimeout(() => modal.classList.add('hidden'), 2000); }
-    window.closeModal = () => document.getElementById('custom-modal').classList.add('hidden');
-    
-    function updateCargoDetailsTable() { const previewTotalSpan = document.getElementById('previewTotalRMB'); if (cargoData.length === 0) { cargoDetailsTableContainer.innerHTML = `<p class="text-center text-gray-400 py-4 text-xs">No cargo added</p>`; if(previewTotalSpan) previewTotalSpan.innerText = '0.00 ¥'; return; } const totalCostRMB = cargoData.reduce((sum, i) => sum + i.totalCost, 0).toFixed(2); if(previewTotalSpan) previewTotalSpan.innerText = totalCostRMB + ' ¥'; let html = `<div class="cargo-table-wrapper"><table><thead><tr><th>#</th><th>Type</th><th>Weight</th><th>Dimensions</th><th>Vol</th><th>¥</th></tr></thead><tbody>`; cargoData.forEach(item => { if (item.type === 'weight') html += `<tr><td class="font-medium">${item.id}</td><td>W</td><td>${item.kg.toFixed(2)}</td><td>-</td><td>-</td><td class="font-semibold">${item.totalCost.toFixed(2)}</td></tr>`; else { const dim = `${item.length.toFixed(2)}x${item.width.toFixed(2)}x${item.height.toFixed(2)}`; html += `<tr><td class="font-medium">${item.id}</td><td>V</td><td>-</td><td>${dim}</td><td>${item.volume.toFixed(3)}</td><td class="font-semibold">${item.totalCost.toFixed(2)}</td></tr>`; } }); html += `<tr class="border-t"><td colspan="5" class="text-right font-medium">Total</td><td class="font-bold">${totalCostRMB}</td></tr></tbody></table></div>`; cargoDetailsTableContainer.innerHTML = html; }
-    
-    function recalculateAll() { let totalKg = 0, totalVolume = 0, totalKgCost = 0, totalVolumeCost = 0; cargoData.length = 0; const kgRate = parseFloat(kgRateInput.value) || 0, cbmRate = parseFloat(cbmRateInput.value) || 0, exchangeRate = parseFloat(exchangeRateInput.value) || 0; document.querySelectorAll('.cargo-item').forEach(item => { const cargoId = item.id.split('-')[1]; const calcType = item.querySelector(`input[name="calc-type-${cargoId}"]:checked`).value; let singleCost = 0, kg = 0, len = 0, wid = 0, hei = 0, vol = 0; if (calcType === 'weight') { kg = parseFloat(item.querySelector('.kg-input').value) || 0; singleCost = kg * kgRate; totalKgCost += singleCost; totalKg += kg; } else { len = parseFloat(item.querySelector('.length-input').value) || 0; wid = parseFloat(item.querySelector('.width-input').value) || 0; hei = parseFloat(item.querySelector('.height-input').value) || 0; vol = len * wid * hei; singleCost = vol * cbmRate; totalVolumeCost += singleCost; totalVolume += vol; } cargoData.push({ id: cargoId, type: calcType, kg, length: len, width: wid, height: hei, volume: vol, totalCost: singleCost }); const detailsDiv = item.querySelector('.calculation-details'); if (calcType === 'weight') detailsDiv.innerHTML = `<div class="mt-2 text-[#93c5fd] text-xs font-medium">Freight: ${singleCost.toFixed(2)} ¥</div>`; else detailsDiv.innerHTML = `<div class="mt-2 text-[#93c5fd] text-xs">Volume: ${vol.toFixed(3)} m³<br>Freight: ${singleCost.toFixed(2)} ¥</div>`; }); const totalRMB = totalKgCost + totalVolumeCost; const totalMMK = Math.round(totalRMB * exchangeRate); document.getElementById('totalKg').innerText = totalKg.toFixed(1) + ' kg'; document.getElementById('totalVolume').innerText = totalVolume.toFixed(3) + ' m³'; document.getElementById('totalKgCost').innerText = totalKgCost.toFixed(0) + ' ¥'; document.getElementById('totalVolumeCost').innerText = totalVolumeCost.toFixed(0) + ' ¥'; document.getElementById('totalCostRMB').innerText = totalRMB.toFixed(0) + ' ¥'; document.getElementById('totalCostMMK').innerText = totalMMK.toLocaleString('en-US') + ' Ks'; updateCargoDetailsTable(); saveData(); }
-    
-    function addDateInput(value = '') { dateCounter++; const div = document.createElement('div'); div.className = 'date-item'; div.id = `order-date-${dateCounter}`; div.innerHTML = `<input type="date" value="${value}" class="order-date-input"><div onclick="removeDateInput(${dateCounter})" class="remove-date-btn"><i class="fas fa-times"></i></div>`; orderDatesList.appendChild(div); div.querySelector('.order-date-input').addEventListener('input', recalculateAll); addTapFeedbackToElement(div.querySelector('.remove-date-btn')); recalculateAll(); }
-    window.removeDateInput = (id) => { playTapFeedback(); document.getElementById(`order-date-${id}`)?.remove(); recalculateAll(); };
-    addDateBtn.addEventListener('click', () => addDateInput());
-    
-    function renderImageGrid(cargoId, container) { const images = cargoImages[cargoId] || []; container.innerHTML = ''; images.forEach((imgUrl, idx) => { const previewDiv = document.createElement('div'); previewDiv.className = 'preview-block'; const img = document.createElement('img'); img.src = imgUrl; const delBtn = document.createElement('div'); delBtn.className = 'delete-img-btn'; delBtn.innerHTML = '✕'; delBtn.onclick = (e) => { e.stopPropagation(); playTapFeedback(); images.splice(idx, 1); renderImageGrid(cargoId, container); saveData(); }; previewDiv.appendChild(img); previewDiv.appendChild(delBtn); container.appendChild(previewDiv); }); const cameraDiv = document.createElement('div'); cameraDiv.className = 'camera-block'; cameraDiv.innerHTML = '<i class="fas fa-camera"></i><span>Add</span>'; const hiddenInput = document.createElement('input'); hiddenInput.type = 'file'; hiddenInput.accept = 'image/*'; hiddenInput.style.display = 'none'; hiddenInput.onchange = async (e) => { const file = e.target.files[0]; if (!file) return; playTapFeedback(); const reader = new FileReader(); reader.onload = (ev) => { const dataURL = ev.target.result; if (!cargoImages[cargoId]) cargoImages[cargoId] = []; cargoImages[cargoId].push(dataURL); renderImageGrid(cargoId, container); saveData(); }; reader.readAsDataURL(file); hiddenInput.value = ''; }; cameraDiv.onclick = () => { playTapFeedback(); hiddenInput.click(); }; container.appendChild(cameraDiv); container.appendChild(hiddenInput); }
-    
-    function addCargoItem(data = {}) { cargoCounter++; const cid = String(cargoCounter); if (!cargoImages[cid]) cargoImages[cid] = (data.images ? [...data.images] : []); const cargoDiv = document.createElement('div'); cargoDiv.className = 'cargo-item cargo-card'; cargoDiv.id = `cargo-${cid}`; cargoDiv.innerHTML = `<div class="cargo-header"><span class="cargo-title"><i class="fas fa-box"></i>Cargo #${cid}</span><div class="remove-date-btn" onclick="removeCargo(${cid})"><i class="fas fa-trash-alt"></i></div></div><div class="radio-group"><label class="radio-item"><input type="radio" name="calc-type-${cid}" value="weight" ${data.type === 'weight' || !data.type ? 'checked' : ''}> Weight</label><label class="radio-item"><input type="radio" name="calc-type-${cid}" value="volume" ${data.type === 'volume' ? 'checked' : ''}> Volume</label></div><div id="weight-inputs-${cid}"><input type="number" value="${data.kg || ''}" class="kg-input w-full" placeholder="Weight (kg)" step="0.01"></div><div id="volume-inputs-${cid}" class="hidden"><div class="dimension-row"><div><input type="number" value="${data.length || ''}" class="length-input" placeholder="L (m)" step="0.001"></div><div><input type="number" value="${data.width || ''}" class="width-input" placeholder="W (m)" step="0.001"></div><div><input type="number" value="${data.height || ''}" class="height-input" placeholder="H (m)" step="0.001"></div></div></div><div class="mt-2"><div id="image-grid-${cid}" class="image-grid"></div></div><div class="calculation-details"></div>`; cargoListDiv.appendChild(cargoDiv); const weightDiv = document.getElementById(`weight-inputs-${cid}`); const volumeDiv = document.getElementById(`volume-inputs-${cid}`); if (data.type === 'volume') { weightDiv.classList.add('hidden'); volumeDiv.classList.remove('hidden'); } else { weightDiv.classList.remove('hidden'); volumeDiv.classList.add('hidden'); } const gridContainer = document.getElementById(`image-grid-${cid}`); renderImageGrid(cid, gridContainer); cargoDiv.querySelectorAll(`input[name="calc-type-${cid}"]`).forEach(radio => { radio.addEventListener('change', (e) => { const isWeight = e.target.value === 'weight'; weightDiv.classList.toggle('hidden', !isWeight); volumeDiv.classList.toggle('hidden', isWeight); recalculateAll(); }); }); cargoDiv.querySelectorAll('.kg-input, .length-input, .width-input, .height-input').forEach(inp => inp.addEventListener('input', recalculateAll)); addTapFeedbackToElement(cargoDiv.querySelector('.remove-date-btn')); recalculateAll(); }
-    window.removeCargo = (id) => { playTapFeedback(); document.getElementById(`cargo-${id}`)?.remove(); delete cargoImages[String(id)]; recalculateAll(); };
-    
-    addCargoBtn.addEventListener('click', () => addCargoItem()); clearAllBtn.addEventListener('click', clearAllData); kgRateInput.addEventListener('input', recalculateAll); cbmRateInput.addEventListener('input', recalculateAll); exchangeRateInput.addEventListener('input', recalculateAll); customerNameInput.addEventListener('input', recalculateAll);
-    
-    async function generatePdfBlob(progress) { 
-        const { jsPDF } = window.jspdf; 
-        progress.update(10, "Daterဖတ်ယူနေ..."); 
-        const customerName = customerNameInput.value.trim(); 
-        const orderDates = Array.from(document.querySelectorAll('.order-date-input')).map(inp => inp.value.trim()).filter(Boolean); 
-        if (!customerName || orderDates.length === 0) throw new Error('Missing customer or dates'); 
-        
-        progress.update(20, "准备文档..."); 
-        let bgImageData = null; 
-        try { 
-            const resp = await fetch('bg.png'); 
-            if(resp.ok) { 
-                const blob = await resp.blob(); 
-                bgImageData = await new Promise(r => { 
-                    const fr = new FileReader(); 
-                    fr.onloadend = () => r(fr.result); 
-                    fr.readAsDataURL(blob); 
-                }); 
-            } 
-        } catch(e){} 
+    <script>
+        (function() {
+            const cargoListDiv = document.getElementById('cargo-list');
+            const addCargoBtn = document.getElementById('add-cargo-btn');
+            const exportPdfBtn = document.getElementById('export-pdf-btn');
+            const clearAllBtn = document.getElementById('clear-all-btn');
+            const customerNameInput = document.getElementById('customerName');
+            const addDateBtn = document.getElementById('add-date-btn');
+            const orderDatesList = document.getElementById('order-dates-list');
+            const kgRateInput = document.getElementById('kgRate');
+            const cbmRateInput = document.getElementById('cbmRate');
+            const exchangeRateInput = document.getElementById('exchangeRate');
+            const cargoDetailsTableContainer = document.getElementById('cargo-details-table-container');
 
-        const doc = new jsPDF('p', 'mm', 'a4'); 
-        const pageWidth = doc.internal.pageSize.getWidth(); 
-        const pageHeight = doc.internal.pageSize.getHeight(); 
-        const margin = 15; 
-        
-        const applyBg = (d, img) => { 
-            if(img) d.addImage(img, 'PNG', 0, 0, pageWidth, pageHeight, undefined, 'FAST'); 
-        }; 
+            addTapFeedbackToElement(addCargoBtn);
+            addTapFeedbackToElement(exportPdfBtn);
+            addTapFeedbackToElement(clearAllBtn);
+            addTapFeedbackToElement(addDateBtn);
 
-        applyBg(doc, bgImageData); 
-        
-        let yPos = 30;
-        doc.setFont('Montserrat', 'normal'); 
-        doc.setFontSize(22); 
-        doc.setFont(undefined, 'bold'); 
-        doc.text('INTERNATIONAL SHIPPING', pageWidth/2, yPos, {align:'center'}); 
-        yPos+=10; 
-        doc.setFont('SourceHanSans', 'normal'); 
-        doc.setFontSize(11); 
-        doc.text(`Name: ${customerName}`, margin, yPos); 
-        yPos+=6; 
-        const dateStr = orderDates.map(d=>d.split('-').slice(1,3).join('-')).join(', '); 
-        doc.text(`Order Date: ${dateStr}`, margin, yPos); 
-        yPos+=10; 
+            const cargoDetailsHeader = document.getElementById('cargoDetailsHeader');
+            const cargoDetailsContent = document.getElementById('cargoDetailsContent');
+            const collapseIcon = document.getElementById('collapseIcon');
+            const collapsedPreview = document.getElementById('collapsedPreview');
+            let isCollapsed = false;
 
-        const kgRate = parseFloat(kgRateInput.value)||0, cbmRate = parseFloat(cbmRateInput.value)||0, exRate = parseFloat(exchangeRateInput.value)||0; 
-        const headers = ["No.", "Type", `Weight(kg/${kgRate}¥)`, "Dimensions(m)", `Volume(m³/${cbmRate}¥)`, "Freight(¥)"]; 
-        const body = cargoData.map(i => i.type==='weight' ? [i.id, "By Weight", i.kg.toFixed(2), "-", "-", i.totalCost.toFixed(2)] : [i.id, "By Volume", "-", `${i.length.toFixed(3)}x${i.width.toFixed(3)}x${i.height.toFixed(3)}`, i.volume.toFixed(3), i.totalCost.toFixed(2)]); 
-        
-        progress.update(40, "ဇယားထုတ်နေသည်..."); 
-        doc.autoTable({ 
-            startY: yPos, 
-            head: [headers], 
-            body: body, 
-            theme: 'grid', 
-            styles: { fontSize: 9, font: 'SourceHanSans', halign: 'center', textColor: [0,0,0] }, 
-            headStyles: { fillColor: [0,0,0], textColor: [255,255,255], fontStyle: 'bold' }, 
-            margin: { top: margin, bottom: 45 },
-            didAddPage: function (data) {
+            function toggleCollapse() { isCollapsed = !isCollapsed; if (isCollapsed) { cargoDetailsContent.classList.add('collapsed');
+                    collapseIcon.classList.add('collapsed');
+                    collapsedPreview.classList.remove('hidden'); } else { cargoDetailsContent.classList.remove('collapsed');
+                    collapseIcon.classList.remove('collapsed');
+                    collapsedPreview.classList.add('hidden'); } playTapFeedback(); }
+            cargoDetailsHeader.addEventListener('click', toggleCollapse);
+
+            let cargoCounter = 0,
+                dateCounter = 0;
+            const cargoData = [];
+            const cargoImages = {};
+            const DB_NAME = 'FreightDB',
+                DB_VERSION = 1,
+                STORE_NAME = 'freightData';
+            let db = null;
+
+            function openDB() { return new Promise((resolve, reject) => { if (db && db.name === DB_NAME) { resolve(db); return; } const request = indexedDB.open(DB_NAME, DB_VERSION);
+                    request.onerror = () => reject(request.error);
+                    request.onsuccess = () => { db = request.result;
+                        resolve(db); };
+                    request.onupgradeneeded = (event) => { const dbRef = event.target.result; if (!dbRef.objectStoreNames.contains(STORE_NAME)) dbRef.createObjectStore(
+                            STORE_NAME); }; }); }
+
+            async function saveData() { try { const database = await openDB(); const data = { customerName: customerNameInput.value, orderDates: Array.from(
+                            orderDatesList.querySelectorAll('.order-date-input')).map(inp => inp.value), kgRate: kgRateInput
+                            .value, cbmRate: cbmRateInput.value, exchangeRate: exchangeRateInput.value, cargos: [],
+                        cargoImages: cargoImages, isDetailsCollapsed: isCollapsed };
+                    document.querySelectorAll('.cargo-item').forEach(item => { const cargoId = item.id.split('-')[1]; const calcTypeRadio = item
+                            .querySelector(`input[name="calc-type-${cargoId}"]:checked`); const calcType = calcTypeRadio ? calcTypeRadio
+                            .value : 'weight';
+                        data.cargos.push({ id: cargoId, type: calcType, kg: item.querySelector('.kg-input')?.value || '',
+                            length: item.querySelector('.length-input')?.value || '', width: item.querySelector(
+                                '.width-input')?.value || '', height: item.querySelector('.height-input')?.value ||
+                            '' }); });
+                    const transaction = database.transaction([STORE_NAME], 'readwrite');
+                    transaction.objectStore(STORE_NAME).put(data, 'freightData');
+                    await new Promise((resolve, reject) => { transaction.oncomplete = resolve;
+                        transaction.onerror = () => reject(transaction.error); });
+                } catch (e) { console.warn(e); } }
+
+            async function loadData() { try { const database = await openDB(); const store = database.transaction([STORE_NAME],
+                        'readonly').objectStore(STORE_NAME); const data = await new Promise(resolve => { const req = store.get(
+                            'freightData');
+                        req.onsuccess = () => resolve(req.result); }); if (data) { customerNameInput.value = data.customerName ||
+                            '';
+                        kgRateInput.value = data.kgRate || '20';
+                        cbmRateInput.value = data.cbmRate || '1700';
+                        exchangeRateInput.value = data.exchangeRate || '630'; if (data.orderDates && data.orderDates.length) data
+                            .orderDates.forEach(d => addDateInput(d));
+                        else addDateInput(); if (data.cargoImages) Object.assign(cargoImages, data.cargoImages); if (data.cargos &&
+                            data.cargos.length) data.cargos.forEach(c => addCargoItem(c));
+                        else addCargoItem(); if (data.isDetailsCollapsed !== undefined && data.isDetailsCollapsed) { isCollapsed =
+                                false;
+                            toggleCollapse(); } } else { addCargoItem();
+                        addDateInput(); } recalculateAll(); } catch (e) { addCargoItem();
+                    addDateInput();
+                    recalculateAll(); } }
+
+            async function clearAllData() { playTapFeedback();
+                customerNameInput.value = ''; while (orderDatesList.firstChild) orderDatesList.removeChild(orderDatesList
+                    .firstChild);
+                dateCounter = 0; while (cargoListDiv.firstChild) cargoListDiv.removeChild(cargoListDiv.firstChild);
+                cargoCounter = 0;
+                Object.keys(cargoImages).forEach(k => delete cargoImages[k]); try { const database = await openDB(); const transaction =
+                        database.transaction([STORE_NAME], 'readwrite');
+                    transaction.objectStore(STORE_NAME).delete('freightData'); } catch (e) {}
+                addDateInput();
+                addCargoItem();
+                recalculateAll(); }
+
+            function showModal(msg) { const modal = document.getElementById('custom-modal');
+                document.getElementById('modal-message').innerText = msg;
+                modal.classList.remove('hidden');
+                setTimeout(() => modal.classList.add('hidden'), 2000); }
+            window.closeModal = () => document.getElementById('custom-modal').classList.add('hidden');
+
+            function updateCargoDetailsTable() { const previewTotalSpan = document.getElementById('previewTotalRMB'); if (cargoData
+                    .length === 0) { cargoDetailsTableContainer.innerHTML =
+                        `<p class="text-center text-gray-400 py-4 text-xs">No cargo added</p>`; if (previewTotalSpan) previewTotalSpan
+                            .innerText = '0.00 ¥'; return; } const totalCostRMB = cargoData.reduce((sum, i) => sum + i.totalCost,
+                        0).toFixed(2); if (previewTotalSpan) previewTotalSpan.innerText = totalCostRMB + ' ¥'; let html =
+                    `<div class="cargo-table-wrapper"><table><thead><tr><th>#</th><th>Type</th><th>Weight</th><th>Dimensions</th><th>Vol</th><th>¥</th></tr></thead><tbody>`;
+                cargoData.forEach(item => { if (item.type === 'weight') html +=
+                        `<tr><td class="font-medium">${item.id}</td><td>W</td><td>${item.kg.toFixed(2)}</td><td>-</td><td>-</td><td class="font-semibold">${item.totalCost.toFixed(2)}</td></tr>`;
+                    else { const dim =
+                        `${item.length.toFixed(2)}x${item.width.toFixed(2)}x${item.height.toFixed(2)}`;
+                        html +=
+                        `<tr><td class="font-medium">${item.id}</td><td>V</td><td>-</td><td>${dim}</td><td>${item.volume.toFixed(3)}</td><td class="font-semibold">${item.totalCost.toFixed(2)}</td></tr>`; } });
+                html +=
+                    `<tr class="border-t"><td colspan="5" class="text-right font-medium">Total</td><td class="font-bold">${totalCostRMB}</td></tr></tbody></table></div>`;
+                cargoDetailsTableContainer.innerHTML = html; }
+
+            function recalculateAll() { let totalKg = 0,
+                    totalVolume = 0,
+                    totalKgCost = 0,
+                    totalVolumeCost = 0;
+                cargoData.length = 0;
+                const kgRate = parseFloat(kgRateInput.value) || 0,
+                    cbmRate = parseFloat(cbmRateInput.value) || 0,
+                    exchangeRate = parseFloat(exchangeRateInput.value) || 0;
+                document.querySelectorAll('.cargo-item').forEach(item => { const cargoId = item.id.split('-')[1]; const calcType =
+                        item.querySelector(`input[name="calc-type-${cargoId}"]:checked`).value;
+                    let singleCost = 0,
+                        kg = 0,
+                        len = 0,
+                        wid = 0,
+                        hei = 0,
+                        vol = 0; if (calcType === 'weight') { kg = parseFloat(item.querySelector('.kg-input').value) || 0;
+                        singleCost = kg * kgRate;
+                        totalKgCost += singleCost;
+                        totalKg += kg; } else { len = parseFloat(item.querySelector('.length-input').value) || 0;
+                        wid = parseFloat(item.querySelector('.width-input').value) || 0;
+                        hei = parseFloat(item.querySelector('.height-input').value) || 0;
+                        vol = len * wid * hei;
+                        singleCost = vol * cbmRate;
+                        totalVolumeCost += singleCost;
+                        totalVolume += vol; }
+                    cargoData.push({ id: cargoId, type: calcType, kg, length: len, width: wid, height: hei, volume: vol,
+                        totalCost: singleCost });
+                    const detailsDiv = item.querySelector('.calculation-details'); if (calcType === 'weight') detailsDiv
+                        .innerHTML =
+                        `<div class="mt-2 text-[#93c5fd] text-xs font-medium">Freight: ${singleCost.toFixed(2)} ¥</div>`; else
+                        detailsDiv.innerHTML =
+                        `<div class="mt-2 text-[#93c5fd] text-xs">Volume: ${vol.toFixed(3)} m³<br>Freight: ${singleCost.toFixed(2)} ¥</div>`; });
+                const totalRMB = totalKgCost + totalVolumeCost;
+                const totalMMK = Math.round(totalRMB * exchangeRate);
+                document.getElementById('totalKg').innerText = totalKg.toFixed(1) + ' kg';
+                document.getElementById('totalVolume').innerText = totalVolume.toFixed(3) + ' m³';
+                document.getElementById('totalKgCost').innerText = totalKgCost.toFixed(0) + ' ¥';
+                document.getElementById('totalVolumeCost').innerText = totalVolumeCost.toFixed(0) + ' ¥';
+                document.getElementById('totalCostRMB').innerText = totalRMB.toFixed(0) + ' ¥';
+                document.getElementById('totalCostMMK').innerText = totalMMK.toLocaleString('en-US') + ' Ks';
+                updateCargoDetailsTable();
+                saveData(); }
+
+            function addDateInput(value = '') { dateCounter++; const div = document.createElement('div');
+                div.className = 'date-item';
+                div.id = `order-date-${dateCounter}`;
+                div.innerHTML =
+                    `<input type="date" value="${value}" class="order-date-input"><div onclick="removeDateInput(${dateCounter})" class="remove-date-btn"><i class="fas fa-times"></i></div>`;
+                orderDatesList.appendChild(div);
+                div.querySelector('.order-date-input').addEventListener('input', recalculateAll);
+                addTapFeedbackToElement(div.querySelector('.remove-date-btn'));
+                recalculateAll(); }
+            window.removeDateInput = (id) => { playTapFeedback();
+                document.getElementById(`order-date-${id}`)?.remove();
+                recalculateAll(); };
+            addDateBtn.addEventListener('click', () => addDateInput());
+
+            function renderImageGrid(cargoId, container) { const images = cargoImages[cargoId] || [];
+                container.innerHTML = '';
+                images.forEach((imgUrl, idx) => { const previewDiv = document.createElement('div');
+                    previewDiv.className = 'preview-block'; const img = document.createElement('img');
+                    img.src = imgUrl; const delBtn = document.createElement('div');
+                    delBtn.className = 'delete-img-btn';
+                    delBtn.innerHTML = '✕';
+                    delBtn.onclick = (e) => { e.stopPropagation();
+                        playTapFeedback();
+                        images.splice(idx, 1);
+                        renderImageGrid(cargoId, container);
+                        saveData(); };
+                    previewDiv.appendChild(img);
+                    previewDiv.appendChild(delBtn);
+                    container.appendChild(previewDiv); });
+                const cameraDiv = document.createElement('div');
+                cameraDiv.className = 'camera-block';
+                cameraDiv.innerHTML = '<i class="fas fa-camera"></i><span>Add</span>';
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'file';
+                hiddenInput.accept = 'image/*';
+                hiddenInput.style.display = 'none';
+                hiddenInput.onchange = async (e) => { const file = e.target.files[0]; if (!file) return;
+                    playTapFeedback(); const reader = new FileReader();
+                    reader.onload = (ev) => { const dataURL = ev.target.result; if (!cargoImages[cargoId]) cargoImages[
+                            cargoId] = [];
+                        cargoImages[cargoId].push(dataURL);
+                        renderImageGrid(cargoId, container);
+                        saveData(); };
+                    reader.readAsDataURL(file);
+                    hiddenInput.value = ''; };
+                cameraDiv.onclick = () => { playTapFeedback();
+                    hiddenInput.click(); };
+                container.appendChild(cameraDiv);
+                container.appendChild(hiddenInput); }
+
+            function addCargoItem(data = {}) { cargoCounter++; const cid = String(cargoCounter); if (!cargoImages[cid]) cargoImages[
+                    cid] = (data.images ? [...data.images] : []); const cargoDiv = document.createElement('div');
+                cargoDiv.className = 'cargo-item cargo-card';
+                cargoDiv.id = `cargo-${cid}`;
+                cargoDiv.innerHTML =
+                    `<div class="cargo-header"><span class="cargo-title"><i class="fas fa-box"></i>Cargo #${cid}</span><div class="remove-date-btn" onclick="removeCargo(${cid})"><i class="fas fa-trash-alt"></i></div></div><div class="radio-group"><label class="radio-item"><input type="radio" name="calc-type-${cid}" value="weight" ${data.type === 'weight' || !data.type ? 'checked' : ''}> Weight</label><label class="radio-item"><input type="radio" name="calc-type-${cid}" value="volume" ${data.type === 'volume' ? 'checked' : ''}> Volume</label></div><div id="weight-inputs-${cid}"><input type="number" value="${data.kg || ''}" class="kg-input w-full" placeholder="Weight (kg)" step="0.01" inputmode="decimal"></div><div id="volume-inputs-${cid}" class="hidden"><div class="dimension-row"><div><input type="number" value="${data.length || ''}" class="length-input" placeholder="L (m)" step="0.001" inputmode="decimal"></div><div><input type="number" value="${data.width || ''}" class="width-input" placeholder="W (m)" step="0.001" inputmode="decimal"></div><div><input type="number" value="${data.height || ''}" class="height-input" placeholder="H (m)" step="0.001" inputmode="decimal"></div></div></div><div class="mt-2"><div id="image-grid-${cid}" class="image-grid"></div></div><div class="calculation-details"></div>`;
+                cargoListDiv.appendChild(cargoDiv);
+                const weightDiv = document.getElementById(`weight-inputs-${cid}`);
+                const volumeDiv = document.getElementById(`volume-inputs-${cid}`);
+                if (data.type === 'volume') { weightDiv.classList.add('hidden');
+                    volumeDiv.classList.remove('hidden'); } else { weightDiv.classList.remove('hidden');
+                    volumeDiv.classList.add('hidden'); }
+                const gridContainer = document.getElementById(`image-grid-${cid}`);
+                renderImageGrid(cid, gridContainer);
+                cargoDiv.querySelectorAll(`input[name="calc-type-${cid}"]`).forEach(radio => { radio.addEventListener(
+                        'change', (e) => { const isWeight = e.target.value === 'weight';
+                            weightDiv.classList.toggle('hidden', !isWeight);
+                            volumeDiv.classList.toggle('hidden', isWeight);
+                            recalculateAll(); }); });
+                cargoDiv.querySelectorAll('.kg-input, .length-input, .width-input, .height-input').forEach(inp => inp
+                    .addEventListener('input', recalculateAll));
+                addTapFeedbackToElement(cargoDiv.querySelector('.remove-date-btn'));
+                recalculateAll(); }
+            window.removeCargo = (id) => { playTapFeedback();
+                document.getElementById(`cargo-${id}`)?.remove();
+                delete cargoImages[String(id)];
+                recalculateAll(); };
+
+            addCargoBtn.addEventListener('click', () => addCargoItem());
+            clearAllBtn.addEventListener('click', clearAllData);
+            kgRateInput.addEventListener('input', recalculateAll);
+            cbmRateInput.addEventListener('input', recalculateAll);
+            exchangeRateInput.addEventListener('input', recalculateAll);
+            customerNameInput.addEventListener('input', recalculateAll);
+
+            async function generatePdfBlob(progress) {
+                const { jsPDF } = window.jspdf;
+                progress.update(10, "Daterဖတ်ယူနေ...");
+                const customerName = customerNameInput.value.trim();
+                const orderDates = Array.from(document.querySelectorAll('.order-date-input')).map(inp => inp.value.trim())
+                    .filter(Boolean);
+                if (!customerName || orderDates.length === 0) throw new Error('Missing customer or dates');
+
+                progress.update(20, "准备文档...");
+                let bgImageData = null;
+                try {
+                    const resp = await fetch('bg.png');
+                    if (resp.ok) {
+                        const blob = await resp.blob();
+                        bgImageData = await new Promise(r => {
+                            const fr = new FileReader();
+                            fr.onloadend = () => r(fr.result);
+                            fr.readAsDataURL(blob);
+                        });
+                    }
+                } catch (e) {}
+
+                const doc = new jsPDF('p', 'mm', 'a4');
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const pageHeight = doc.internal.pageSize.getHeight();
+                const margin = 15;
+
+                const applyBg = (d, img) => {
+                    if (img) d.addImage(img, 'PNG', 0, 0, pageWidth, pageHeight, undefined, 'FAST');
+                };
+
                 applyBg(doc, bgImageData);
+
+                let yPos = 30;
+                doc.setFont('Montserrat', 'normal');
+                doc.setFontSize(22);
+                doc.setFont(undefined, 'bold');
+                doc.text('INTERNATIONAL SHIPPING', pageWidth / 2, yPos, { align: 'center' });
+                yPos += 10;
+                doc.setFont('SourceHanSans', 'normal');
+                doc.setFontSize(11);
+                doc.text(`Name: ${customerName}`, margin, yPos);
+                yPos += 6;
+                const dateStr = orderDates.map(d => d.split('-').slice(1, 3).join('-')).join(', ');
+                doc.text(`Order Date: ${dateStr}`, margin, yPos);
+                yPos += 10;
+
+                const kgRate = parseFloat(kgRateInput.value) || 0,
+                    cbmRate = parseFloat(cbmRateInput.value) || 0,
+                    exRate = parseFloat(exchangeRateInput.value) || 0;
+                const headers = ["No.", "Type", `Weight(kg/${kgRate}¥)`, "Dimensions(m)", `Volume(m³/${cbmRate}¥)`,
+                    "Freight(¥)"
+                ];
+                const body = cargoData.map(i => i.type === 'weight' ? [i.id, "By Weight", i.kg.toFixed(2), "-", "-", i
+                        .totalCost.toFixed(2)
+                    ] : [i.id, "By Volume", "-",
+                        `${i.length.toFixed(3)}x${i.width.toFixed(3)}x${i.height.toFixed(3)}`, i.volume.toFixed(3), i
+                        .totalCost.toFixed(2)
+                    ]);
+
+                progress.update(40, "ဇယားထုတ်နေသည်...");
+                doc.autoTable({
+                    startY: yPos,
+                    head: [headers],
+                    body: body,
+                    theme: 'grid',
+                    styles: { fontSize: 9, font: 'SourceHanSans', halign: 'center', textColor: [0, 0, 0] },
+                    headStyles: { fillColor: [0, 0, 0], textColor: [255, 255, 255], fontStyle: 'bold' },
+                    margin: { top: margin, bottom: 45 },
+                    didAddPage: function(data) {
+                        applyBg(doc, bgImageData);
+                    }
+                });
+
+                let finalY = doc.autoTable.previous.finalY;
+                const totalWeight = cargoData.reduce((s, i) => s + (i.kg || 0), 0).toFixed(2);
+                const totalVol = cargoData.reduce((s, i) => s + (i.volume || 0), 0).toFixed(3);
+                doc.setFontSize(10);
+                doc.text(`Total Weight: ${totalWeight} kg`, margin, finalY + 5);
+                doc.text(`Total Volume: ${totalVol} m³`, pageWidth - margin, finalY + 5, { align: 'right' });
+                const totalRMB = cargoData.reduce((s, i) => s + i.totalCost, 0).toFixed(2);
+                const totalMMK = Math.round(parseFloat(totalRMB) * exRate).toLocaleString('en-US');
+                doc.setFontSize(11);
+                doc.setFont(undefined, 'bold');
+                doc.text("Total Freight (RMB):", margin, finalY + 13);
+                doc.text(`${totalRMB} ¥`, pageWidth - margin, finalY + 13, { align: 'right' });
+                doc.setFontSize(9);
+                doc.text("Exchange Rate:", margin, finalY + 20);
+                doc.text(`1 ¥ = ${exRate.toFixed(2)} Ks`, pageWidth - margin, finalY + 20, { align: 'right' });
+                doc.setFontSize(12);
+                doc.setTextColor(61, 149, 255);
+                doc.text("Total Remittance Amount (MMK):", margin, finalY + 28);
+                doc.text(`${totalMMK} Ks`, pageWidth - margin, finalY + 28, { align: 'right' });
+                doc.setTextColor(0, 0, 0);
+
+                progress.update(60, "ဓါတ်ပုံလုပ်ဆောင်ခြင်း...");
+                const idsWithImg = Object.keys(cargoImages).filter(id => cargoImages[id]?.length);
+                if (idsWithImg.length) {
+                    doc.addPage();
+                    applyBg(doc, bgImageData);
+                    let cy = margin;
+                    doc.setFontSize(14);
+                    doc.text('Cargo Images', pageWidth / 2, cy, { align: 'center' });
+                    cy += 12;
+                    let imgCount = 0;
+                    const totalImgs = idsWithImg.reduce((s, id) => s + cargoImages[id].length, 0);
+                    for (const cid of idsWithImg) {
+                        for (const imgSrc of cargoImages[cid]) {
+                            imgCount++;
+                            progress.update(60 + Math.floor(35 * imgCount / totalImgs), `图片 ${imgCount}/${totalImgs}...`);
+                            const imgObj = new Image();
+                            imgObj.src = imgSrc;
+                            await new Promise(r => { imgObj.onload = r;
+                                imgObj.onerror = r; });
+                            if (imgObj.naturalWidth === 0) continue;
+                            const ratio = imgObj.naturalHeight / imgObj.naturalWidth;
+                            const imgW = pageWidth - 2 * margin;
+                            const imgH = imgW * ratio;
+                            if (cy + imgH > pageHeight - margin) {
+                                doc.addPage();
+                                applyBg(doc, bgImageData);
+                                cy = margin;
+                                doc.setFontSize(12);
+                                doc.text('Cargo Images (continued)', pageWidth / 2, cy, { align: 'center' });
+                                cy += 10;
+                            }
+                            doc.text(`Cargo #${cid} Image`, margin, cy - 3);
+                            doc.addImage(imgSrc, 'JPEG', margin, cy, imgW, imgH, undefined, 'SLOW');
+                            cy += imgH + 12;
+                        }
+                    }
+                }
+                progress.update(95, "PDFထုတ်နေ...");
+                const result = doc.output('blob');
+                progress.update(100, "Finish!");
+                await new Promise(r => setTimeout(r, 300));
+                return result;
             }
-        }); 
 
-        let finalY = doc.autoTable.previous.finalY; 
-        const totalWeight = cargoData.reduce((s,i)=>s+(i.kg||0),0).toFixed(2); 
-        const totalVol = cargoData.reduce((s,i)=>s+(i.volume||0),0).toFixed(3); 
-        doc.setFontSize(10); 
-        doc.text(`Total Weight: ${totalWeight} kg`, margin, finalY+5); 
-        doc.text(`Total Volume: ${totalVol} m³`, pageWidth-margin, finalY+5, {align:'right'}); 
-        const totalRMB = cargoData.reduce((s,i)=>s+i.totalCost,0).toFixed(2); 
-        const totalMMK = Math.round(parseFloat(totalRMB)*exRate).toLocaleString('en-US'); 
-        doc.setFontSize(11); 
-        doc.setFont(undefined, 'bold'); 
-        doc.text("Total Freight (RMB):", margin, finalY+13); 
-        doc.text(`${totalRMB} ¥`, pageWidth-margin, finalY+13, {align:'right'}); 
-        doc.setFontSize(9); 
-        doc.text("Exchange Rate:", margin, finalY+20); 
-        doc.text(`1 ¥ = ${exRate.toFixed(2)} Ks`, pageWidth-margin, finalY+20, {align:'right'}); 
-        doc.setFontSize(12); 
-        doc.setTextColor(61,149,255); 
-        doc.text("Total Remittance Amount (MMK):", margin, finalY+28); 
-        doc.text(`${totalMMK} Ks`, pageWidth-margin, finalY+28, {align:'right'}); 
-        doc.setTextColor(0,0,0); 
+            let isExporting = false;
 
-        progress.update(60, "ဓါတ်ပုံလုပ်ဆောင်ခြင်း..."); 
-        const idsWithImg = Object.keys(cargoImages).filter(id=>cargoImages[id]?.length); 
-        if(idsWithImg.length){ 
-            doc.addPage(); 
-            applyBg(doc, bgImageData); 
-            let cy = margin; 
-            doc.setFontSize(14); 
-            doc.text('Cargo Images', pageWidth/2, cy, {align:'center'}); 
-            cy+=12; 
-            let imgCount = 0; 
-            const totalImgs = idsWithImg.reduce((s,id)=>s+cargoImages[id].length,0); 
-            for(const cid of idsWithImg){ 
-                for(const imgSrc of cargoImages[cid]){ 
-                    imgCount++; 
-                    progress.update(60 + Math.floor(35 * imgCount / totalImgs), `图片 ${imgCount}/${totalImgs}...`); 
-                    const imgObj = new Image(); 
-                    imgObj.src=imgSrc; 
-                    await new Promise(r=>{ imgObj.onload=r; imgObj.onerror=r; }); 
-                    if(imgObj.naturalWidth===0) continue; 
-                    const ratio = imgObj.naturalHeight/imgObj.naturalWidth; 
-                    const imgW = pageWidth-2*margin; 
-                    const imgH = imgW*ratio; 
-                    if(cy+imgH>pageHeight-margin){ 
-                        doc.addPage(); 
-                        applyBg(doc, bgImageData); 
-                        cy=margin; 
-                        doc.setFontSize(12); 
-                        doc.text('Cargo Images (continued)', pageWidth/2, cy, {align:'center'}); 
-                        cy+=10; 
-                    } 
-                    doc.text(`Cargo #${cid} Image`, margin, cy-3); 
-                    doc.addImage(imgSrc, 'JPEG', margin, cy, imgW, imgH, undefined, 'SLOW'); 
-                    cy += imgH+12; 
-                } 
-            } 
-        } 
-        progress.update(95, "PDFထုတ်နေ..."); 
-        const result = doc.output('blob'); 
-        progress.update(100, "Finish!"); 
-        await new Promise(r => setTimeout(r, 300)); 
-        return result; 
-    }
-    
-    let isExporting = false;
-    async function shareToTelegram() { if (isExporting) { playTapFeedback(); showModal('လုပ်ဆောင်နေဆဲ...'); return; } const customerName = customerNameInput.value.trim(); const orderDates = Array.from(document.querySelectorAll('.order-date-input')).map(inp => inp.value.trim()).filter(Boolean); if (!customerName || orderDates.length === 0) { playTapFeedback(); showModal('Please enter customer name and order date!'); return; } isExporting = true; const progress = showProgress("PDF ထုတ်နေသည်...", 5); try { playTapFeedback(); progress.update(5, "ပြင်ဆင်နေသည်..."); await new Promise(r => setTimeout(r, 100)); const pdfBlob = await generatePdfBlob(progress); progress.update(98, "shareရန်..."); const firstOrderDate = orderDates[0] || 'nodate'; const safeName = customerName.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '_'); const fileName = `${safeName}_${firstOrderDate}_Freight.pdf`; const file = new File([pdfBlob], fileName, { type: 'application/pdf' }); if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ title: 'Freight Calculation', text: ` ${customerName}`, files: [file] }); } else { const url = URL.createObjectURL(pdfBlob); const a = document.createElement('a'); a.href = url; a.download = fileName; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); showModal('PDF saved!'); } progress.close(); } catch (err) { console.error(err); progress.close(); showModal('Failed: ' + (err.message || 'Unknown error')); } finally { isExporting = false; } }
-    exportPdfBtn.addEventListener('click', async (e) => { e.preventDefault(); await shareToTelegram(); });
-    loadData();
-})();
-</script>
+            async function shareToTelegram() { if (isExporting) { playTapFeedback();
+                    showModal('လုပ်ဆောင်နေဆဲ...'); return; } const customerName = customerNameInput.value.trim(); const orderDates =
+                    Array.from(document.querySelectorAll('.order-date-input')).map(inp => inp.value.trim()).filter(Boolean); if (
+                    !customerName || orderDates.length === 0) { playTapFeedback();
+                    showModal('Please enter customer name and order date!'); return; }
+                isExporting = true;
+                const progress = showProgress("PDF ထုတ်နေသည်...", 5); try { playTapFeedback();
+                    progress.update(5, "ပြင်ဆင်နေသည်...");
+                    await new Promise(r => setTimeout(r, 100));
+                    const pdfBlob = await generatePdfBlob(progress);
+                    progress.update(98, "shareရန်...");
+                    const firstOrderDate = orderDates[0] || 'nodate';
+                    const safeName = customerName.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '_');
+                    const fileName = `${safeName}_${firstOrderDate}_Freight.pdf`;
+                    const file = new File([pdfBlob], fileName, { type: 'application/pdf' }); if (navigator.canShare && navigator
+                        .canShare({ files: [file] })) { await navigator.share({ title: 'Freight Calculation', text: ` ${customerName}`,
+                            files: [file] }); } else { const url = URL.createObjectURL(pdfBlob); const a = document
+                            .createElement('a');
+                        a.href = url;
+                        a.download = fileName;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                        showModal('PDF saved!'); }
+                    progress.close(); } catch (err) { console.error(err);
+                    progress.close();
+                    showModal('Failed: ' + (err.message || 'Unknown error')); } finally { isExporting = false; } }
+            exportPdfBtn.addEventListener('click', async (e) => { e.preventDefault(); await shareToTelegram(); });
+            loadData();
+        })();
+    </script>
 </body>
 </html>
