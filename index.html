@@ -1336,8 +1336,8 @@
                     const safeName = customerName.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '_');
                     const fileName = `${safeName}_${firstOrderDate}.pdf`;
                     const file = new File([pdfBlob], fileName, { type: 'application/pdf' }); if (navigator.canShare && navigator
-                        .canShare({ files: [file] })) { await navigator.share({ title: 'Freight Calculation', text: ` ${customerName}`,
-                            files: [file] }); } else { const url = URL.createObjectURL(pdfBlob); const a = document
+                        .canShare({ files: [file] })) const dateLines = orderDates.join('\n');
+await navigator.share({ title: 'Freight Calculation', text: `${customerName}\n${dateLines}`, files: [file] });} else { const url = URL.createObjectURL(pdfBlob); const a = document
                             .createElement('a');
                         a.href = url;
                         a.download = fileName;
