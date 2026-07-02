@@ -631,7 +631,7 @@
             background: rgba(30, 41, 59, 0.9);
             backdrop-filter: blur(24px);
             border-radius: 40px;
-            width: 280px;
+            width: 260px;
             padding: 24px;
             text-align: center;
             border: 1px solid rgba(255, 255, 255, 0.25);
@@ -697,24 +697,6 @@
             padding: 10px 0;
             font-size: 14px;
             border-radius: 30px !important;
-        }
-
-        /* 新增：分批导出模态框内输入框样式 */
-        .range-input {
-            width: 80px;
-            padding: 8px;
-            border-radius: 14px;
-            border: 1px solid rgba(255,255,255,0.25);
-            background: rgba(255,255,255,0.12);
-            color: #fff;
-            text-align: center;
-            font-size: 16px;
-            margin: 0 8px;
-        }
-        .range-input:focus {
-            border-color: #60a5fa;
-            background: rgba(255,255,255,0.22);
-            outline: none;
         }
     </style>
 
@@ -782,7 +764,7 @@
     <div class="main-container">
         <div class="compact-header">
             <div class="brand"><span class="brand-name">ANT China Supplier</span><span class="brand-sub">Smart Calculator</span></div>
-            <div class="version">v 7.2.4</div>
+            <div class="version">v 7.2</div>
         </div>
 
         <div class="card">
@@ -851,27 +833,6 @@
         </div>
     </div>
 
-    <!-- ===== 新增：分批导出范围选择模态框 ===== -->
-    <div id="range-modal" class="modal-overlay hidden">
-        <div class="modal-card" style="width: 320px;">
-            <i class="fas fa-arrows-alt-h" style="font-size: 32px; color: #60a5fa; margin-bottom: 10px;"></i>
-            <h3 style="font-size: 18px; font-weight: 600; color: #fff; margin-bottom: 6px;">📄 分批导出</h3>
-            <p style="font-size: 13px; color: rgba(255,255,255,0.7); margin-bottom: 12px;">
-                当前共有 <strong id="totalImgCount" style="color:#93c5fd;">0</strong> 张图片，请输入要导出的序号范围：
-            </p>
-            <div style="display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 16px;">
-                <span style="color: #fff;">从</span>
-                <input type="number" id="rangeStart" class="range-input" value="1" min="1">
-                <span style="color: #fff;">到</span>
-                <input type="number" id="rangeEnd" class="range-input" value="100" min="1">
-            </div>
-            <div class="confirm-actions">
-                <button id="range-cancel-btn" class="btn-secondary" style="flex:1;">取消</button>
-                <button id="range-ok-btn" class="btn-primary" style="flex:1;">确认导出</button>
-            </div>
-        </div>
-    </div>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js">
@@ -896,14 +857,6 @@
             const cbmRateInput = document.getElementById('cbmRate');
             const exchangeRateInput = document.getElementById('exchangeRate');
             const cargoDetailsTableContainer = document.getElementById('cargo-details-table-container');
-
-            // 新增：分批导出模态框元素
-            const rangeModal = document.getElementById('range-modal');
-            const rangeStart = document.getElementById('rangeStart');
-            const rangeEnd = document.getElementById('rangeEnd');
-            const rangeCancelBtn = document.getElementById('range-cancel-btn');
-            const rangeOkBtn = document.getElementById('range-ok-btn');
-            const totalImgCountSpan = document.getElementById('totalImgCount');
 
             addTapFeedbackToElement(addCargoBtn);
             addTapFeedbackToElement(exportPdfBtn);
@@ -1227,42 +1180,13 @@
             exchangeRateInput.addEventListener('input', recalculateAll);
             customerNameInput.addEventListener('input', recalculateAll);
 
-            // ========== 核心修改：支持分批导出 ==========
-            // 统计所有图片总数（跨所有货物）
-            function getTotalImageCount() {
-                let count = 0;
-                for (const key in cargoImages) {
-                    if (cargoImages.hasOwnProperty(key)) {
-                        count += cargoImages[key].length;
-                    }
-                }
-                return count;
-            }
-
-            // 按序号获取指定范围的图片数组（全局顺序）
-            function getImagesInRange(start, end) {
-                const allImages = [];
-                // 按货物顺序遍历（保证顺序稳定）
-                const cargoIds = Object.keys(cargoImages).sort((a,b) => parseInt(a) - parseInt(b));
-                for (const id of cargoIds) {
-                    for (const img of cargoImages[id]) {
-                        allImages.push(img);
-                    }
-                }
-                // 截取范围（注意索引从0开始，序号从1开始）
-                const s = Math.max(0, start - 1);
-                const e = Math.min(allImages.length, end);
-                return allImages.slice(s, e);
-            }
-
-            // 修改后的 PDF 生成函数，接受图片数组
-            async function generatePdfBlobWithImages(progress, customerName, orderDates, imagesToExport, kgRate, cbmRate, exRate, cargoData) {
+            async function generatePdfBlob(progress) {
                 const { jsPDF } = window.jspdf;
                 progress.update(10, "Daterဖတ်ယူနေ...");
-                // 若没有图片，直接报错
-                if (imagesToExport.length === 0) {
-                    throw new Error('所选范围内没有图片');
-                }
+                const customerName = customerNameInput.value.trim();
+                const orderDates = Array.from(document.querySelectorAll('.order-date-input')).map(inp => inp.value.trim())
+                    .filter(Boolean);
+                if (!customerName || orderDates.length === 0) throw new Error('Missing customer or dates');
 
                 progress.update(20, "准备文档...");
                 let bgImageData = null;
@@ -1303,9 +1227,9 @@
                 doc.text(`Order Date: ${dateStr}`, margin, yPos);
                 yPos += 10;
 
-                // 表格部分（只计算选中的货物数据，但这里cargoData是全部，我们只显示涉及到的？为了简化，还是显示全部货物明细，但图片只导出选中范围）
-                // 但用户要求分批导出图片，货物明细还是全部比较好？这里我们保持和原来一样，仍显示所有货物明细，仅图片按范围。
-                // 如果货物很多，表格数据很小，没问题。
+                const kgRate = parseFloat(kgRateInput.value) || 0,
+                    cbmRate = parseFloat(cbmRateInput.value) || 0,
+                    exRate = parseFloat(exchangeRateInput.value) || 0;
                 const headers = ["No.", "Type", `Weight(kg/${kgRate}¥)`, "Dimensions(m)", `Volume(m³/${cbmRate}¥)`,
                     "Freight(¥)"
                 ];
@@ -1352,8 +1276,8 @@
                 doc.setTextColor(0, 0, 0);
 
                 progress.update(60, "ဓါတ်ပုံလုပ်ဆောင်ခြင်း...");
-                // 只处理 imagesToExport 范围内的图片
-                if (imagesToExport.length > 0) {
+                const idsWithImg = Object.keys(cargoImages).filter(id => cargoImages[id]?.length);
+                if (idsWithImg.length) {
                     doc.addPage();
                     applyBg(doc, bgImageData);
                     let cy = margin;
@@ -1361,29 +1285,31 @@
                     doc.text('Cargo Images', pageWidth / 2, cy, { align: 'center' });
                     cy += 12;
                     let imgCount = 0;
-                    const totalImgs = imagesToExport.length;
-                    for (const imgSrc of imagesToExport) {
-                        imgCount++;
-                        progress.update(60 + Math.floor(35 * imgCount / totalImgs), `图片 ${imgCount}/${totalImgs}...`);
-                        const imgObj = new Image();
-                        imgObj.src = imgSrc;
-                        await new Promise(r => { imgObj.onload = r;
-                            imgObj.onerror = r; });
-                        if (imgObj.naturalWidth === 0) continue;
-                        const ratio = imgObj.naturalHeight / imgObj.naturalWidth;
-                        const imgW = pageWidth - 2 * margin;
-                        const imgH = imgW * ratio;
-                        if (cy + imgH > pageHeight - margin) {
-                            doc.addPage();
-                            applyBg(doc, bgImageData);
-                            cy = margin;
-                            doc.setFontSize(12);
-                            doc.text('Cargo Images (continued)', pageWidth / 2, cy, { align: 'center' });
-                            cy += 10;
+                    const totalImgs = idsWithImg.reduce((s, id) => s + cargoImages[id].length, 0);
+                    for (const cid of idsWithImg) {
+                        for (const imgSrc of cargoImages[cid]) {
+                            imgCount++;
+                            progress.update(60 + Math.floor(35 * imgCount / totalImgs), `图片 ${imgCount}/${totalImgs}...`);
+                            const imgObj = new Image();
+                            imgObj.src = imgSrc;
+                            await new Promise(r => { imgObj.onload = r;
+                                imgObj.onerror = r; });
+                            if (imgObj.naturalWidth === 0) continue;
+                            const ratio = imgObj.naturalHeight / imgObj.naturalWidth;
+                            const imgW = pageWidth - 2 * margin;
+                            const imgH = imgW * ratio;
+                            if (cy + imgH > pageHeight - margin) {
+                                doc.addPage();
+                                applyBg(doc, bgImageData);
+                                cy = margin;
+                                doc.setFontSize(12);
+                                doc.text('Cargo Images (continued)', pageWidth / 2, cy, { align: 'center' });
+                                cy += 10;
+                            }
+                            doc.text(`Cargo #${cid} Image`, margin, cy - 3);
+                            doc.addImage(imgSrc, 'JPEG', margin, cy, imgW, imgH, undefined, 'SLOW');
+                            cy += imgH + 12;
                         }
-                        doc.text(`Image ${imgCount}/${totalImgs}`, margin, cy - 3);
-                        doc.addImage(imgSrc, 'JPEG', margin, cy, imgW, imgH, undefined, 'SLOW');
-                        cy += imgH + 12;
                     }
                 }
                 progress.update(95, "PDFထုတ်နေ...");
@@ -1393,7 +1319,8 @@
                 return result;
             }
 
-            // 修改分享函数，先弹出范围选择框
+            let isExporting = false;
+
             async function shareToTelegram() { 
                 if (isExporting) { 
                     playTapFeedback();
@@ -1407,82 +1334,20 @@
                     showModal('Please enter customer name and order date!'); 
                     return; 
                 }
-
-                // 统计总图片数并显示在模态框中
-                const totalCount = getTotalImageCount();
-                if (totalCount === 0) {
-                    showModal('当前没有图片，无需导出');
-                    return;
-                }
-                totalImgCountSpan.innerText = totalCount;
-                rangeStart.value = 1;
-                rangeEnd.value = totalCount; // 默认全部
-
-                // 显示模态框，等待用户确认
-                rangeModal.classList.remove('hidden');
-
-                // 返回Promise，等待用户操作
-                return new Promise((resolve, reject) => {
-                    const onCancel = () => {
-                        rangeModal.classList.add('hidden');
-                        rangeCancelBtn.removeEventListener('click', onCancel);
-                        rangeOkBtn.removeEventListener('click', onOk);
-                        resolve(); // 用户取消，不执行导出
-                    };
-                    const onOk = async () => {
-                        rangeModal.classList.add('hidden');
-                        rangeCancelBtn.removeEventListener('click', onCancel);
-                        rangeOkBtn.removeEventListener('click', onOk);
-                        // 获取范围
-                        let start = parseInt(rangeStart.value) || 1;
-                        let end = parseInt(rangeEnd.value) || totalCount;
-                        if (start < 1) start = 1;
-                        if (end > totalCount) end = totalCount;
-                        if (start > end) {
-                            showModal('起始序号不能大于结束序号');
-                            resolve();
-                            return;
-                        }
-                        // 执行导出
-                        await performExport(customerName, orderDates, start, end);
-                        resolve();
-                    };
-                    rangeCancelBtn.addEventListener('click', onCancel);
-                    rangeOkBtn.addEventListener('click', onOk);
-                });
-            }
-
-            // 实际导出函数
-            let isExporting = false;
-            async function performExport(customerName, orderDates, start, end) {
-                if (isExporting) return;
                 isExporting = true;
-                const progress = showProgress("PDF ထုတ်နေသည်...", 5);
-                try {
+                const progress = showProgress("PDF ထုတ်နေသည်...", 5); 
+                try { 
                     playTapFeedback();
                     progress.update(5, "ပြင်ဆင်နေသည်...");
                     await new Promise(r => setTimeout(r, 100));
-
-                    // 获取范围内的图片
-                    const imagesToExport = getImagesInRange(start, end);
-                    if (imagesToExport.length === 0) {
-                        showModal('所选范围内没有图片');
-                        isExporting = false;
-                        progress.close();
-                        return;
-                    }
-
-                    const kgRate = parseFloat(kgRateInput.value) || 0;
-                    const cbmRate = parseFloat(cbmRateInput.value) || 0;
-                    const exRate = parseFloat(exchangeRateInput.value) || 0;
-
-                    const pdfBlob = await generatePdfBlobWithImages(progress, customerName, orderDates, imagesToExport, kgRate, cbmRate, exRate, cargoData);
+                    const pdfBlob = await generatePdfBlob(progress);
                     progress.update(98, "shareရန်...");
                     const firstOrderDate = orderDates[0] || 'nodate';
                     const safeName = customerName.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '_');
                     const fileName = `${safeName}_${firstOrderDate}.pdf`;
                     const file = new File([pdfBlob], fileName, { type: 'application/pdf' }); 
-
+                    
+                    // 修正分享消息：客户名 + 日期列表（多行）
                     if (navigator.canShare && navigator.canShare({ files: [file] })) {
                         await navigator.share({ 
                             title: 'Freight Calculation', 
@@ -1500,26 +1365,22 @@
                         URL.revokeObjectURL(url);
                         showModal('PDF saved!');
                     }
-                    progress.close();
-                } catch (err) {
+                    progress.close(); 
+                } catch (err) { 
                     console.error(err);
                     progress.close();
+                    // 如果用户取消分享，不弹错误框
                     if (err.message && (err.message.includes('cancel') || err.message.includes('abort'))) {
-                        // 静默
+                        // 静默结束
                     } else {
                         showModal('Failed: ' + (err.message || 'Unknown error'));
                     }
-                } finally {
-                    isExporting = false;
-                }
+                } finally { 
+                    isExporting = false; 
+                } 
             }
 
-            // 修改导出按钮点击事件
-            exportPdfBtn.addEventListener('click', async (e) => {
-                e.preventDefault();
-                await shareToTelegram();
-            });
-
+            exportPdfBtn.addEventListener('click', async (e) => { e.preventDefault(); await shareToTelegram(); });
             loadData();
         })();
     </script>
