@@ -1,27 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
     <title>ANT China Supplier - Smart Freight Calculator</title>
-
-    <link rel="manifest" href="manifest.json">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="logo.png">
-
+    <link rel="manifest" href="manifest.json" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="apple-touch-icon" href="logo.png" />
     <script src="https://cdn.tailwindcss.com">
     </script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <style>
-        /* ---- 所有原有样式（完全不变） ---- */
+        /* ---- 所有样式保持不变 ---- */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
         body {
             font-family: -apple-system, 'SF Pro Text', 'SF Pro Display', 'Helvetica Neue', system-ui, 'Segoe UI', Roboto, sans-serif;
             background:
@@ -32,12 +28,10 @@
             padding: calc(env(safe-area-inset-top) + 20px) 12px 32px;
             min-height: 100vh;
         }
-
         .main-container {
             max-width: 600px;
             margin: 0 auto;
         }
-
         .compact-header {
             background: rgba(255, 255, 255, 0.12);
             backdrop-filter: blur(16px);
@@ -83,7 +77,6 @@
             padding: 4px 10px;
             border-radius: 40px;
         }
-
         .card {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(14px);
@@ -101,7 +94,6 @@
             box-shadow: 0 18px 30px rgba(0, 0, 0, 0.25);
             border-color: rgba(255, 255, 255, 0.35);
         }
-
         .card-header {
             padding: 14px 16px 8px 16px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.15);
@@ -123,11 +115,9 @@
             font-size: 16px;
             color: #60a5fa;
         }
-
         .card-body {
             padding: 14px 16px;
         }
-
         input,
         .ios-input,
         .date-item input,
@@ -150,17 +140,14 @@
             text-align: center !important;
             box-sizing: border-box;
         }
-
         input:focus {
             border-color: #60a5fa;
             background: rgba(255, 255, 255, 0.22);
             box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.25);
         }
-
         input::placeholder {
             color: rgba(255, 255, 255, 0.55);
         }
-
         input[type="number"] {
             text-align: center;
             -moz-appearance: textfield;
@@ -169,7 +156,6 @@
         input[type="number"]::-webkit-outer-spin-button {
             opacity: 0.5;
         }
-
         .form-row {
             margin-bottom: 14px;
         }
@@ -185,7 +171,6 @@
             letter-spacing: -0.2px;
             text-align: left;
         }
-
         .date-item {
             display: flex;
             gap: 8px;
@@ -211,7 +196,6 @@
             background: rgba(255, 255, 255, 0.25);
             transform: scale(0.94);
         }
-
         .cargo-card {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(14px);
@@ -243,7 +227,6 @@
             color: #60a5fa;
             margin-right: 6px;
         }
-
         .radio-group {
             display: flex;
             gap: 20px;
@@ -267,7 +250,6 @@
             margin: 0;
             accent-color: #60a5fa;
         }
-
         .dimension-row {
             display: flex;
             gap: 10px;
@@ -277,7 +259,6 @@
             padding: 10px 10px !important;
             text-align: center;
         }
-
         .btn-primary,
         .btn-secondary,
         .btn-clear,
@@ -292,7 +273,6 @@
         .btn-danger:active {
             transform: scale(0.96);
         }
-
         .btn-primary {
             background: rgba(96, 165, 250, 0.8);
             backdrop-filter: blur(4px);
@@ -317,7 +297,6 @@
         .btn-primary:active {
             transform: translateY(1px);
         }
-
         .btn-secondary {
             background: rgba(255, 255, 255, 0.12);
             border: 1px solid rgba(255, 255, 255, 0.3);
@@ -336,7 +315,6 @@
             background: rgba(255, 255, 255, 0.22);
             transform: translateY(-2px);
         }
-
         .btn-clear {
             background: rgba(255, 255, 255, 0.12);
             border: 1px solid rgba(255, 255, 255, 0.3);
@@ -350,7 +328,6 @@
             background: rgba(255, 255, 255, 0.22);
             transform: translateY(-1px);
         }
-
         .btn-danger {
             background: rgba(239, 68, 68, 0.8);
             box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
@@ -360,7 +337,6 @@
             background: rgba(239, 68, 68, 0.95);
             transform: translateY(-2px);
         }
-
         .rate-row {
             display: flex;
             gap: 12px;
@@ -370,7 +346,6 @@
             flex: 1;
             margin-bottom: 0;
         }
-
         .results-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -421,7 +396,6 @@
             color: #93c5fd;
             letter-spacing: -0.3px;
         }
-
         .collapsible-header {
             display: flex;
             justify-content: space-between;
@@ -471,7 +445,6 @@
         .collapsed-preview.hidden {
             display: none;
         }
-
         .cargo-table-wrapper {
             overflow-x: auto;
             overflow-y: auto;
@@ -503,7 +476,6 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             background: transparent;
         }
-
         .image-grid {
             display: flex;
             flex-wrap: wrap;
@@ -574,7 +546,6 @@
             color: #bfdbfe;
             font-weight: 500;
         }
-
         .progress-overlay {
             position: fixed;
             top: 0;
@@ -640,7 +611,6 @@
         .hidden {
             display: none;
         }
-
         .mt-2 {
             margin-top: 8px;
         }
@@ -671,7 +641,6 @@
         .gap-2 {
             gap: 8px;
         }
-
         .calculation-details {
             color: #93c5fd;
         }
@@ -684,7 +653,6 @@
         .border-t {
             border-top: 1px solid rgba(255, 255, 255, 0.2);
         }
-
         .confirm-actions {
             display: flex;
             gap: 12px;
@@ -697,8 +665,18 @@
             font-size: 14px;
             border-radius: 30px !important;
         }
-    </style>
 
+        /* 图片计数徽标 */
+        .img-badge {
+            background: rgba(96, 165, 250, 0.3);
+            color: #93c5fd;
+            font-size: 10px;
+            padding: 2px 10px;
+            border-radius: 30px;
+            border: 1px solid rgba(96, 165, 250, 0.3);
+            margin-left: 6px;
+        }
+    </style>
     <script>
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js').catch(e => console.log("SW registration failed", e));
@@ -763,7 +741,7 @@
     <div class="main-container">
         <div class="compact-header">
             <div class="brand"><span class="brand-name">ANT China Supplier</span><span class="brand-sub">Smart Calculator</span></div>
-            <div class="version">v 7.4</div>
+            <div class="version">v 7.3</div>
         </div>
 
         <div class="card">
@@ -845,6 +823,17 @@
 
     <script>
         (function() {
+            // ==============================================================
+            //  配置：图片压缩参数（调低可进一步减小内存占用）
+            // ==============================================================
+            const IMG_CONFIG = {
+                MAX_WIDTH: 1200, // 从 1600 降到 1200，减少内存
+                QUALITY: 0.80, // 从 0.92 降到 0.80，减小文件大小
+            };
+
+            // ==============================================================
+            //  DOM 引用
+            // ==============================================================
             const cargoListDiv = document.getElementById('cargo-list');
             const addCargoBtn = document.getElementById('add-cargo-btn');
             const exportPdfBtn = document.getElementById('export-pdf-btn');
@@ -862,71 +851,199 @@
             addTapFeedbackToElement(clearAllBtn);
             addTapFeedbackToElement(addDateBtn);
 
+            // ==============================================================
+            //  折叠面板
+            // ==============================================================
             const cargoDetailsHeader = document.getElementById('cargoDetailsHeader');
             const cargoDetailsContent = document.getElementById('cargoDetailsContent');
             const collapseIcon = document.getElementById('collapseIcon');
             const collapsedPreview = document.getElementById('collapsedPreview');
             let isCollapsed = false;
 
-            function toggleCollapse() { isCollapsed = !isCollapsed; if (isCollapsed) { cargoDetailsContent.classList.add('collapsed');
+            function toggleCollapse() { isCollapsed = !isCollapsed; if (isCollapsed) { cargoDetailsContent.classList.add(
+                        'collapsed');
                     collapseIcon.classList.add('collapsed');
                     collapsedPreview.classList.remove('hidden'); } else { cargoDetailsContent.classList.remove('collapsed');
                     collapseIcon.classList.remove('collapsed');
                     collapsedPreview.classList.add('hidden'); } playTapFeedback(); }
             cargoDetailsHeader.addEventListener('click', toggleCollapse);
 
+            // ==============================================================
+            //  状态
+            // ==============================================================
             let cargoCounter = 0,
                 dateCounter = 0;
             const cargoData = [];
-            // ★★★ 数据结构升级：存储 { dataUrl, width, height } ★★★
-            const cargoImages = {};
+            // 内存中只保存图片的 ID 列表，不保存 Base64 数据
+            const cargoImageKeys = {}; // { cargoId: [imageId, ...] }
+            // 用于管理 Blob URL 的 Map，便于释放
+            const blobUrlMap = new Map(); // imageId -> blobUrl
+            let imageIdCounter = 0;
+
             const DB_NAME = 'FreightDB',
-                DB_VERSION = 1,
-                STORE_NAME = 'freightData';
+                DB_VERSION = 2,
+                STORE_NAME = 'freightData',
+                IMAGE_STORE_NAME = 'freightImages';
             let db = null;
 
-            function openDB() { return new Promise((resolve, reject) => { if (db && db.name === DB_NAME) { resolve(db); return; } const request = indexedDB.open(DB_NAME, DB_VERSION);
+            // ==============================================================
+            //  IndexedDB 操作（升级到 v2，增加独立的图片 store）
+            // ==============================================================
+            function openDB() {
+                return new Promise((resolve, reject) => {
+                    if (db && db.name === DB_NAME && db.version === DB_VERSION) { resolve(db); return; }
+                    const request = indexedDB.open(DB_NAME, DB_VERSION);
                     request.onerror = () => reject(request.error);
                     request.onsuccess = () => { db = request.result;
                         resolve(db); };
-                    request.onupgradeneeded = (event) => { const dbRef = event.target.result; if (!dbRef.objectStoreNames.contains(STORE_NAME)) dbRef.createObjectStore(
-                            STORE_NAME); }; }); }
+                    request.onupgradeneeded = (event) => {
+                        const dbRef = event.target.result;
+                        if (!dbRef.objectStoreNames.contains(STORE_NAME)) {
+                            dbRef.createObjectStore(STORE_NAME);
+                        }
+                        if (!dbRef.objectStoreNames.contains(IMAGE_STORE_NAME)) {
+                            dbRef.createObjectStore(IMAGE_STORE_NAME, { keyPath: 'id' });
+                        }
+                    };
+                });
+            }
 
-            async function saveData() { try { const database = await openDB(); const data = { customerName: customerNameInput.value, orderDates: Array.from(
-                            orderDatesList.querySelectorAll('.order-date-input')).map(inp => inp.value), kgRate: kgRateInput
-                            .value, cbmRate: cbmRateInput.value, exchangeRate: exchangeRateInput.value, cargos: [],
-                        cargoImages: cargoImages, isDetailsCollapsed: isCollapsed };
-                    document.querySelectorAll('.cargo-item').forEach(item => { const cargoId = item.id.split('-')[1]; const calcTypeRadio = item
-                            .querySelector(`input[name="calc-type-${cargoId}"]:checked`); const calcType = calcTypeRadio ? calcTypeRadio
-                            .value : 'weight';
-                        data.cargos.push({ id: cargoId, type: calcType, kg: item.querySelector('.kg-input')?.value || '',
-                            length: item.querySelector('.length-input')?.value || '', width: item.querySelector(
-                                '.width-input')?.value || '', height: item.querySelector('.height-input')?.value ||
-                            '' }); });
-                    const transaction = database.transaction([STORE_NAME], 'readwrite');
-                    transaction.objectStore(STORE_NAME).put(data, 'freightData');
-                    await new Promise((resolve, reject) => { transaction.oncomplete = resolve;
-                        transaction.onerror = () => reject(transaction.error); });
-                } catch (e) { console.warn(e); } }
+            // 保存单张图片到 IndexedDB
+            async function saveImageToDB(imageId, cargoId, dataUrl) {
+                try {
+                    const database = await openDB();
+                    const tx = database.transaction([IMAGE_STORE_NAME], 'readwrite');
+                    const store = tx.objectStore(IMAGE_STORE_NAME);
+                    store.put({ id: imageId, cargoId: cargoId, dataUrl: dataUrl, timestamp: Date.now() });
+                    await new Promise((resolve, reject) => { tx.oncomplete = resolve;
+                        tx.onerror = () => reject(tx.error); });
+                } catch (e) { console.warn('saveImageToDB error:', e); }
+            }
 
-            async function loadData() { try { const database = await openDB(); const store = database.transaction([STORE_NAME],
-                        'readonly').objectStore(STORE_NAME); const data = await new Promise(resolve => { const req = store.get(
-                            'freightData');
-                        req.onsuccess = () => resolve(req.result); }); if (data) { customerNameInput.value = data.customerName ||
-                            '';
+            // 从 IndexedDB 读取单张图片
+            async function loadImageFromDB(imageId) {
+                try {
+                    const database = await openDB();
+                    const tx = database.transaction([IMAGE_STORE_NAME], 'readonly');
+                    const store = tx.objectStore(IMAGE_STORE_NAME);
+                    const result = await new Promise((resolve, reject) => {
+                        const req = store.get(imageId);
+                        req.onsuccess = () => resolve(req.result);
+                        req.onerror = () => reject(req.error);
+                    });
+                    return result ? result.dataUrl : null;
+                } catch (e) { console.warn('loadImageFromDB error:', e); return null; }
+            }
+
+            // 删除单张图片
+            async function deleteImageFromDB(imageId) {
+                try {
+                    const database = await openDB();
+                    const tx = database.transaction([IMAGE_STORE_NAME], 'readwrite');
+                    const store = tx.objectStore(IMAGE_STORE_NAME);
+                    store.delete(imageId);
+                    await new Promise((resolve, reject) => { tx.oncomplete = resolve;
+                        tx.onerror = () => reject(tx.error); });
+                } catch (e) { console.warn('deleteImageFromDB error:', e); }
+            }
+
+            // 批量删除某个 cargo 的所有图片
+            async function deleteImagesByCargoId(cargoId) {
+                const ids = cargoImageKeys[cargoId] || [];
+                for (const id of ids) {
+                    await deleteImageFromDB(id);
+                    // 释放 Blob URL
+                    if (blobUrlMap.has(id)) {
+                        URL.revokeObjectURL(blobUrlMap.get(id));
+                        blobUrlMap.delete(id);
+                    }
+                }
+                cargoImageKeys[cargoId] = [];
+            }
+
+            // 保存主数据（不包含图片 Base64）
+            async function saveData() {
+                try {
+                    const database = await openDB();
+                    const data = {
+                        customerName: customerNameInput.value,
+                        orderDates: Array.from(orderDatesList.querySelectorAll('.order-date-input')).map(inp => inp
+                            .value),
+                        kgRate: kgRateInput.value,
+                        cbmRate: cbmRateInput.value,
+                        exchangeRate: exchangeRateInput.value,
+                        cargos: [],
+                        cargoImageKeys: cargoImageKeys, // 只存 key 列表
+                        isDetailsCollapsed: isCollapsed
+                    };
+                    document.querySelectorAll('.cargo-item').forEach(item => {
+                        const cargoId = item.id.split('-')[1];
+                        const calcTypeRadio = item.querySelector(`input[name="calc-type-${cargoId}"]:checked`);
+                        const calcType = calcTypeRadio ? calcTypeRadio.value : 'weight';
+                        data.cargos.push({
+                            id: cargoId,
+                            type: calcType,
+                            kg: item.querySelector('.kg-input')?.value || '',
+                            length: item.querySelector('.length-input')?.value || '',
+                            width: item.querySelector('.width-input')?.value || '',
+                            height: item.querySelector('.height-input')?.value || ''
+                        });
+                    });
+                    const tx = database.transaction([STORE_NAME], 'readwrite');
+                    tx.objectStore(STORE_NAME).put(data, 'freightData');
+                    await new Promise((resolve, reject) => { tx.oncomplete = resolve;
+                        tx.onerror = () => reject(tx.error); });
+                } catch (e) { console.warn('saveData error:', e); }
+            }
+
+            // 加载主数据（不加载图片 Base64，只加载 key 列表）
+            async function loadData() {
+                try {
+                    const database = await openDB();
+                    const tx = database.transaction([STORE_NAME], 'readonly');
+                    const store = tx.objectStore(STORE_NAME);
+                    const data = await new Promise(resolve => { const req = store.get('freightData');
+                        req.onsuccess = () => resolve(req.result); });
+                    if (data) {
+                        customerNameInput.value = data.customerName || '';
                         kgRateInput.value = data.kgRate || '20';
                         cbmRateInput.value = data.cbmRate || '1700';
-                        exchangeRateInput.value = data.exchangeRate || '630'; if (data.orderDates && data.orderDates.length) data
-                            .orderDates.forEach(d => addDateInput(d));
-                        else addDateInput(); if (data.cargoImages) Object.assign(cargoImages, data.cargoImages); if (data.cargos &&
-                            data.cargos.length) data.cargos.forEach(c => addCargoItem(c));
-                        else addCargoItem(); if (data.isDetailsCollapsed !== undefined && data.isDetailsCollapsed) { isCollapsed =
-                                false;
-                            toggleCollapse(); } } else { addCargoItem();
-                        addDateInput(); } recalculateAll(); } catch (e) { addCargoItem();
+                        exchangeRateInput.value = data.exchangeRate || '630';
+                        if (data.orderDates && data.orderDates.length) data.orderDates.forEach(d => addDateInput(d));
+                        else addDateInput();
+                        // 恢复 cargoImageKeys（只存 key，不存数据）
+                        if (data.cargoImageKeys) {
+                            Object.assign(cargoImageKeys, data.cargoImageKeys);
+                        }
+                        if (data.cargos && data.cargos.length) {
+                            data.cargos.forEach(c => addCargoItem(c));
+                        } else {
+                            addCargoItem();
+                        }
+                        if (data.isDetailsCollapsed !== undefined && data.isDetailsCollapsed) {
+                            isCollapsed = false;
+                            toggleCollapse();
+                        }
+                        // 渲染所有图片（从 DB 加载）
+                        for (const cid of Object.keys(cargoImageKeys)) {
+                            const container = document.getElementById(`image-grid-${cid}`);
+                            if (container) renderImageGrid(cid, container);
+                        }
+                    } else {
+                        addCargoItem();
+                        addDateInput();
+                    }
+                    recalculateAll();
+                } catch (e) {
+                    addCargoItem();
                     addDateInput();
-                    recalculateAll(); } }
+                    recalculateAll();
+                }
+            }
 
+            // ==============================================================
+            //  自定义确认对话框
+            // ==============================================================
             function showConfirm() {
                 return new Promise((resolve) => {
                     const modal = document.getElementById('confirm-modal');
@@ -956,38 +1073,71 @@
                 dateCounter = 0;
                 while (cargoListDiv.firstChild) cargoListDiv.removeChild(cargoListDiv.firstChild);
                 cargoCounter = 0;
-                Object.keys(cargoImages).forEach(k => delete cargoImages[k]);
-                try { const database = await openDB(); const transaction =
-                        database.transaction([STORE_NAME], 'readwrite');
-                    transaction.objectStore(STORE_NAME).delete('freightData'); } catch (e) {}
+                // 删除所有图片数据
+                for (const cid of Object.keys(cargoImageKeys)) {
+                    await deleteImagesByCargoId(cid);
+                }
+                Object.keys(cargoImageKeys).forEach(k => delete cargoImageKeys[k]);
+                try {
+                    const database = await openDB();
+                    const tx = database.transaction([STORE_NAME, IMAGE_STORE_NAME], 'readwrite');
+                    tx.objectStore(STORE_NAME).delete('freightData');
+                    // 清空图片 store（可选，但为了彻底清理）
+                    const imgStore = tx.objectStore(IMAGE_STORE_NAME);
+                    const allKeys = await new Promise(resolve => { const req = imgStore.getAllKeys();
+                        req.onsuccess = () => resolve(req.result); });
+                    for (const key of allKeys) imgStore.delete(key);
+                    await new Promise((resolve, reject) => { tx.oncomplete = resolve;
+                        tx.onerror = () => reject(tx.error); });
+                } catch (e) {}
                 addDateInput();
                 addCargoItem();
                 recalculateAll();
             }
 
-            function showModal(msg) { const modal = document.getElementById('custom-modal');
+            // ==============================================================
+            //  UI 辅助
+            // ==============================================================
+            function showModal(msg) {
+                const modal = document.getElementById('custom-modal');
                 document.getElementById('modal-message').innerText = msg;
                 modal.classList.remove('hidden');
-                setTimeout(() => modal.classList.add('hidden'), 2000); }
+                setTimeout(() => modal.classList.add('hidden'), 2000);
+            }
             window.closeModal = () => document.getElementById('custom-modal').classList.add('hidden');
 
-            function updateCargoDetailsTable() { const previewTotalSpan = document.getElementById('previewTotalRMB'); if (cargoData
-                    .length === 0) { cargoDetailsTableContainer.innerHTML =
-                        `<p class="text-center text-gray-400 py-4 text-xs">No cargo added</p>`; if (previewTotalSpan) previewTotalSpan
-                            .innerText = '0.00 ¥'; return; } const totalCostRMB = cargoData.reduce((sum, i) => sum + i.totalCost,
-                        0).toFixed(2); if (previewTotalSpan) previewTotalSpan.innerText = totalCostRMB + ' ¥'; let html =
+            function updateCargoDetailsTable() {
+                const previewTotalSpan = document.getElementById('previewTotalRMB');
+                if (cargoData.length === 0) {
+                    cargoDetailsTableContainer.innerHTML =
+                        `<p class="text-center text-gray-400 py-4 text-xs">No cargo added</p>`;
+                    if (previewTotalSpan) previewTotalSpan.innerText = '0.00 ¥';
+                    return;
+                }
+                const totalCostRMB = cargoData.reduce((sum, i) => sum + i.totalCost, 0).toFixed(2);
+                if (previewTotalSpan) previewTotalSpan.innerText = totalCostRMB + ' ¥';
+                let html =
                     `<div class="cargo-table-wrapper"><table><thead><tr><th>#</th><th>Type</th><th>Weight</th><th>Dimensions</th><th>Vol</th><th>¥</th></tr></thead><tbody>`;
-                cargoData.forEach(item => { if (item.type === 'weight') html +=
+                cargoData.forEach(item => {
+                    if (item.type === 'weight') html +=
                         `<tr><td class="font-medium">${item.id}</td><td>W</td><td>${item.kg.toFixed(2)}</td><td>-</td><td>-</td><td class="font-semibold">${item.totalCost.toFixed(2)}</td></tr>`;
-                    else { const dim =
-                        `${item.length.toFixed(2)}x${item.width.toFixed(2)}x${item.height.toFixed(2)}`;
+                    else {
+                        const dim =
+                            `${item.length.toFixed(2)}x${item.width.toFixed(2)}x${item.height.toFixed(2)}`;
                         html +=
-                        `<tr><td class="font-medium">${item.id}</td><td>V</td><td>-</td><td>${dim}</td><td>${item.volume.toFixed(3)}</td><td class="font-semibold">${item.totalCost.toFixed(2)}</td></tr>`; } });
+                            `<tr><td class="font-medium">${item.id}</td><td>V</td><td>-</td><td>${dim}</td><td>${item.volume.toFixed(3)}</td><td class="font-semibold">${item.totalCost.toFixed(2)}</td></tr>`;
+                    }
+                });
                 html +=
                     `<tr class="border-t"><td colspan="5" class="text-right font-medium">Total</td><td class="font-bold">${totalCostRMB}</td></tr></tbody></table></div>`;
-                cargoDetailsTableContainer.innerHTML = html; }
+                cargoDetailsTableContainer.innerHTML = html;
+            }
 
-            function recalculateAll() { let totalKg = 0,
+            // ==============================================================
+            //  计算逻辑
+            // ==============================================================
+            function recalculateAll() {
+                let totalKg = 0,
                     totalVolume = 0,
                     totalKgCost = 0,
                     totalVolumeCost = 0;
@@ -995,30 +1145,37 @@
                 const kgRate = parseFloat(kgRateInput.value) || 0,
                     cbmRate = parseFloat(cbmRateInput.value) || 0,
                     exchangeRate = parseFloat(exchangeRateInput.value) || 0;
-                document.querySelectorAll('.cargo-item').forEach(item => { const cargoId = item.id.split('-')[1]; const calcType =
-                        item.querySelector(`input[name="calc-type-${cargoId}"]:checked`).value;
+                document.querySelectorAll('.cargo-item').forEach(item => {
+                    const cargoId = item.id.split('-')[1];
+                    const calcType = item.querySelector(`input[name="calc-type-${cargoId}"]:checked`).value;
                     let singleCost = 0,
                         kg = 0,
                         len = 0,
                         wid = 0,
                         hei = 0,
-                        vol = 0; if (calcType === 'weight') { kg = parseFloat(item.querySelector('.kg-input').value) || 0;
+                        vol = 0;
+                    if (calcType === 'weight') {
+                        kg = parseFloat(item.querySelector('.kg-input').value) || 0;
                         singleCost = kg * kgRate;
                         totalKgCost += singleCost;
-                        totalKg += kg; } else { len = parseFloat(item.querySelector('.length-input').value) || 0;
+                        totalKg += kg;
+                    } else {
+                        len = parseFloat(item.querySelector('.length-input').value) || 0;
                         wid = parseFloat(item.querySelector('.width-input').value) || 0;
                         hei = parseFloat(item.querySelector('.height-input').value) || 0;
                         vol = len * wid * hei;
                         singleCost = vol * cbmRate;
                         totalVolumeCost += singleCost;
-                        totalVolume += vol; }
+                        totalVolume += vol;
+                    }
                     cargoData.push({ id: cargoId, type: calcType, kg, length: len, width: wid, height: hei, volume: vol,
                         totalCost: singleCost });
-                    const detailsDiv = item.querySelector('.calculation-details'); if (calcType === 'weight') detailsDiv
-                        .innerHTML =
-                        `<div class="mt-2 text-[#93c5fd] text-xs font-medium">Freight: ${singleCost.toFixed(2)} ¥</div>`; else
-                        detailsDiv.innerHTML =
-                        `<div class="mt-2 text-[#93c5fd] text-xs">Volume: ${vol.toFixed(3)} m³<br>Freight: ${singleCost.toFixed(2)} ¥</div>`; });
+                    const detailsDiv = item.querySelector('.calculation-details');
+                    if (calcType === 'weight') detailsDiv.innerHTML =
+                        `<div class="mt-2 text-[#93c5fd] text-xs font-medium">Freight: ${singleCost.toFixed(2)} ¥</div>`;
+                    else detailsDiv.innerHTML =
+                        `<div class="mt-2 text-[#93c5fd] text-xs">Volume: ${vol.toFixed(3)} m³<br>Freight: ${singleCost.toFixed(2)} ¥</div>`;
+                });
                 const totalRMB = totalKgCost + totalVolumeCost;
                 const totalMMK = Math.round(totalRMB * exchangeRate);
                 document.getElementById('totalKg').innerText = totalKg.toFixed(1) + ' kg';
@@ -1028,9 +1185,15 @@
                 document.getElementById('totalCostRMB').innerText = totalRMB.toFixed(0) + ' ¥';
                 document.getElementById('totalCostMMK').innerText = totalMMK.toLocaleString('en-US') + ' Ks';
                 updateCargoDetailsTable();
-                saveData(); }
+                saveData();
+            }
 
-            function addDateInput(value = '') { dateCounter++; const div = document.createElement('div');
+            // ==============================================================
+            //  日期管理
+            // ==============================================================
+            function addDateInput(value = '') {
+                dateCounter++;
+                const div = document.createElement('div');
                 div.className = 'date-item';
                 div.id = `order-date-${dateCounter}`;
                 div.innerHTML =
@@ -1038,109 +1201,131 @@
                 orderDatesList.appendChild(div);
                 div.querySelector('.order-date-input').addEventListener('input', recalculateAll);
                 addTapFeedbackToElement(div.querySelector('.remove-date-btn'));
-                recalculateAll(); }
+                recalculateAll();
+            }
             window.removeDateInput = (id) => { playTapFeedback();
                 document.getElementById(`order-date-${id}`)?.remove();
                 recalculateAll(); };
             addDateBtn.addEventListener('click', () => addDateInput());
 
             // ==============================================================
-            // ★★★ v7.4 升级：存储图片时保存宽高比，导出免解码 ★★★
+            //  ★★★ 核心：图片渲染（从 IndexedDB 加载，使用 Blob URL） ★★★
             // ==============================================================
-            const MAX_WIDTH = 1600;
-            const QUALITY = 0.92;
-
-            function renderImageGrid(cargoId, container) {
-                const images = cargoImages[cargoId] || [];
+            async function renderImageGrid(cargoId, container) {
+                const imageIds = cargoImageKeys[cargoId] || [];
                 container.innerHTML = '';
-                images.forEach((item, idx) => {
-                    // item 现在是一个对象 { dataUrl, width, height }
+
+                // 显示图片计数
+                const badge = document.createElement('span');
+                badge.className = 'img-badge';
+                badge.innerText = `${imageIds.length} 张`;
+                // 找到 cargo-header 并追加
+                const header = document.getElementById(`cargo-${cargoId}`)?.querySelector('.cargo-header');
+                if (header) {
+                    const existing = header.querySelector('.img-badge');
+                    if (existing) existing.remove();
+                    header.appendChild(badge);
+                }
+
+                // 渲染已存在的图片
+                for (const imgId of imageIds) {
                     const previewDiv = document.createElement('div');
                     previewDiv.className = 'preview-block';
                     const img = document.createElement('img');
-                    img.src = item.dataUrl;
+
+                    // 从 IndexedDB 加载图片数据
+                    const dataUrl = await loadImageFromDB(imgId);
+                    if (dataUrl) {
+                        img.src = dataUrl;
+                    } else {
+                        img.src = ''; // 占位
+                        img.alt = '加载失败';
+                    }
+
                     const delBtn = document.createElement('div');
                     delBtn.className = 'delete-img-btn';
                     delBtn.innerHTML = '✕';
-                    delBtn.onclick = (e) => {
+                    delBtn.onclick = async (e) => {
                         e.stopPropagation();
                         playTapFeedback();
-                        images.splice(idx, 1);
+                        // 从 DB 删除
+                        await deleteImageFromDB(imgId);
+                        // 从 cargoImageKeys 中移除
+                        const idx = cargoImageKeys[cargoId].indexOf(imgId);
+                        if (idx > -1) cargoImageKeys[cargoId].splice(idx, 1);
+                        // 释放 Blob URL
+                        if (blobUrlMap.has(imgId)) {
+                            URL.revokeObjectURL(blobUrlMap.get(imgId));
+                            blobUrlMap.delete(imgId);
+                        }
                         renderImageGrid(cargoId, container);
                         saveData();
                     };
                     previewDiv.appendChild(img);
                     previewDiv.appendChild(delBtn);
                     container.appendChild(previewDiv);
-                });
+                }
+
+                // 添加相机按钮
                 const cameraDiv = document.createElement('div');
                 cameraDiv.className = 'camera-block';
                 cameraDiv.innerHTML = '<i class="fas fa-camera"></i><span>Add</span>';
                 const hiddenInput = document.createElement('input');
                 hiddenInput.type = 'file';
                 hiddenInput.accept = 'image/*';
-                hiddenInput.multiple = true;
                 hiddenInput.style.display = 'none';
 
                 hiddenInput.onchange = async (e) => {
-                    const files = e.target.files;
-                    if (!files || files.length === 0) return;
+                    const file = e.target.files[0];
+                    if (!file) return;
                     playTapFeedback();
 
-                    for (const file of files) {
-                        try {
-                            const img = new Image();
-                            const url = URL.createObjectURL(file);
-                            img.src = url;
-                            await new Promise(resolve => { img.onload = resolve;
-                                img.onerror = resolve; });
-                            URL.revokeObjectURL(url);
+                    // 1. 加载原始图片
+                    const img = new Image();
+                    const url = URL.createObjectURL(file);
+                    img.src = url;
+                    await new Promise(resolve => { img.onload = resolve;
+                        img.onerror = resolve; });
+                    URL.revokeObjectURL(url);
 
-                            if (img.naturalWidth === 0) {
-                                showModal('图片加载失败，已跳过: ' + file.name);
-                                continue;
-                            }
-
-                            const canvas = document.createElement('canvas');
-                            const ctx = canvas.getContext('2d');
-                            let w = img.naturalWidth,
-                                h = img.naturalHeight;
-                            if (w > h) {
-                                if (w > MAX_WIDTH) { h = h * MAX_WIDTH / w;
-                                    w = MAX_WIDTH; }
-                            } else {
-                                if (h > MAX_WIDTH) { w = w * MAX_WIDTH / h;
-                                    h = MAX_WIDTH; }
-                            }
-                            canvas.width = Math.round(w);
-                            canvas.height = Math.round(h);
-                            ctx.imageSmoothingEnabled = true;
-                            ctx.imageSmoothingQuality = 'high';
-                            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-                            const compressedDataURL = canvas.toDataURL('image/jpeg', QUALITY);
-
-                            // ★ 存储为对象，包含宽高
-                            if (!cargoImages[cargoId]) cargoImages[cargoId] = [];
-                            cargoImages[cargoId].push({
-                                dataUrl: compressedDataURL,
-                                width: canvas.width,
-                                height: canvas.height
-                            });
-
-                            // 释放内存
-                            canvas.width = 0;
-                            canvas.height = 0;
-                            ctx.clearRect(0, 0, 1, 1);
-                            img.src = '';
-
-                            renderImageGrid(cargoId, container);
-                            saveData();
-                        } catch (err) {
-                            console.warn('处理图片出错:', err);
-                            showModal('处理图片出错: ' + file.name);
-                        }
+                    if (img.naturalWidth === 0) {
+                        showModal('图片加载失败，请重试');
+                        hiddenInput.value = '';
+                        return;
                     }
+
+                    // 2. Canvas 压缩（使用可调参数）
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    let w = img.naturalWidth,
+                        h = img.naturalHeight;
+                    const MAX_W = IMG_CONFIG.MAX_WIDTH;
+                    if (w > h) {
+                        if (w > MAX_W) { h = h * MAX_W / w;
+                            w = MAX_W; }
+                    } else {
+                        if (h > MAX_W) { w = w * MAX_W / h;
+                            h = MAX_W; }
+                    }
+                    canvas.width = Math.round(w);
+                    canvas.height = Math.round(h);
+                    ctx.imageSmoothingEnabled = true;
+                    ctx.imageSmoothingQuality = 'high';
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                    const compressedDataURL = canvas.toDataURL('image/jpeg', IMG_CONFIG.QUALITY);
+
+                    // 3. 生成唯一 ID 并保存到 IndexedDB
+                    imageIdCounter++;
+                    const newImgId = `img_${Date.now()}_${imageIdCounter}`;
+                    if (!cargoImageKeys[cargoId]) cargoImageKeys[cargoId] = [];
+                    cargoImageKeys[cargoId].push(newImgId);
+
+                    await saveImageToDB(newImgId, cargoId, compressedDataURL);
+
+                    // 4. 重新渲染
+                    renderImageGrid(cargoId, container);
+                    saveData();
                     hiddenInput.value = '';
                 };
 
@@ -1151,39 +1336,73 @@
                 container.appendChild(cameraDiv);
                 container.appendChild(hiddenInput);
             }
-            // ==============================================================
 
+            // ==============================================================
+            //  Cargo 管理
+            // ==============================================================
             function addCargoItem(data = {}) {
                 cargoCounter++;
                 const cid = String(cargoCounter);
-                if (!cargoImages[cid]) cargoImages[cid] = (data.images ? [...data.images] : []);
+                if (!cargoImageKeys[cid]) cargoImageKeys[cid] = [];
+
                 const cargoDiv = document.createElement('div');
                 cargoDiv.className = 'cargo-item cargo-card';
                 cargoDiv.id = `cargo-${cid}`;
-                cargoDiv.innerHTML =
-                    `<div class="cargo-header"><span class="cargo-title"><i class="fas fa-box"></i>Cargo #${cid}</span><div class="remove-date-btn" onclick="removeCargo(${cid})"><i class="fas fa-trash-alt"></i></div></div><div class="radio-group"><label class="radio-item"><input type="radio" name="calc-type-${cid}" value="weight" ${data.type === 'weight' || !data.type ? 'checked' : ''}> Weight</label><label class="radio-item"><input type="radio" name="calc-type-${cid}" value="volume" ${data.type === 'volume' ? 'checked' : ''}> Volume</label></div><div id="weight-inputs-${cid}"><input type="number" value="${data.kg || ''}" class="kg-input w-full" placeholder="Weight (kg)" step="0.01" inputmode="decimal"></div><div id="volume-inputs-${cid}" class="hidden"><div class="dimension-row"><div><input type="number" value="${data.length || ''}" class="length-input" placeholder="L (m)" step="0.001" inputmode="decimal"></div><div><input type="number" value="${data.width || ''}" class="width-input" placeholder="W (m)" step="0.001" inputmode="decimal"></div><div><input type="number" value="${data.height || ''}" class="height-input" placeholder="H (m)" step="0.001" inputmode="decimal"></div></div></div><div class="mt-2"><div id="image-grid-${cid}" class="image-grid"></div></div><div class="calculation-details"></div>`;
+                cargoDiv.innerHTML = `
+                        <div class="cargo-header">
+                            <span class="cargo-title"><i class="fas fa-box"></i>Cargo #${cid}</span>
+                            <div class="remove-date-btn" onclick="removeCargo(${cid})"><i class="fas fa-trash-alt"></i></div>
+                        </div>
+                        <div class="radio-group">
+                            <label class="radio-item"><input type="radio" name="calc-type-${cid}" value="weight" ${data.type === 'weight' || !data.type ? 'checked' : ''}> Weight</label>
+                            <label class="radio-item"><input type="radio" name="calc-type-${cid}" value="volume" ${data.type === 'volume' ? 'checked' : ''}> Volume</label>
+                        </div>
+                        <div id="weight-inputs-${cid}"><input type="number" value="${data.kg || ''}" class="kg-input w-full" placeholder="Weight (kg)" step="0.01" inputmode="decimal"></div>
+                        <div id="volume-inputs-${cid}" class="hidden">
+                            <div class="dimension-row">
+                                <div><input type="number" value="${data.length || ''}" class="length-input" placeholder="L (m)" step="0.001" inputmode="decimal"></div>
+                                <div><input type="number" value="${data.width || ''}" class="width-input" placeholder="W (m)" step="0.001" inputmode="decimal"></div>
+                                <div><input type="number" value="${data.height || ''}" class="height-input" placeholder="H (m)" step="0.001" inputmode="decimal"></div>
+                            </div>
+                        </div>
+                        <div class="mt-2"><div id="image-grid-${cid}" class="image-grid"></div></div>
+                        <div class="calculation-details"></div>
+                    `;
                 cargoListDiv.appendChild(cargoDiv);
+
                 const weightDiv = document.getElementById(`weight-inputs-${cid}`);
                 const volumeDiv = document.getElementById(`volume-inputs-${cid}`);
                 if (data.type === 'volume') { weightDiv.classList.add('hidden');
                     volumeDiv.classList.remove('hidden'); } else { weightDiv.classList.remove('hidden');
                     volumeDiv.classList.add('hidden'); }
+
+                // 渲染图片（从 IndexedDB 加载）
                 const gridContainer = document.getElementById(`image-grid-${cid}`);
                 renderImageGrid(cid, gridContainer);
-                cargoDiv.querySelectorAll(`input[name="calc-type-${cid}"]`).forEach(radio => { radio.addEventListener(
-                        'change', (e) => { const isWeight = e.target.value === 'weight';
-                            weightDiv.classList.toggle('hidden', !isWeight);
-                            volumeDiv.classList.toggle('hidden', isWeight);
-                            recalculateAll(); }); });
+
+                cargoDiv.querySelectorAll(`input[name="calc-type-${cid}"]`).forEach(radio => {
+                    radio.addEventListener('change', (e) => {
+                        const isWeight = e.target.value === 'weight';
+                        weightDiv.classList.toggle('hidden', !isWeight);
+                        volumeDiv.classList.toggle('hidden', isWeight);
+                        recalculateAll();
+                    });
+                });
                 cargoDiv.querySelectorAll('.kg-input, .length-input, .width-input, .height-input').forEach(inp => inp
                     .addEventListener('input', recalculateAll));
                 addTapFeedbackToElement(cargoDiv.querySelector('.remove-date-btn'));
                 recalculateAll();
             }
-            window.removeCargo = (id) => { playTapFeedback();
-                document.getElementById(`cargo-${id}`)?.remove();
-                delete cargoImages[String(id)];
-                recalculateAll(); };
+
+            window.removeCargo = async (id) => {
+                playTapFeedback();
+                const cid = String(id);
+                // 删除该 cargo 的所有图片
+                await deleteImagesByCargoId(cid);
+                document.getElementById(`cargo-${cid}`)?.remove();
+                delete cargoImageKeys[cid];
+                recalculateAll();
+            };
 
             addCargoBtn.addEventListener('click', () => addCargoItem());
             clearAllBtn.addEventListener('click', clearAllData);
@@ -1192,9 +1411,12 @@
             exchangeRateInput.addEventListener('input', recalculateAll);
             customerNameInput.addEventListener('input', recalculateAll);
 
+            // ==============================================================
+            //  PDF 生成（分批加载图片，避免内存溢出）
+            // ==============================================================
             async function generatePdfBlob(progress) {
                 const { jsPDF } = window.jspdf;
-                progress.update(10, "Daterဖတ်ယူနေ...");
+                progress.update(10, "读取数据...");
                 const customerName = customerNameInput.value.trim();
                 const orderDates = Array.from(document.querySelectorAll('.order-date-input')).map(inp => inp.value.trim())
                     .filter(Boolean);
@@ -1222,7 +1444,6 @@
                 const applyBg = (d, img) => {
                     if (img) d.addImage(img, 'PNG', 0, 0, pageWidth, pageHeight, undefined, 'FAST');
                 };
-
                 applyBg(doc, bgImageData);
 
                 let yPos = 30;
@@ -1252,7 +1473,7 @@
                         .totalCost.toFixed(2)
                     ]);
 
-                progress.update(40, "ဇယားထုတ်နေသည်...");
+                progress.update(40, "生成表格...");
                 doc.autoTable({
                     startY: yPos,
                     head: [headers],
@@ -1261,9 +1482,7 @@
                     styles: { fontSize: 9, font: 'SourceHanSans', halign: 'center', textColor: [0, 0, 0] },
                     headStyles: { fillColor: [0, 0, 0], textColor: [255, 255, 255], fontStyle: 'bold' },
                     margin: { top: margin, bottom: 45 },
-                    didAddPage: function(data) {
-                        applyBg(doc, bgImageData);
-                    }
+                    didAddPage: function(data) { applyBg(doc, bgImageData); }
                 });
 
                 let finalY = doc.autoTable.previous.finalY;
@@ -1287,28 +1506,49 @@
                 doc.text(`${totalMMK} Ks`, pageWidth - margin, finalY + 28, { align: 'right' });
                 doc.setTextColor(0, 0, 0);
 
-                // ★★★ 导出图片：完全跳过 new Image() 解码，直接使用存储的宽高比 ★★★
-                progress.update(60, "ဓါတ်ပုံလုပ်ဆောင်ခြင်း...");
-                const idsWithImg = Object.keys(cargoImages).filter(id => cargoImages[id]?.length);
-                if (idsWithImg.length) {
+                // ==============================================================
+                //  ★★★ 图片部分：分批从 IndexedDB 加载 ★★★
+                // ==============================================================
+                const allImageIds = [];
+                for (const cid of Object.keys(cargoImageKeys)) {
+                    for (const imgId of cargoImageKeys[cid]) {
+                        allImageIds.push({ cargoId: cid, imageId: imgId });
+                    }
+                }
+
+                if (allImageIds.length > 0) {
                     doc.addPage();
                     applyBg(doc, bgImageData);
                     let cy = margin;
                     doc.setFontSize(14);
                     doc.text('Cargo Images', pageWidth / 2, cy, { align: 'center' });
                     cy += 12;
-                    let imgCount = 0;
-                    const totalImgs = idsWithImg.reduce((s, id) => s + cargoImages[id].length, 0);
-                    for (const cid of idsWithImg) {
-                        for (const item of cargoImages[cid]) { // item 是 { dataUrl, width, height }
-                            imgCount++;
-                            progress.update(60 + Math.floor(35 * imgCount / totalImgs), `图片 ${imgCount}/${totalImgs}...`);
-                            
-                            // ★ 直接使用存储的宽高比，无需创建 Image 对象解码
-                            const ratio = item.height / item.width;
+
+                    // 分批处理，每次加载 5 张，避免内存峰值
+                    const BATCH_SIZE = 5;
+                    let processed = 0;
+                    const total = allImageIds.length;
+
+                    for (let i = 0; i < allImageIds.length; i += BATCH_SIZE) {
+                        const batch = allImageIds.slice(i, i + BATCH_SIZE);
+                        for (const { cargoId, imageId } of batch) {
+                            processed++;
+                            progress.update(60 + Math.floor(35 * processed / total),
+                                `图片 ${processed}/${total}... (Cargo #${cargoId})`);
+
+                            const dataUrl = await loadImageFromDB(imageId);
+                            if (!dataUrl) continue;
+
+                            const imgObj = new Image();
+                            imgObj.src = dataUrl;
+                            await new Promise(r => { imgObj.onload = r;
+                                imgObj.onerror = r; });
+                            if (imgObj.naturalWidth === 0) continue;
+
+                            const ratio = imgObj.naturalHeight / imgObj.naturalWidth;
                             const imgW = pageWidth - 2 * margin;
                             const imgH = imgW * ratio;
-                            
+
                             if (cy + imgH > pageHeight - margin) {
                                 doc.addPage();
                                 applyBg(doc, bgImageData);
@@ -1317,25 +1557,31 @@
                                 doc.text('Cargo Images (continued)', pageWidth / 2, cy, { align: 'center' });
                                 cy += 10;
                             }
-                            doc.text(`Cargo #${cid} Image`, margin, cy - 3);
-                            doc.addImage(item.dataUrl, 'JPEG', margin, cy, imgW, imgH, undefined, 'SLOW');
+                            doc.text(`Cargo #${cargoId} Image`, margin, cy - 3);
+                            doc.addImage(dataUrl, 'JPEG', margin, cy, imgW, imgH, undefined, 'SLOW');
                             cy += imgH + 12;
                         }
+                        // 每批处理完后，让出主线程，避免卡顿
+                        await new Promise(r => setTimeout(r, 50));
                     }
                 }
-                progress.update(95, "PDFထုတ်နေ...");
+
+                progress.update(95, "生成 PDF...");
                 const result = doc.output('blob');
-                progress.update(100, "Finish!");
+                progress.update(100, "完成!");
                 await new Promise(r => setTimeout(r, 300));
                 return result;
             }
 
+            // ==============================================================
+            //  导出 / 分享
+            // ==============================================================
             let isExporting = false;
 
             async function shareToTelegram() {
                 if (isExporting) {
                     playTapFeedback();
-                    showModal('လုပ်ဆောင်နေဆဲ...');
+                    showModal('正在处理中...');
                     return;
                 }
                 const customerName = customerNameInput.value.trim();
@@ -1347,13 +1593,13 @@
                     return;
                 }
                 isExporting = true;
-                const progress = showProgress("PDF ထုတ်နေသည်...", 5);
+                const progress = showProgress("PDF 生成中...", 5);
                 try {
                     playTapFeedback();
-                    progress.update(5, "ပြင်ဆင်နေသည်...");
+                    progress.update(5, "准备中...");
                     await new Promise(r => setTimeout(r, 100));
                     const pdfBlob = await generatePdfBlob(progress);
-                    progress.update(98, "shareရန်...");
+                    progress.update(98, "准备分享...");
                     const firstOrderDate = orderDates[0] || 'nodate';
                     const safeName = customerName.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '_');
                     const fileName = `${safeName}_${firstOrderDate}.pdf`;
@@ -1390,7 +1636,12 @@
                 }
             }
 
-            exportPdfBtn.addEventListener('click', async (e) => { e.preventDefault(); await shareToTelegram(); });
+            exportPdfBtn.addEventListener('click', async (e) => { e.preventDefault();
+                await shareToTelegram(); });
+
+            // ==============================================================
+            //  启动：加载数据
+            // ==============================================================
             loadData();
         })();
     </script>
