@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* ---- 所有原有样式（完全不变） ---- */
+        /* ===== 所有原有样式（完全不变） ===== */
         * {
             margin: 0;
             padding: 0;
@@ -763,7 +763,7 @@
     <div class="main-container">
         <div class="compact-header">
             <div class="brand"><span class="brand-name">ANT China Supplier</span><span class="brand-sub">Smart Calculator</span></div>
-            <div class="version">v 7.2.5 </div>
+            <div class="version">v 7.4 (Batch-Merge)</div>
         </div>
 
         <div class="card">
@@ -832,6 +832,7 @@
         </div>
     </div>
 
+    <!-- 必需库 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js">
@@ -841,6 +842,9 @@
     <script src="https://unpkg.com/jspdf-font-source-han-sans@1.0.0/dist/SourceHanSansCN-Normal.js">
     </script>
     <script src="https://unpkg.com/jspdf-font-montserrat@1.0.0/dist/Montserrat-Regular.js">
+    </script>
+    <!-- 新增 pdf-lib 用于合并 -->
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js">
     </script>
 
     <script>
@@ -1045,10 +1049,10 @@
             addDateBtn.addEventListener('click', () => addDateInput());
 
             // ==============================================================
-            // ★★★ 升级后的渲染函数：支持多选 + 内存自动释放 ★★★
+            // ★★★ 图片上传（多选 + 内存释放）★★★
             // ==============================================================
-            const MAX_WIDTH = 1600;   // 可自行调整
-            const QUALITY = 0.92;     // 可自行调整
+            const MAX_WIDTH = 1600;
+            const QUALITY = 0.92;
 
             function renderImageGrid(cargoId, container) {
                 const images = cargoImages[cargoId] || [];
@@ -1078,36 +1082,24 @@
                 const hiddenInput = document.createElement('input');
                 hiddenInput.type = 'file';
                 hiddenInput.accept = 'image/*';
-                hiddenInput.multiple = true;   // ★ 支持多选
+                hiddenInput.multiple = true;
                 hiddenInput.style.display = 'none';
 
-                // ─── 核心：处理多张图片（串行） ───
                 hiddenInput.onchange = async (e) => {
                     const files = e.target.files;
                     if (!files || files.length === 0) return;
                     playTapFeedback();
 
-                    // 显示一个简单的进度提示（可选）
-                    const total = files.length;
-                    let processed = 0;
-
-                    // 为了减少内存峰值，采用串行处理（一个接一个）
                     for (const file of files) {
                         try {
-                            // 1. 加载原始图片
                             const img = new Image();
                             const url = URL.createObjectURL(file);
                             img.src = url;
                             await new Promise(resolve => { img.onload = resolve;
                                 img.onerror = resolve; });
                             URL.revokeObjectURL(url);
+                            if (img.naturalWidth === 0) continue;
 
-                            if (img.naturalWidth === 0) {
-                                showModal('图片加载失败，已跳过: ' + file.name);
-                                continue;
-                            }
-
-                            // 2. Canvas 缩放压缩
                             const canvas = document.createElement('canvas');
                             const ctx = canvas.getContext('2d');
                             let w = img.naturalWidth,
@@ -1126,38 +1118,23 @@
                             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
                             const compressedDataURL = canvas.toDataURL('image/jpeg', QUALITY);
-
-                            // 3. 存储
                             if (!cargoImages[cargoId]) cargoImages[cargoId] = [];
                             cargoImages[cargoId].push(compressedDataURL);
 
-                            // 4. ★ 立即释放内存（关键）
+                            // 强制释放内存
                             canvas.width = 0;
                             canvas.height = 0;
                             ctx.clearRect(0, 0, 1, 1);
                             img.src = '';
-                            // 让 GC 尽快回收
-                            // 注意：这里不能将 img/canvas/ctx 设为 null，因为它们是局部变量，作用域结束自然释放
-                            // 但我们可以主动断开引用
-                            // 不过由于是局部变量，循环结束后自动释放，我们只需清空 canvas 和 img 即可
 
-                            // 更新界面（每处理完一张刷新一次）
                             renderImageGrid(cargoId, container);
                             saveData();
-
-                            processed++;
-                            // 可选：在控制台或界面显示进度
-                            // console.log(`已处理 ${processed}/${total}`);
                         } catch (err) {
                             console.warn('处理图片出错:', err);
-                            showModal('处理图片出错: ' + file.name);
                         }
                     }
-
-                    // 全部处理完后清空 input 以便再次选择相同文件
                     hiddenInput.value = '';
                 };
-                // ─── 结束 ───
 
                 cameraDiv.onclick = () => {
                     playTapFeedback();
@@ -1166,8 +1143,10 @@
                 container.appendChild(cameraDiv);
                 container.appendChild(hiddenInput);
             }
-            // ==============================================================
 
+            // ==============================================================
+            // ★★★ 添加 Cargo（与原来相同）★★★
+            // ==============================================================
             function addCargoItem(data = {}) {
                 cargoCounter++;
                 const cid = String(cargoCounter);
@@ -1207,15 +1186,20 @@
             exchangeRateInput.addEventListener('input', recalculateAll);
             customerNameInput.addEventListener('input', recalculateAll);
 
+            // ==============================================================
+            // ★★★ 核心：分治合并导出 PDF ★★★
+            // ==============================================================
             async function generatePdfBlob(progress) {
                 const { jsPDF } = window.jspdf;
-                progress.update(10, "Daterဖတ်ယူနေ...");
+                const { PDFDocument } = window.PDFLib;
+
+                // 检查客户和日期
                 const customerName = customerNameInput.value.trim();
                 const orderDates = Array.from(document.querySelectorAll('.order-date-input')).map(inp => inp.value.trim())
                     .filter(Boolean);
                 if (!customerName || orderDates.length === 0) throw new Error('Missing customer or dates');
 
-                progress.update(20, "准备文档...");
+                // ---- 1. 背景图（如存在） ----
                 let bgImageData = null;
                 try {
                     const resp = await fetch('bg.png');
@@ -1229,125 +1213,226 @@
                     }
                 } catch (e) {}
 
-                const doc = new jsPDF('p', 'mm', 'a4');
-                const pageWidth = doc.internal.pageSize.getWidth();
-                const pageHeight = doc.internal.pageSize.getHeight();
-                const margin = 15;
-
-                const applyBg = (d, img) => {
-                    if (img) d.addImage(img, 'PNG', 0, 0, pageWidth, pageHeight, undefined, 'FAST');
-                };
-
-                applyBg(doc, bgImageData);
-
-                let yPos = 30;
-                doc.setFont('Montserrat', 'normal');
-                doc.setFontSize(22);
-                doc.setFont(undefined, 'bold');
-                doc.text('INTERNATIONAL SHIPPING', pageWidth / 2, yPos, { align: 'center' });
-                yPos += 10;
-                doc.setFont('SourceHanSans', 'normal');
-                doc.setFontSize(11);
-                doc.text(`Name: ${customerName}`, margin, yPos);
-                yPos += 6;
-                const dateStr = orderDates.map(d => d.split('-').slice(1, 3).join('-')).join(', ');
-                doc.text(`Order Date: ${dateStr}`, margin, yPos);
-                yPos += 10;
-
-                const kgRate = parseFloat(kgRateInput.value) || 0,
-                    cbmRate = parseFloat(cbmRateInput.value) || 0,
-                    exRate = parseFloat(exchangeRateInput.value) || 0;
-                const headers = ["No.", "Type", `Weight(kg/${kgRate}¥)`, "Dimensions(m)", `Volume(m³/${cbmRate}¥)`,
-                    "Freight(¥)"
-                ];
-                const body = cargoData.map(i => i.type === 'weight' ? [i.id, "By Weight", i.kg.toFixed(2), "-", "-", i
-                        .totalCost.toFixed(2)
-                    ] : [i.id, "By Volume", "-",
-                        `${i.length.toFixed(3)}x${i.width.toFixed(3)}x${i.height.toFixed(3)}`, i.volume.toFixed(3), i
-                        .totalCost.toFixed(2)
-                    ]);
-
-                progress.update(40, "ဇယားထုတ်နေသည်...");
-                doc.autoTable({
-                    startY: yPos,
-                    head: [headers],
-                    body: body,
-                    theme: 'grid',
-                    styles: { fontSize: 9, font: 'SourceHanSans', halign: 'center', textColor: [0, 0, 0] },
-                    headStyles: { fillColor: [0, 0, 0], textColor: [255, 255, 255], fontStyle: 'bold' },
-                    margin: { top: margin, bottom: 45 },
-                    didAddPage: function(data) {
-                        applyBg(doc, bgImageData);
-                    }
-                });
-
-                let finalY = doc.autoTable.previous.finalY;
-                const totalWeight = cargoData.reduce((s, i) => s + (i.kg || 0), 0).toFixed(2);
-                const totalVol = cargoData.reduce((s, i) => s + (i.volume || 0), 0).toFixed(3);
-                doc.setFontSize(10);
-                doc.text(`Total Weight: ${totalWeight} kg`, margin, finalY + 5);
-                doc.text(`Total Volume: ${totalVol} m³`, pageWidth - margin, finalY + 5, { align: 'right' });
-                const totalRMB = cargoData.reduce((s, i) => s + i.totalCost, 0).toFixed(2);
-                const totalMMK = Math.round(parseFloat(totalRMB) * exRate).toLocaleString('en-US');
-                doc.setFontSize(11);
-                doc.setFont(undefined, 'bold');
-                doc.text("Total Freight (RMB):", margin, finalY + 13);
-                doc.text(`${totalRMB} ¥`, pageWidth - margin, finalY + 13, { align: 'right' });
-                doc.setFontSize(9);
-                doc.text("Exchange Rate:", margin, finalY + 20);
-                doc.text(`1 ¥ = ${exRate.toFixed(2)} Ks`, pageWidth - margin, finalY + 20, { align: 'right' });
-                doc.setFontSize(12);
-                doc.setTextColor(61, 149, 255);
-                doc.text("Total Remittance Amount (MMK):", margin, finalY + 28);
-                doc.text(`${totalMMK} Ks`, pageWidth - margin, finalY + 28, { align: 'right' });
-                doc.setTextColor(0, 0, 0);
-
-                progress.update(60, "ဓါတ်ပုံလုပ်ဆောင်ခြင်း...");
+                // ---- 2. 收集所有图片条目 ----
+                const allImageEntries = [];
                 const idsWithImg = Object.keys(cargoImages).filter(id => cargoImages[id]?.length);
-                if (idsWithImg.length) {
-                    doc.addPage();
-                    applyBg(doc, bgImageData);
-                    let cy = margin;
-                    doc.setFontSize(14);
-                    doc.text('Cargo Images', pageWidth / 2, cy, { align: 'center' });
-                    cy += 12;
-                    let imgCount = 0;
-                    const totalImgs = idsWithImg.reduce((s, id) => s + cargoImages[id].length, 0);
-                    for (const cid of idsWithImg) {
-                        for (const imgSrc of cargoImages[cid]) {
-                            imgCount++;
-                            progress.update(60 + Math.floor(35 * imgCount / totalImgs), `图片 ${imgCount}/${totalImgs}...`);
-                            const imgObj = new Image();
-                            imgObj.src = imgSrc;
-                            await new Promise(r => { imgObj.onload = r;
-                                imgObj.onerror = r; });
-                            if (imgObj.naturalWidth === 0) continue;
-                            const ratio = imgObj.naturalHeight / imgObj.naturalWidth;
-                            const imgW = pageWidth - 2 * margin;
-                            const imgH = imgW * ratio;
-                            if (cy + imgH > pageHeight - margin) {
-                                doc.addPage();
-                                applyBg(doc, bgImageData);
-                                cy = margin;
-                                doc.setFontSize(12);
-                                doc.text('Cargo Images (continued)', pageWidth / 2, cy, { align: 'center' });
-                                cy += 10;
-                            }
-                            doc.text(`Cargo #${cid} Image`, margin, cy - 3);
-                            doc.addImage(imgSrc, 'JPEG', margin, cy, imgW, imgH, undefined, 'SLOW');
-                            cy += imgH + 12;
-                            // ★ 释放临时图片对象的内存
-                            imgObj.src = '';
-                        }
+                for (const cid of idsWithImg) {
+                    for (const imgSrc of cargoImages[cid]) {
+                        allImageEntries.push({ cargoId: cid, src: imgSrc });
                     }
                 }
-                progress.update(95, "PDFထုတ်နေ...");
-                const result = doc.output('blob');
-                progress.update(100, "Finish!");
+                const totalImages = allImageEntries.length;
+                if (totalImages === 0) {
+                    // 没有图片，只生成表格页（复用原有逻辑）
+                    // 此处为了简洁，仍走原逻辑，但实际无图片时用户一般不会导出
+                    // 但为了安全，走一次原有生成
+                    const doc = new jsPDF('p', 'mm', 'a4');
+                    const pageWidth = doc.internal.pageSize.getWidth();
+                    const margin = 15;
+                    if (bgImageData) doc.addImage(bgImageData, 'PNG', 0, 0, pageWidth, doc.internal.pageSize.getHeight(),
+                        undefined, 'FAST');
+                    let yPos = 30;
+                    doc.setFont('Montserrat', 'normal');
+                    doc.setFontSize(22);
+                    doc.setFont(undefined, 'bold');
+                    doc.text('INTERNATIONAL SHIPPING', pageWidth / 2, yPos, { align: 'center' });
+                    yPos += 10;
+                    doc.setFont('SourceHanSans', 'normal');
+                    doc.setFontSize(11);
+                    doc.text(`Name: ${customerName}`, margin, yPos);
+                    yPos += 6;
+                    const dateStr = orderDates.map(d => d.split('-').slice(1, 3).join('-')).join(', ');
+                    doc.text(`Order Date: ${dateStr}`, margin, yPos);
+                    yPos += 10;
+                    const kgRate = parseFloat(kgRateInput.value) || 0,
+                        cbmRate = parseFloat(cbmRateInput.value) || 0;
+                    const headers = ["No.", "Type", `Weight(kg/${kgRate}¥)`, "Dimensions(m)", `Volume(m³/${cbmRate}¥)`,
+                        "Freight(¥)"
+                    ];
+                    const body = cargoData.map(i => i.type === 'weight' ?
+                        [i.id, "By Weight", i.kg.toFixed(2), "-", "-", i.totalCost.toFixed(2)] :
+                        [i.id, "By Volume", "-",
+                            `${i.length.toFixed(3)}x${i.width.toFixed(3)}x${i.height.toFixed(3)}`, i.volume.toFixed(3),
+                            i.totalCost.toFixed(2)
+                        ]
+                    );
+                    doc.autoTable({
+                        startY: yPos,
+                        head: [headers],
+                        body: body,
+                        theme: 'grid',
+                        styles: { fontSize: 9, font: 'SourceHanSans', halign: 'center', textColor: [0, 0, 0] },
+                        headStyles: { fillColor: [0, 0, 0], textColor: [255, 255, 255], fontStyle: 'bold' },
+                        margin: { top: margin, bottom: 45 },
+                    });
+                    let finalY = doc.autoTable.previous.finalY;
+                    const totalRMB = cargoData.reduce((s, i) => s + i.totalCost, 0).toFixed(2);
+                    const exRate = parseFloat(exchangeRateInput.value) || 0;
+                    const totalMMK = Math.round(parseFloat(totalRMB) * exRate).toLocaleString('en-US');
+                    doc.setFontSize(11);
+                    doc.setFont(undefined, 'bold');
+                    doc.text("Total Freight (RMB):", margin, finalY + 13);
+                    doc.text(`${totalRMB} ¥`, pageWidth - margin, finalY + 13, { align: 'right' });
+                    doc.setFontSize(12);
+                    doc.setTextColor(61, 149, 255);
+                    doc.text("Total Remittance Amount (MMK):", margin, finalY + 28);
+                    doc.text(`${totalMMK} Ks`, pageWidth - margin, finalY + 28, { align: 'right' });
+                    doc.setTextColor(0, 0, 0);
+                    return doc.output('blob');
+                }
+
+                // ---- 3. 分批参数 ----
+                const BATCH_SIZE = 80; // 安全值，可根据设备调整
+                const batches = [];
+                for (let i = 0; i < totalImages; i += BATCH_SIZE) {
+                    batches.push(allImageEntries.slice(i, i + BATCH_SIZE));
+                }
+                const totalBatches = batches.length;
+                progress.update(5, `总共 ${totalImages} 张图片，分 ${totalBatches} 批处理...`);
+
+                // ---- 4. 生成每一批的 PDF ----
+                const pdfBlobs = [];
+                const pageWidth = 210; // A4 宽 mm
+                const pageHeight = 297;
+                const margin = 15;
+
+                for (let b = 0; b < totalBatches; b++) {
+                    const batch = batches[b];
+                    progress.update(10 + Math.floor(60 * (b / totalBatches)), `正在生成第 ${b+1}/${totalBatches} 批...`);
+
+                    const doc = new jsPDF('p', 'mm', 'a4');
+
+                    // 添加背景（如果有）
+                    if (bgImageData) doc.addImage(bgImageData, 'PNG', 0, 0, pageWidth, pageHeight, undefined, 'FAST');
+
+                    // ---- 第一页（第一页包含表格和总计，后续批次只放图片） ----
+                    if (b === 0) {
+                        // 页眉标题
+                        let yPos = 30;
+                        doc.setFont('Montserrat', 'normal');
+                        doc.setFontSize(22);
+                        doc.setFont(undefined, 'bold');
+                        doc.text('INTERNATIONAL SHIPPING', pageWidth / 2, yPos, { align: 'center' });
+                        yPos += 10;
+                        doc.setFont('SourceHanSans', 'normal');
+                        doc.setFontSize(11);
+                        doc.text(`Name: ${customerName}`, margin, yPos);
+                        yPos += 6;
+                        const dateStr = orderDates.map(d => d.split('-').slice(1, 3).join('-')).join(', ');
+                        doc.text(`Order Date: ${dateStr}`, margin, yPos);
+                        yPos += 10;
+
+                        // 表格
+                        const kgRate = parseFloat(kgRateInput.value) || 0,
+                            cbmRate = parseFloat(cbmRateInput.value) || 0;
+                        const headers = ["No.", "Type", `Weight(kg/${kgRate}¥)`, "Dimensions(m)",
+                            `Volume(m³/${cbmRate}¥)`, "Freight(¥)"
+                        ];
+                        const body = cargoData.map(i => i.type === 'weight' ?
+                            [i.id, "By Weight", i.kg.toFixed(2), "-", "-", i.totalCost.toFixed(2)] :
+                            [i.id, "By Volume", "-",
+                                `${i.length.toFixed(3)}x${i.width.toFixed(3)}x${i.height.toFixed(3)}`, i.volume
+                                .toFixed(3), i.totalCost.toFixed(2)
+                            ]
+                        );
+                        doc.autoTable({
+                            startY: yPos,
+                            head: [headers],
+                            body: body,
+                            theme: 'grid',
+                            styles: { fontSize: 9, font: 'SourceHanSans', halign: 'center', textColor: [0, 0,
+                                    0] },
+                            headStyles: { fillColor: [0, 0, 0], textColor: [255, 255, 255],
+                            fontStyle: 'bold' },
+                            margin: { top: margin, bottom: 45 },
+                        });
+
+                        let finalY = doc.autoTable.previous.finalY;
+                        const totalRMB = cargoData.reduce((s, i) => s + i.totalCost, 0).toFixed(2);
+                        const exRate = parseFloat(exchangeRateInput.value) || 0;
+                        const totalMMK = Math.round(parseFloat(totalRMB) * exRate).toLocaleString('en-US');
+                        doc.setFontSize(11);
+                        doc.setFont(undefined, 'bold');
+                        doc.text("Total Freight (RMB):", margin, finalY + 13);
+                        doc.text(`${totalRMB} ¥`, pageWidth - margin, finalY + 13, { align: 'right' });
+                        doc.setFontSize(12);
+                        doc.setTextColor(61, 149, 255);
+                        doc.text("Total Remittance Amount (MMK):", margin, finalY + 28);
+                        doc.text(`${totalMMK} Ks`, pageWidth - margin, finalY + 28, { align: 'right' });
+                        doc.setTextColor(0, 0, 0);
+
+                        // 后续图片从表格下方开始
+                        var cy = finalY + 38;
+                    } else {
+                        // 非首页，仅加标题
+                        doc.setFontSize(14);
+                        doc.setFont(undefined, 'bold');
+                        doc.text(`Cargo Images (Batch ${b+1})`, pageWidth / 2, 25, { align: 'center' });
+                        var cy = 35;
+                    }
+
+                    // ---- 添加当前批次的图片 ----
+                    for (const entry of batch) {
+                        const imgSrc = entry.src;
+                        const imgObj = new Image();
+                        imgObj.src = imgSrc;
+                        await new Promise(r => { imgObj.onload = r;
+                            imgObj.onerror = r; });
+                        if (imgObj.naturalWidth === 0) {
+                            imgObj.src = '';
+                            continue;
+                        }
+                        const ratio = imgObj.naturalHeight / imgObj.naturalWidth;
+                        const imgW = pageWidth - 2 * margin;
+                        const imgH = imgW * ratio;
+
+                        // 换页
+                        if (cy + imgH > pageHeight - margin) {
+                            doc.addPage();
+                            if (bgImageData) doc.addImage(bgImageData, 'PNG', 0, 0, pageWidth, pageHeight, undefined,
+                                'FAST');
+                            cy = margin + 5;
+                            doc.setFontSize(10);
+                            doc.text(`Cargo #${entry.cargoId} (cont.)`, margin, cy - 2);
+                        }
+
+                        doc.text(`Cargo #${entry.cargoId}`, margin, cy - 3);
+                        doc.addImage(imgSrc, 'JPEG', margin, cy, imgW, imgH, undefined, 'SLOW');
+                        cy += imgH + 12;
+
+                        // 释放图片对象
+                        imgObj.src = '';
+                    }
+
+                    // 保存当前批次 Blob
+                    const blob = doc.output('blob');
+                    pdfBlobs.push(blob);
+                    progress.update(10 + Math.floor(70 * ((b + 1) / totalBatches)), `第 ${b+1}/${totalBatches} 批完成`);
+                }
+
+                // ---- 5. 合并所有批次 ----
+                progress.update(85, "正在合并所有批次...");
+                const mergedPdf = await PDFDocument.create();
+
+                for (const blob of pdfBlobs) {
+                    const arrayBuffer = await blob.arrayBuffer();
+                    const pdfDoc = await PDFDocument.load(arrayBuffer);
+                    const pages = await mergedPdf.copyPages(pdfDoc, pdfDoc.getPageIndices());
+                    for (const page of pages) {
+                        mergedPdf.addPage(page);
+                    }
+                }
+
+                progress.update(95, "正在生成最终文件...");
+                const mergedBytes = await mergedPdf.save();
+                const finalBlob = new Blob([mergedBytes], { type: 'application/pdf' });
+
+                progress.update(100, "完成！");
                 await new Promise(r => setTimeout(r, 300));
-                return result;
+                return finalBlob;
             }
 
+            // ---- 导出与分享 ----
             let isExporting = false;
 
             async function shareToTelegram() {
@@ -1365,7 +1450,7 @@
                     return;
                 }
                 isExporting = true;
-                const progress = showProgress("PDF ထုတ်နေသည်...", 5);
+                const progress = showProgress("PDF ထုတ်နေသည် (Batch-Merge)...", 5);
                 try {
                     playTapFeedback();
                     progress.update(5, "ပြင်ဆင်နေသည်...");
@@ -1399,7 +1484,7 @@
                     console.error(err);
                     progress.close();
                     if (err.message && (err.message.includes('cancel') || err.message.includes('abort'))) {
-                        // 用户取消，静默
+                        // 用户取消
                     } else {
                         showModal('Failed: ' + (err.message || 'Unknown error'));
                     }
