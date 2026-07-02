@@ -685,7 +685,6 @@
             border-top: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        /* 自定义确认对话框按钮容器 - 圆润风格 */
         .confirm-actions {
             display: flex;
             gap: 12px;
@@ -764,7 +763,7 @@
     <div class="main-container">
         <div class="compact-header">
             <div class="brand"><span class="brand-name">ANT China Supplier</span><span class="brand-sub">Smart Calculator</span></div>
-            <div class="version">v 7.2</div>
+            <div class="version">v 7.2.5 </div>
         </div>
 
         <div class="card">
@@ -818,7 +817,7 @@
         </div>
     </div>
 
-    <!-- 自定义确认清除模态框（玻璃态 + 缅甸语 + 圆润按钮） -->
+    <!-- 自定义确认清除模态框 -->
     <div id="confirm-modal" class="modal-overlay hidden">
         <div class="modal-card" style="width: 280px;">
             <i class="fas fa-trash-alt" style="font-size: 36px; color: #f87171; margin-bottom: 10px;"></i>
@@ -1046,11 +1045,10 @@
             addDateBtn.addEventListener('click', () => addDateInput());
 
             // ==============================================================
-            //  ★★★ Canvas 高质量图片压缩逻辑（仅此部分被修改） ★★★
+            // ★★★ 升级后的渲染函数：支持多选 + 内存自动释放 ★★★
             // ==============================================================
-            // 可调参数（您可根据清晰度要求修改）
-            const MAX_WIDTH = 1600;   // 最大宽度（像素），推荐 1600~1920
-            const QUALITY = 0.92;     // JPEG 质量 (0~1)，推荐 0.85~0.95
+            const MAX_WIDTH = 1600;   // 可自行调整
+            const QUALITY = 0.92;     // 可自行调整
 
             function renderImageGrid(cargoId, container) {
                 const images = cargoImages[cargoId] || [];
@@ -1080,57 +1078,86 @@
                 const hiddenInput = document.createElement('input');
                 hiddenInput.type = 'file';
                 hiddenInput.accept = 'image/*';
+                hiddenInput.multiple = true;   // ★ 支持多选
                 hiddenInput.style.display = 'none';
 
-                // ─── 修改后的上传处理（带 Canvas 压缩） ───
+                // ─── 核心：处理多张图片（串行） ───
                 hiddenInput.onchange = async (e) => {
-                    const file = e.target.files[0];
-                    if (!file) return;
+                    const files = e.target.files;
+                    if (!files || files.length === 0) return;
                     playTapFeedback();
 
-                    // 1. 加载原始图片
-                    const img = new Image();
-                    const url = URL.createObjectURL(file);
-                    img.src = url;
-                    await new Promise(resolve => { img.onload = resolve;
-                        img.onerror = resolve; });
-                    URL.revokeObjectURL(url);
+                    // 显示一个简单的进度提示（可选）
+                    const total = files.length;
+                    let processed = 0;
 
-                    if (img.naturalWidth === 0) {
-                        showModal('图片加载失败，请重试');
-                        hiddenInput.value = '';
-                        return;
+                    // 为了减少内存峰值，采用串行处理（一个接一个）
+                    for (const file of files) {
+                        try {
+                            // 1. 加载原始图片
+                            const img = new Image();
+                            const url = URL.createObjectURL(file);
+                            img.src = url;
+                            await new Promise(resolve => { img.onload = resolve;
+                                img.onerror = resolve; });
+                            URL.revokeObjectURL(url);
+
+                            if (img.naturalWidth === 0) {
+                                showModal('图片加载失败，已跳过: ' + file.name);
+                                continue;
+                            }
+
+                            // 2. Canvas 缩放压缩
+                            const canvas = document.createElement('canvas');
+                            const ctx = canvas.getContext('2d');
+                            let w = img.naturalWidth,
+                                h = img.naturalHeight;
+                            if (w > h) {
+                                if (w > MAX_WIDTH) { h = h * MAX_WIDTH / w;
+                                    w = MAX_WIDTH; }
+                            } else {
+                                if (h > MAX_WIDTH) { w = w * MAX_WIDTH / h;
+                                    h = MAX_WIDTH; }
+                            }
+                            canvas.width = Math.round(w);
+                            canvas.height = Math.round(h);
+                            ctx.imageSmoothingEnabled = true;
+                            ctx.imageSmoothingQuality = 'high';
+                            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                            const compressedDataURL = canvas.toDataURL('image/jpeg', QUALITY);
+
+                            // 3. 存储
+                            if (!cargoImages[cargoId]) cargoImages[cargoId] = [];
+                            cargoImages[cargoId].push(compressedDataURL);
+
+                            // 4. ★ 立即释放内存（关键）
+                            canvas.width = 0;
+                            canvas.height = 0;
+                            ctx.clearRect(0, 0, 1, 1);
+                            img.src = '';
+                            // 让 GC 尽快回收
+                            // 注意：这里不能将 img/canvas/ctx 设为 null，因为它们是局部变量，作用域结束自然释放
+                            // 但我们可以主动断开引用
+                            // 不过由于是局部变量，循环结束后自动释放，我们只需清空 canvas 和 img 即可
+
+                            // 更新界面（每处理完一张刷新一次）
+                            renderImageGrid(cargoId, container);
+                            saveData();
+
+                            processed++;
+                            // 可选：在控制台或界面显示进度
+                            // console.log(`已处理 ${processed}/${total}`);
+                        } catch (err) {
+                            console.warn('处理图片出错:', err);
+                            showModal('处理图片出错: ' + file.name);
+                        }
                     }
 
-                    // 2. 使用 Canvas 缩放（保持长边不超过 MAX_WIDTH）
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    let w = img.naturalWidth,
-                        h = img.naturalHeight;
-                    if (w > h) {
-                        if (w > MAX_WIDTH) { h = h * MAX_WIDTH / w;
-                            w = MAX_WIDTH; }
-                    } else {
-                        if (h > MAX_WIDTH) { w = w * MAX_WIDTH / h;
-                            h = MAX_WIDTH; }
-                    }
-                    canvas.width = Math.round(w);
-                    canvas.height = Math.round(h);
-                    ctx.imageSmoothingEnabled = true;
-                    ctx.imageSmoothingQuality = 'high';
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-                    // 3. 导出为高质量 JPEG Base64
-                    const compressedDataURL = canvas.toDataURL('image/jpeg', QUALITY);
-
-                    // 4. 存储压缩后的图片（替换原 FileReader 方式）
-                    if (!cargoImages[cargoId]) cargoImages[cargoId] = [];
-                    cargoImages[cargoId].push(compressedDataURL);
-                    renderImageGrid(cargoId, container);
-                    saveData();
+                    // 全部处理完后清空 input 以便再次选择相同文件
                     hiddenInput.value = '';
                 };
-                // ─── 修改结束 ───
+                // ─── 结束 ───
 
                 cameraDiv.onclick = () => {
                     playTapFeedback();
@@ -1309,6 +1336,8 @@
                             doc.text(`Cargo #${cid} Image`, margin, cy - 3);
                             doc.addImage(imgSrc, 'JPEG', margin, cy, imgW, imgH, undefined, 'SLOW');
                             cy += imgH + 12;
+                            // ★ 释放临时图片对象的内存
+                            imgObj.src = '';
                         }
                     }
                 }
@@ -1321,22 +1350,23 @@
 
             let isExporting = false;
 
-            async function shareToTelegram() { 
-                if (isExporting) { 
+            async function shareToTelegram() {
+                if (isExporting) {
                     playTapFeedback();
-                    showModal('လုပ်ဆောင်နေဆဲ...'); 
-                    return; 
-                } 
-                const customerName = customerNameInput.value.trim(); 
-                const orderDates = Array.from(document.querySelectorAll('.order-date-input')).map(inp => inp.value.trim()).filter(Boolean); 
-                if (!customerName || orderDates.length === 0) { 
+                    showModal('လုပ်ဆောင်နေဆဲ...');
+                    return;
+                }
+                const customerName = customerNameInput.value.trim();
+                const orderDates = Array.from(document.querySelectorAll('.order-date-input')).map(inp => inp.value.trim())
+                    .filter(Boolean);
+                if (!customerName || orderDates.length === 0) {
                     playTapFeedback();
-                    showModal('Please enter customer name and order date!'); 
-                    return; 
+                    showModal('Please enter customer name and order date!');
+                    return;
                 }
                 isExporting = true;
-                const progress = showProgress("PDF ထုတ်နေသည်...", 5); 
-                try { 
+                const progress = showProgress("PDF ထုတ်နေသည်...", 5);
+                try {
                     playTapFeedback();
                     progress.update(5, "ပြင်ဆင်နေသည်...");
                     await new Promise(r => setTimeout(r, 100));
@@ -1345,14 +1375,13 @@
                     const firstOrderDate = orderDates[0] || 'nodate';
                     const safeName = customerName.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '_');
                     const fileName = `${safeName}_${firstOrderDate}.pdf`;
-                    const file = new File([pdfBlob], fileName, { type: 'application/pdf' }); 
-                    
-                    // 修正分享消息：客户名 + 日期列表（多行）
+                    const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
+
                     if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                        await navigator.share({ 
-                            title: 'Freight Calculation', 
-                            text: `${customerName}\n${orderDates.join('\n')}`, 
-                            files: [file] 
+                        await navigator.share({
+                            title: 'Freight Calculation',
+                            text: `${customerName}\n${orderDates.join('\n')}`,
+                            files: [file]
                         });
                     } else {
                         const url = URL.createObjectURL(pdfBlob);
@@ -1365,19 +1394,18 @@
                         URL.revokeObjectURL(url);
                         showModal('PDF saved!');
                     }
-                    progress.close(); 
-                } catch (err) { 
+                    progress.close();
+                } catch (err) {
                     console.error(err);
                     progress.close();
-                    // 如果用户取消分享，不弹错误框
                     if (err.message && (err.message.includes('cancel') || err.message.includes('abort'))) {
-                        // 静默结束
+                        // 用户取消，静默
                     } else {
                         showModal('Failed: ' + (err.message || 'Unknown error'));
                     }
-                } finally { 
-                    isExporting = false; 
-                } 
+                } finally {
+                    isExporting = false;
+                }
             }
 
             exportPdfBtn.addEventListener('click', async (e) => { e.preventDefault(); await shareToTelegram(); });
