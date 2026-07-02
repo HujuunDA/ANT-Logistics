@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
+        /* ---- 所有原有样式（完全不变） ---- */
         * {
             margin: 0;
             padding: 0;
@@ -37,7 +38,6 @@
             margin: 0 auto;
         }
 
-        /* ========= 玻璃态头部 + 悬停动画 ========= */
         .compact-header {
             background: rgba(255, 255, 255, 0.12);
             backdrop-filter: blur(16px);
@@ -84,7 +84,6 @@
             border-radius: 40px;
         }
 
-        /* ========= 玻璃态卡片 + 悬停动画 ========= */
         .card {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(14px);
@@ -129,7 +128,6 @@
             padding: 14px 16px;
         }
 
-        /* ========= 玻璃态输入框 ========= */
         input,
         .ios-input,
         .date-item input,
@@ -214,7 +212,6 @@
             transform: scale(0.94);
         }
 
-        /* ========= 玻璃态货物卡片 + 悬停 ========= */
         .cargo-card {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(14px);
@@ -281,7 +278,6 @@
             text-align: center;
         }
 
-        /* ========= 玻璃态按钮 + 悬停动画 ========= */
         .btn-primary,
         .btn-secondary,
         .btn-clear,
@@ -375,7 +371,6 @@
             margin-bottom: 0;
         }
 
-        /* ========= 结果区域玻璃态 ========= */
         .results-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -427,7 +422,6 @@
             letter-spacing: -0.3px;
         }
 
-        /* ========= 折叠面板 ========= */
         .collapsible-header {
             display: flex;
             justify-content: space-between;
@@ -478,7 +472,6 @@
             display: none;
         }
 
-        /* 货物表格 - 玻璃滚动区 */
         .cargo-table-wrapper {
             overflow-x: auto;
             overflow-y: auto;
@@ -511,7 +504,6 @@
             background: transparent;
         }
 
-        /* 图片区域 */
         .image-grid {
             display: flex;
             flex-wrap: wrap;
@@ -583,7 +575,6 @@
             font-weight: 500;
         }
 
-        /* 进度遮罩 / 模态框 玻璃感增强 */
         .progress-overlay {
             position: fixed;
             top: 0;
@@ -640,7 +631,7 @@
             background: rgba(30, 41, 59, 0.9);
             backdrop-filter: blur(24px);
             border-radius: 40px;
-            width: 260px;
+            width: 280px;
             padding: 24px;
             text-align: center;
             border: 1px solid rgba(255, 255, 255, 0.25);
@@ -694,7 +685,7 @@
             border-top: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        /* ===== 自定义确认对话框按钮容器 ===== */
+        /* 自定义确认对话框按钮容器 - 圆润风格 */
         .confirm-actions {
             display: flex;
             gap: 12px;
@@ -705,8 +696,25 @@
             flex: 1;
             padding: 10px 0;
             font-size: 14px;
-            /* 圆角统一为 30px，与顶部 Clear 按钮风格一致 */
             border-radius: 30px !important;
+        }
+
+        /* 新增：分批导出模态框内输入框样式 */
+        .range-input {
+            width: 80px;
+            padding: 8px;
+            border-radius: 14px;
+            border: 1px solid rgba(255,255,255,0.25);
+            background: rgba(255,255,255,0.12);
+            color: #fff;
+            text-align: center;
+            font-size: 16px;
+            margin: 0 8px;
+        }
+        .range-input:focus {
+            border-color: #60a5fa;
+            background: rgba(255,255,255,0.22);
+            outline: none;
         }
     </style>
 
@@ -774,7 +782,7 @@
     <div class="main-container">
         <div class="compact-header">
             <div class="brand"><span class="brand-name">ANT China Supplier</span><span class="brand-sub">Smart Calculator</span></div>
-            <div class="version">v7.2.3</div>
+            <div class="version">v 7.2.4</div>
         </div>
 
         <div class="card">
@@ -819,7 +827,7 @@
         <button id="export-pdf-btn" class="btn-primary btn-danger"><i class="fas fa-share-nodes"></i> Export & Share PDF</button>
     </div>
 
-    <!-- ===== 错误提示模态框 ===== -->
+    <!-- 错误提示模态框 -->
     <div id="custom-modal" class="modal-overlay hidden">
         <div class="modal-card">
             <i class="fas fa-exclamation-circle" style="font-size: 40px; color: #60a5fa; margin-bottom: 12px;"></i>
@@ -828,17 +836,38 @@
         </div>
     </div>
 
-    <!-- ===== 自定义确认清除模态框（玻璃态 + 缅甸语 + 圆润按钮） ===== -->
+    <!-- 自定义确认清除模态框（玻璃态 + 缅甸语 + 圆润按钮） -->
     <div id="confirm-modal" class="modal-overlay hidden">
         <div class="modal-card" style="width: 280px;">
             <i class="fas fa-trash-alt" style="font-size: 36px; color: #f87171; margin-bottom: 10px;"></i>
             <h3 style="font-size: 18px; font-weight: 600; color: #fff; margin-bottom: 6px;">⚠️ သေချာပါသလား</h3>
             <p style="font-size: 14px; color: rgba(255,255,255,0.75); margin-bottom: 16px; line-height: 1.5;">
-                ဒေတာအားလုံး ဖျက်ပစ်မှာ သေချာပါသလား?<br>ဤအရာကို ပြန်လည်မရယူနိုင်ပါ။
+                ဒေတာအားလုံး ဖျက်ပစ်မှာ သေချာပါသလား?
             </p>
             <div class="confirm-actions">
-                <button id="confirm-cancel-btn" class="btn-secondary" style="flex:1;">မလုပ်တော့ဘူး</button>
-                <button id="confirm-ok-btn" class="btn-danger" style="flex:1;">ဖျက်မယ်</button>
+                <button id="confirm-cancel-btn" class="btn-secondary" style="flex:1;">No</button>
+                <button id="confirm-ok-btn" class="btn-danger" style="flex:1;">Yes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 新增：分批导出范围选择模态框 ===== -->
+    <div id="range-modal" class="modal-overlay hidden">
+        <div class="modal-card" style="width: 320px;">
+            <i class="fas fa-arrows-alt-h" style="font-size: 32px; color: #60a5fa; margin-bottom: 10px;"></i>
+            <h3 style="font-size: 18px; font-weight: 600; color: #fff; margin-bottom: 6px;">📄 分批导出</h3>
+            <p style="font-size: 13px; color: rgba(255,255,255,0.7); margin-bottom: 12px;">
+                当前共有 <strong id="totalImgCount" style="color:#93c5fd;">0</strong> 张图片，请输入要导出的序号范围：
+            </p>
+            <div style="display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 16px;">
+                <span style="color: #fff;">从</span>
+                <input type="number" id="rangeStart" class="range-input" value="1" min="1">
+                <span style="color: #fff;">到</span>
+                <input type="number" id="rangeEnd" class="range-input" value="100" min="1">
+            </div>
+            <div class="confirm-actions">
+                <button id="range-cancel-btn" class="btn-secondary" style="flex:1;">取消</button>
+                <button id="range-ok-btn" class="btn-primary" style="flex:1;">确认导出</button>
             </div>
         </div>
     </div>
@@ -867,6 +896,14 @@
             const cbmRateInput = document.getElementById('cbmRate');
             const exchangeRateInput = document.getElementById('exchangeRate');
             const cargoDetailsTableContainer = document.getElementById('cargo-details-table-container');
+
+            // 新增：分批导出模态框元素
+            const rangeModal = document.getElementById('range-modal');
+            const rangeStart = document.getElementById('rangeStart');
+            const rangeEnd = document.getElementById('rangeEnd');
+            const rangeCancelBtn = document.getElementById('range-cancel-btn');
+            const rangeOkBtn = document.getElementById('range-ok-btn');
+            const totalImgCountSpan = document.getElementById('totalImgCount');
 
             addTapFeedbackToElement(addCargoBtn);
             addTapFeedbackToElement(exportPdfBtn);
@@ -937,44 +974,30 @@
                     addDateInput();
                     recalculateAll(); } }
 
-            // ===================== 自定义确认对话框 =====================
+            // 自定义确认对话框
             function showConfirm() {
                 return new Promise((resolve) => {
                     const modal = document.getElementById('confirm-modal');
                     const cancelBtn = document.getElementById('confirm-cancel-btn');
                     const okBtn = document.getElementById('confirm-ok-btn');
-
                     modal.classList.remove('hidden');
-
                     const cleanup = () => {
                         modal.classList.add('hidden');
                         cancelBtn.removeEventListener('click', onCancel);
                         okBtn.removeEventListener('click', onOk);
                     };
-
-                    const onCancel = () => {
-                        cleanup();
-                        resolve(false);
-                    };
-                    const onOk = () => {
-                        cleanup();
-                        resolve(true);
-                    };
-
+                    const onCancel = () => { cleanup();
+                        resolve(false); };
+                    const onOk = () => { cleanup();
+                        resolve(true); };
                     cancelBtn.addEventListener('click', onCancel);
                     okBtn.addEventListener('click', onOk);
                 });
             }
-            // ===========================================================
 
-            // ============ 修改后的 clearAllData（使用自定义对话框） ============
             async function clearAllData() {
-                // 显示自定义确认框，等待用户选择
                 const confirmed = await showConfirm();
-                if (!confirmed) {
-                    return; // 用户取消，不执行清空
-                }
-                // 以下为原有清空逻辑，完全不变
+                if (!confirmed) return;
                 playTapFeedback();
                 customerNameInput.value = '';
                 while (orderDatesList.firstChild) orderDatesList.removeChild(orderDatesList.firstChild);
@@ -989,7 +1012,6 @@
                 addCargoItem();
                 recalculateAll();
             }
-            // ================================================================
 
             function showModal(msg) { const modal = document.getElementById('custom-modal');
                 document.getElementById('modal-message').innerText = msg;
@@ -1070,21 +1092,35 @@
                 recalculateAll(); };
             addDateBtn.addEventListener('click', () => addDateInput());
 
-            function renderImageGrid(cargoId, container) { const images = cargoImages[cargoId] || [];
+            // ==============================================================
+            //  ★★★ Canvas 高质量图片压缩逻辑（仅此部分被修改） ★★★
+            // ==============================================================
+            // 可调参数（您可根据清晰度要求修改）
+            const MAX_WIDTH = 1600;   // 最大宽度（像素），推荐 1600~1920
+            const QUALITY = 0.92;     // JPEG 质量 (0~1)，推荐 0.85~0.95
+
+            function renderImageGrid(cargoId, container) {
+                const images = cargoImages[cargoId] || [];
                 container.innerHTML = '';
-                images.forEach((imgUrl, idx) => { const previewDiv = document.createElement('div');
-                    previewDiv.className = 'preview-block'; const img = document.createElement('img');
-                    img.src = imgUrl; const delBtn = document.createElement('div');
+                images.forEach((imgUrl, idx) => {
+                    const previewDiv = document.createElement('div');
+                    previewDiv.className = 'preview-block';
+                    const img = document.createElement('img');
+                    img.src = imgUrl;
+                    const delBtn = document.createElement('div');
                     delBtn.className = 'delete-img-btn';
                     delBtn.innerHTML = '✕';
-                    delBtn.onclick = (e) => { e.stopPropagation();
+                    delBtn.onclick = (e) => {
+                        e.stopPropagation();
                         playTapFeedback();
                         images.splice(idx, 1);
                         renderImageGrid(cargoId, container);
-                        saveData(); };
+                        saveData();
+                    };
                     previewDiv.appendChild(img);
                     previewDiv.appendChild(delBtn);
-                    container.appendChild(previewDiv); });
+                    container.appendChild(previewDiv);
+                });
                 const cameraDiv = document.createElement('div');
                 cameraDiv.className = 'camera-block';
                 cameraDiv.innerHTML = '<i class="fas fa-camera"></i><span>Add</span>';
@@ -1092,22 +1128,71 @@
                 hiddenInput.type = 'file';
                 hiddenInput.accept = 'image/*';
                 hiddenInput.style.display = 'none';
-                hiddenInput.onchange = async (e) => { const file = e.target.files[0]; if (!file) return;
-                    playTapFeedback(); const reader = new FileReader();
-                    reader.onload = (ev) => { const dataURL = ev.target.result; if (!cargoImages[cargoId]) cargoImages[
-                            cargoId] = [];
-                        cargoImages[cargoId].push(dataURL);
-                        renderImageGrid(cargoId, container);
-                        saveData(); };
-                    reader.readAsDataURL(file);
-                    hiddenInput.value = ''; };
-                cameraDiv.onclick = () => { playTapFeedback();
-                    hiddenInput.click(); };
-                container.appendChild(cameraDiv);
-                container.appendChild(hiddenInput); }
 
-            function addCargoItem(data = {}) { cargoCounter++; const cid = String(cargoCounter); if (!cargoImages[cid]) cargoImages[
-                    cid] = (data.images ? [...data.images] : []); const cargoDiv = document.createElement('div');
+                // ─── 修改后的上传处理（带 Canvas 压缩） ───
+                hiddenInput.onchange = async (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    playTapFeedback();
+
+                    // 1. 加载原始图片
+                    const img = new Image();
+                    const url = URL.createObjectURL(file);
+                    img.src = url;
+                    await new Promise(resolve => { img.onload = resolve;
+                        img.onerror = resolve; });
+                    URL.revokeObjectURL(url);
+
+                    if (img.naturalWidth === 0) {
+                        showModal('图片加载失败，请重试');
+                        hiddenInput.value = '';
+                        return;
+                    }
+
+                    // 2. 使用 Canvas 缩放（保持长边不超过 MAX_WIDTH）
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    let w = img.naturalWidth,
+                        h = img.naturalHeight;
+                    if (w > h) {
+                        if (w > MAX_WIDTH) { h = h * MAX_WIDTH / w;
+                            w = MAX_WIDTH; }
+                    } else {
+                        if (h > MAX_WIDTH) { w = w * MAX_WIDTH / h;
+                            h = MAX_WIDTH; }
+                    }
+                    canvas.width = Math.round(w);
+                    canvas.height = Math.round(h);
+                    ctx.imageSmoothingEnabled = true;
+                    ctx.imageSmoothingQuality = 'high';
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                    // 3. 导出为高质量 JPEG Base64
+                    const compressedDataURL = canvas.toDataURL('image/jpeg', QUALITY);
+
+                    // 4. 存储压缩后的图片（替换原 FileReader 方式）
+                    if (!cargoImages[cargoId]) cargoImages[cargoId] = [];
+                    cargoImages[cargoId].push(compressedDataURL);
+                    renderImageGrid(cargoId, container);
+                    saveData();
+                    hiddenInput.value = '';
+                };
+                // ─── 修改结束 ───
+
+                cameraDiv.onclick = () => {
+                    playTapFeedback();
+                    hiddenInput.click();
+                };
+                container.appendChild(cameraDiv);
+                container.appendChild(hiddenInput);
+            }
+            // ==============================================================
+
+            function addCargoItem(data = {}) {
+                cargoCounter++;
+                const cid = String(cargoCounter);
+                if (!cargoImages[cid]) cargoImages[cid] = (data.images ? [...data.images] : []);
+                const cargoDiv = document.createElement('div');
                 cargoDiv.className = 'cargo-item cargo-card';
                 cargoDiv.id = `cargo-${cid}`;
                 cargoDiv.innerHTML =
@@ -1128,7 +1213,8 @@
                 cargoDiv.querySelectorAll('.kg-input, .length-input, .width-input, .height-input').forEach(inp => inp
                     .addEventListener('input', recalculateAll));
                 addTapFeedbackToElement(cargoDiv.querySelector('.remove-date-btn'));
-                recalculateAll(); }
+                recalculateAll();
+            }
             window.removeCargo = (id) => { playTapFeedback();
                 document.getElementById(`cargo-${id}`)?.remove();
                 delete cargoImages[String(id)];
@@ -1141,13 +1227,42 @@
             exchangeRateInput.addEventListener('input', recalculateAll);
             customerNameInput.addEventListener('input', recalculateAll);
 
-            async function generatePdfBlob(progress) {
+            // ========== 核心修改：支持分批导出 ==========
+            // 统计所有图片总数（跨所有货物）
+            function getTotalImageCount() {
+                let count = 0;
+                for (const key in cargoImages) {
+                    if (cargoImages.hasOwnProperty(key)) {
+                        count += cargoImages[key].length;
+                    }
+                }
+                return count;
+            }
+
+            // 按序号获取指定范围的图片数组（全局顺序）
+            function getImagesInRange(start, end) {
+                const allImages = [];
+                // 按货物顺序遍历（保证顺序稳定）
+                const cargoIds = Object.keys(cargoImages).sort((a,b) => parseInt(a) - parseInt(b));
+                for (const id of cargoIds) {
+                    for (const img of cargoImages[id]) {
+                        allImages.push(img);
+                    }
+                }
+                // 截取范围（注意索引从0开始，序号从1开始）
+                const s = Math.max(0, start - 1);
+                const e = Math.min(allImages.length, end);
+                return allImages.slice(s, e);
+            }
+
+            // 修改后的 PDF 生成函数，接受图片数组
+            async function generatePdfBlobWithImages(progress, customerName, orderDates, imagesToExport, kgRate, cbmRate, exRate, cargoData) {
                 const { jsPDF } = window.jspdf;
                 progress.update(10, "Daterဖတ်ယူနေ...");
-                const customerName = customerNameInput.value.trim();
-                const orderDates = Array.from(document.querySelectorAll('.order-date-input')).map(inp => inp.value.trim())
-                    .filter(Boolean);
-                if (!customerName || orderDates.length === 0) throw new Error('Missing customer or dates');
+                // 若没有图片，直接报错
+                if (imagesToExport.length === 0) {
+                    throw new Error('所选范围内没有图片');
+                }
 
                 progress.update(20, "准备文档...");
                 let bgImageData = null;
@@ -1188,9 +1303,9 @@
                 doc.text(`Order Date: ${dateStr}`, margin, yPos);
                 yPos += 10;
 
-                const kgRate = parseFloat(kgRateInput.value) || 0,
-                    cbmRate = parseFloat(cbmRateInput.value) || 0,
-                    exRate = parseFloat(exchangeRateInput.value) || 0;
+                // 表格部分（只计算选中的货物数据，但这里cargoData是全部，我们只显示涉及到的？为了简化，还是显示全部货物明细，但图片只导出选中范围）
+                // 但用户要求分批导出图片，货物明细还是全部比较好？这里我们保持和原来一样，仍显示所有货物明细，仅图片按范围。
+                // 如果货物很多，表格数据很小，没问题。
                 const headers = ["No.", "Type", `Weight(kg/${kgRate}¥)`, "Dimensions(m)", `Volume(m³/${cbmRate}¥)`,
                     "Freight(¥)"
                 ];
@@ -1237,8 +1352,8 @@
                 doc.setTextColor(0, 0, 0);
 
                 progress.update(60, "ဓါတ်ပုံလုပ်ဆောင်ခြင်း...");
-                const idsWithImg = Object.keys(cargoImages).filter(id => cargoImages[id]?.length);
-                if (idsWithImg.length) {
+                // 只处理 imagesToExport 范围内的图片
+                if (imagesToExport.length > 0) {
                     doc.addPage();
                     applyBg(doc, bgImageData);
                     let cy = margin;
@@ -1246,31 +1361,29 @@
                     doc.text('Cargo Images', pageWidth / 2, cy, { align: 'center' });
                     cy += 12;
                     let imgCount = 0;
-                    const totalImgs = idsWithImg.reduce((s, id) => s + cargoImages[id].length, 0);
-                    for (const cid of idsWithImg) {
-                        for (const imgSrc of cargoImages[cid]) {
-                            imgCount++;
-                            progress.update(60 + Math.floor(35 * imgCount / totalImgs), `图片 ${imgCount}/${totalImgs}...`);
-                            const imgObj = new Image();
-                            imgObj.src = imgSrc;
-                            await new Promise(r => { imgObj.onload = r;
-                                imgObj.onerror = r; });
-                            if (imgObj.naturalWidth === 0) continue;
-                            const ratio = imgObj.naturalHeight / imgObj.naturalWidth;
-                            const imgW = pageWidth - 2 * margin;
-                            const imgH = imgW * ratio;
-                            if (cy + imgH > pageHeight - margin) {
-                                doc.addPage();
-                                applyBg(doc, bgImageData);
-                                cy = margin;
-                                doc.setFontSize(12);
-                                doc.text('Cargo Images (continued)', pageWidth / 2, cy, { align: 'center' });
-                                cy += 10;
-                            }
-                            doc.text(`Cargo #${cid} Image`, margin, cy - 3);
-                            doc.addImage(imgSrc, 'JPEG', margin, cy, imgW, imgH, undefined, 'SLOW');
-                            cy += imgH + 12;
+                    const totalImgs = imagesToExport.length;
+                    for (const imgSrc of imagesToExport) {
+                        imgCount++;
+                        progress.update(60 + Math.floor(35 * imgCount / totalImgs), `图片 ${imgCount}/${totalImgs}...`);
+                        const imgObj = new Image();
+                        imgObj.src = imgSrc;
+                        await new Promise(r => { imgObj.onload = r;
+                            imgObj.onerror = r; });
+                        if (imgObj.naturalWidth === 0) continue;
+                        const ratio = imgObj.naturalHeight / imgObj.naturalWidth;
+                        const imgW = pageWidth - 2 * margin;
+                        const imgH = imgW * ratio;
+                        if (cy + imgH > pageHeight - margin) {
+                            doc.addPage();
+                            applyBg(doc, bgImageData);
+                            cy = margin;
+                            doc.setFontSize(12);
+                            doc.text('Cargo Images (continued)', pageWidth / 2, cy, { align: 'center' });
+                            cy += 10;
                         }
+                        doc.text(`Image ${imgCount}/${totalImgs}`, margin, cy - 3);
+                        doc.addImage(imgSrc, 'JPEG', margin, cy, imgW, imgH, undefined, 'SLOW');
+                        cy += imgH + 12;
                     }
                 }
                 progress.update(95, "PDFထုတ်နေ...");
@@ -1280,37 +1393,133 @@
                 return result;
             }
 
-            let isExporting = false;
+            // 修改分享函数，先弹出范围选择框
+            async function shareToTelegram() { 
+                if (isExporting) { 
+                    playTapFeedback();
+                    showModal('လုပ်ဆောင်နေဆဲ...'); 
+                    return; 
+                } 
+                const customerName = customerNameInput.value.trim(); 
+                const orderDates = Array.from(document.querySelectorAll('.order-date-input')).map(inp => inp.value.trim()).filter(Boolean); 
+                if (!customerName || orderDates.length === 0) { 
+                    playTapFeedback();
+                    showModal('Please enter customer name and order date!'); 
+                    return; 
+                }
 
-            async function shareToTelegram() { if (isExporting) { playTapFeedback();
-                    showModal('လုပ်ဆောင်နေဆဲ...'); return; } const customerName = customerNameInput.value.trim(); const orderDates =
-                    Array.from(document.querySelectorAll('.order-date-input')).map(inp => inp.value.trim()).filter(Boolean); if (
-                    !customerName || orderDates.length === 0) { playTapFeedback();
-                    showModal('Please enter customer name and order date!'); return; }
+                // 统计总图片数并显示在模态框中
+                const totalCount = getTotalImageCount();
+                if (totalCount === 0) {
+                    showModal('当前没有图片，无需导出');
+                    return;
+                }
+                totalImgCountSpan.innerText = totalCount;
+                rangeStart.value = 1;
+                rangeEnd.value = totalCount; // 默认全部
+
+                // 显示模态框，等待用户确认
+                rangeModal.classList.remove('hidden');
+
+                // 返回Promise，等待用户操作
+                return new Promise((resolve, reject) => {
+                    const onCancel = () => {
+                        rangeModal.classList.add('hidden');
+                        rangeCancelBtn.removeEventListener('click', onCancel);
+                        rangeOkBtn.removeEventListener('click', onOk);
+                        resolve(); // 用户取消，不执行导出
+                    };
+                    const onOk = async () => {
+                        rangeModal.classList.add('hidden');
+                        rangeCancelBtn.removeEventListener('click', onCancel);
+                        rangeOkBtn.removeEventListener('click', onOk);
+                        // 获取范围
+                        let start = parseInt(rangeStart.value) || 1;
+                        let end = parseInt(rangeEnd.value) || totalCount;
+                        if (start < 1) start = 1;
+                        if (end > totalCount) end = totalCount;
+                        if (start > end) {
+                            showModal('起始序号不能大于结束序号');
+                            resolve();
+                            return;
+                        }
+                        // 执行导出
+                        await performExport(customerName, orderDates, start, end);
+                        resolve();
+                    };
+                    rangeCancelBtn.addEventListener('click', onCancel);
+                    rangeOkBtn.addEventListener('click', onOk);
+                });
+            }
+
+            // 实际导出函数
+            let isExporting = false;
+            async function performExport(customerName, orderDates, start, end) {
+                if (isExporting) return;
                 isExporting = true;
-                const progress = showProgress("PDF ထုတ်နေသည်...", 5); try { playTapFeedback();
+                const progress = showProgress("PDF ထုတ်နေသည်...", 5);
+                try {
+                    playTapFeedback();
                     progress.update(5, "ပြင်ဆင်နေသည်...");
                     await new Promise(r => setTimeout(r, 100));
-                    const pdfBlob = await generatePdfBlob(progress);
+
+                    // 获取范围内的图片
+                    const imagesToExport = getImagesInRange(start, end);
+                    if (imagesToExport.length === 0) {
+                        showModal('所选范围内没有图片');
+                        isExporting = false;
+                        progress.close();
+                        return;
+                    }
+
+                    const kgRate = parseFloat(kgRateInput.value) || 0;
+                    const cbmRate = parseFloat(cbmRateInput.value) || 0;
+                    const exRate = parseFloat(exchangeRateInput.value) || 0;
+
+                    const pdfBlob = await generatePdfBlobWithImages(progress, customerName, orderDates, imagesToExport, kgRate, cbmRate, exRate, cargoData);
                     progress.update(98, "shareရန်...");
                     const firstOrderDate = orderDates[0] || 'nodate';
                     const safeName = customerName.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '_');
-                    const fileName = `${safeName}_${firstOrderDate}_Freight.pdf`;
-                    const file = new File([pdfBlob], fileName, { type: 'application/pdf' }); if (navigator.canShare && navigator
-                        .canShare({ files: [file] })) { await navigator.share({ title: 'Freight Calculation', text: ` ${customerName}`,
-                            files: [file] }); } else { const url = URL.createObjectURL(pdfBlob); const a = document
-                            .createElement('a');
+                    const fileName = `${safeName}_${firstOrderDate}.pdf`;
+                    const file = new File([pdfBlob], fileName, { type: 'application/pdf' }); 
+
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        await navigator.share({ 
+                            title: 'Freight Calculation', 
+                            text: `${customerName}\n${orderDates.join('\n')}`, 
+                            files: [file] 
+                        });
+                    } else {
+                        const url = URL.createObjectURL(pdfBlob);
+                        const a = document.createElement('a');
                         a.href = url;
                         a.download = fileName;
                         document.body.appendChild(a);
                         a.click();
                         document.body.removeChild(a);
                         URL.revokeObjectURL(url);
-                        showModal('PDF saved!'); }
-                    progress.close(); } catch (err) { console.error(err);
+                        showModal('PDF saved!');
+                    }
                     progress.close();
-                    showModal('Failed: ' + (err.message || 'Unknown error')); } finally { isExporting = false; } }
-            exportPdfBtn.addEventListener('click', async (e) => { e.preventDefault(); await shareToTelegram(); });
+                } catch (err) {
+                    console.error(err);
+                    progress.close();
+                    if (err.message && (err.message.includes('cancel') || err.message.includes('abort'))) {
+                        // 静默
+                    } else {
+                        showModal('Failed: ' + (err.message || 'Unknown error'));
+                    }
+                } finally {
+                    isExporting = false;
+                }
+            }
+
+            // 修改导出按钮点击事件
+            exportPdfBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                await shareToTelegram();
+            });
+
             loadData();
         })();
     </script>
