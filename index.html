@@ -763,7 +763,7 @@
     <div class="main-container">
         <div class="compact-header">
             <div class="brand"><span class="brand-name">ANT China Supplier</span><span class="brand-sub">Smart Calculator</span></div>
-            <div class="version">v 7.4 (Batch-Merge)</div>
+            <div class="version">v7.5 </div>
         </div>
 
         <div class="card">
@@ -1145,7 +1145,7 @@
             }
 
             // ==============================================================
-            // ★★★ 添加 Cargo（与原来相同）★★★
+            // ★★★ 添加 Cargo ★★★
             // ==============================================================
             function addCargoItem(data = {}) {
                 cargoCounter++;
@@ -1224,8 +1224,6 @@
                 const totalImages = allImageEntries.length;
                 if (totalImages === 0) {
                     // 没有图片，只生成表格页（复用原有逻辑）
-                    // 此处为了简洁，仍走原逻辑，但实际无图片时用户一般不会导出
-                    // 但为了安全，走一次原有生成
                     const doc = new jsPDF('p', 'mm', 'a4');
                     const pageWidth = doc.internal.pageSize.getWidth();
                     const margin = 15;
@@ -1282,7 +1280,7 @@
                 }
 
                 // ---- 3. 分批参数 ----
-                const BATCH_SIZE = 80; // 安全值，可根据设备调整
+                const BATCH_SIZE = 80;
                 const batches = [];
                 for (let i = 0; i < totalImages; i += BATCH_SIZE) {
                     batches.push(allImageEntries.slice(i, i + BATCH_SIZE));
@@ -1292,7 +1290,7 @@
 
                 // ---- 4. 生成每一批的 PDF ----
                 const pdfBlobs = [];
-                const pageWidth = 210; // A4 宽 mm
+                const pageWidth = 210;
                 const pageHeight = 297;
                 const margin = 15;
 
@@ -1302,12 +1300,9 @@
 
                     const doc = new jsPDF('p', 'mm', 'a4');
 
-                    // 添加背景（如果有）
                     if (bgImageData) doc.addImage(bgImageData, 'PNG', 0, 0, pageWidth, pageHeight, undefined, 'FAST');
 
-                    // ---- 第一页（第一页包含表格和总计，后续批次只放图片） ----
                     if (b === 0) {
-                        // 页眉标题
                         let yPos = 30;
                         doc.setFont('Montserrat', 'normal');
                         doc.setFontSize(22);
@@ -1322,7 +1317,6 @@
                         doc.text(`Order Date: ${dateStr}`, margin, yPos);
                         yPos += 10;
 
-                        // 表格
                         const kgRate = parseFloat(kgRateInput.value) || 0,
                             cbmRate = parseFloat(cbmRateInput.value) || 0;
                         const headers = ["No.", "Type", `Weight(kg/${kgRate}¥)`, "Dimensions(m)",
@@ -1361,17 +1355,14 @@
                         doc.text(`${totalMMK} Ks`, pageWidth - margin, finalY + 28, { align: 'right' });
                         doc.setTextColor(0, 0, 0);
 
-                        // 后续图片从表格下方开始
                         var cy = finalY + 38;
                     } else {
-                        // 非首页，仅加标题
                         doc.setFontSize(14);
                         doc.setFont(undefined, 'bold');
                         doc.text(`Cargo Images (Batch ${b+1})`, pageWidth / 2, 25, { align: 'center' });
                         var cy = 35;
                     }
 
-                    // ---- 添加当前批次的图片 ----
                     for (const entry of batch) {
                         const imgSrc = entry.src;
                         const imgObj = new Image();
@@ -1386,7 +1377,6 @@
                         const imgW = pageWidth - 2 * margin;
                         const imgH = imgW * ratio;
 
-                        // 换页
                         if (cy + imgH > pageHeight - margin) {
                             doc.addPage();
                             if (bgImageData) doc.addImage(bgImageData, 'PNG', 0, 0, pageWidth, pageHeight, undefined,
@@ -1399,21 +1389,17 @@
                         doc.text(`Cargo #${entry.cargoId}`, margin, cy - 3);
                         doc.addImage(imgSrc, 'JPEG', margin, cy, imgW, imgH, undefined, 'SLOW');
                         cy += imgH + 12;
-
-                        // 释放图片对象
                         imgObj.src = '';
                     }
 
-                    // 保存当前批次 Blob
                     const blob = doc.output('blob');
                     pdfBlobs.push(blob);
                     progress.update(10 + Math.floor(70 * ((b + 1) / totalBatches)), `第 ${b+1}/${totalBatches} 批完成`);
                 }
 
-                // ---- 5. 合并所有批次 ----
+                // ---- 5. 合并 ----
                 progress.update(85, "正在合并所有批次...");
                 const mergedPdf = await PDFDocument.create();
-
                 for (const blob of pdfBlobs) {
                     const arrayBuffer = await blob.arrayBuffer();
                     const pdfDoc = await PDFDocument.load(arrayBuffer);
@@ -1422,7 +1408,6 @@
                         mergedPdf.addPage(page);
                     }
                 }
-
                 progress.update(95, "正在生成最终文件...");
                 const mergedBytes = await mergedPdf.save();
                 const finalBlob = new Blob([mergedBytes], { type: 'application/pdf' });
@@ -1432,15 +1417,50 @@
                 return finalBlob;
             }
 
-            // ---- 导出与分享 ----
+            // ==============================================================
+            // ★★★ 两步分享（核心修改）★★★
+            // ==============================================================
+            let pendingShareFile = null; // 暂存已生成的文件
+            let pendingFileName = '';
             let isExporting = false;
 
             async function shareToTelegram() {
+                // 第一步：如果存在待分享文件，则直接分享（第二次点击）
+                if (pendingShareFile) {
+                    try {
+                        await navigator.share({
+                            title: 'Freight Calculation',
+                            text: `Customer: ${customerNameInput.value.trim()}\nDate: ${Array.from(document.querySelectorAll('.order-date-input')).map(inp => inp.value.trim()).filter(Boolean).join(', ')}`,
+                            files: [pendingShareFile]
+                        });
+                        // 分享成功，清除暂存并恢复按钮
+                        pendingShareFile = null;
+                        pendingFileName = '';
+                        exportPdfBtn.innerHTML = '<i class="fas fa-share-nodes"></i> Export & Share PDF';
+                        return;
+                    } catch (err) {
+                        // 用户取消分享，保留文件，按钮文字不变，用户可以再次点击
+                        if (err.message && (err.message.includes('cancel') || err.message.includes('abort'))) {
+                            // 用户取消，不做任何操作，文件保留
+                            return;
+                        } else {
+                            // 其他错误（如权限问题），清除暂存，恢复按钮，提示错误
+                            pendingShareFile = null;
+                            pendingFileName = '';
+                            exportPdfBtn.innerHTML = '<i class="fas fa-share-nodes"></i> Export & Share PDF';
+                            showModal('分享失败: ' + (err.message || '未知错误'));
+                            return;
+                        }
+                    }
+                }
+
+                // 第二步：没有待分享文件 → 执行生成流程（第一次点击）
                 if (isExporting) {
                     playTapFeedback();
-                    showModal('လုပ်ဆောင်နေဆဲ...');
+                    showModal('正在处理中，请稍候...');
                     return;
                 }
+
                 const customerName = customerNameInput.value.trim();
                 const orderDates = Array.from(document.querySelectorAll('.order-date-input')).map(inp => inp.value.trim())
                     .filter(Boolean);
@@ -1449,51 +1469,46 @@
                     showModal('Please enter customer name and order date!');
                     return;
                 }
+
                 isExporting = true;
                 const progress = showProgress("PDF ထုတ်နေသည် (Batch-Merge)...", 5);
                 try {
                     playTapFeedback();
                     progress.update(5, "ပြင်ဆင်နေသည်...");
                     await new Promise(r => setTimeout(r, 100));
+
                     const pdfBlob = await generatePdfBlob(progress);
-                    progress.update(98, "shareရန်...");
+                    progress.update(98, "ပြင်ဆင်ပြီး...");
+
                     const firstOrderDate = orderDates[0] || 'nodate';
                     const safeName = customerName.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '_');
                     const fileName = `${safeName}_${firstOrderDate}.pdf`;
                     const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
 
-                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                        await navigator.share({
-                            title: 'Freight Calculation',
-                            text: `${customerName}\n${orderDates.join('\n')}`,
-                            files: [file]
-                        });
-                    } else {
-                        const url = URL.createObjectURL(pdfBlob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = fileName;
-                        document.body.appendChild(a);
-                        a.click();
-                        document.body.removeChild(a);
-                        URL.revokeObjectURL(url);
-                        showModal('PDF saved!');
-                    }
+                    // 生成完成，暂存文件，修改按钮文字，提示用户二次点击
+                    pendingShareFile = file;
+                    pendingFileName = fileName;
                     progress.close();
+
+                    exportPdfBtn.innerHTML = '<i class="fas fa-share-nodes"></i> 📤 点击发送到 Telegram';
+                    showModal('✅ PDF 已生成！请再次点击下方“发送到 Telegram”按钮完成发送。');
+
                 } catch (err) {
                     console.error(err);
                     progress.close();
-                    if (err.message && (err.message.includes('cancel') || err.message.includes('abort'))) {
-                        // 用户取消
-                    } else {
-                        showModal('Failed: ' + (err.message || 'Unknown error'));
-                    }
+                    pendingShareFile = null;
+                    pendingFileName = '';
+                    exportPdfBtn.innerHTML = '<i class="fas fa-share-nodes"></i> Export & Share PDF';
+                    showModal('生成失败: ' + (err.message || '未知错误'));
                 } finally {
                     isExporting = false;
                 }
             }
 
+            // 绑定导出按钮事件
             exportPdfBtn.addEventListener('click', async (e) => { e.preventDefault(); await shareToTelegram(); });
+
+            // 加载数据
             loadData();
         })();
     </script>
