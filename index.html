@@ -764,7 +764,7 @@
     <div class="main-container">
         <div class="compact-header">
             <div class="brand"><span class="brand-name">ANT China Supplier</span><span class="brand-sub">Smart Calculator</span></div>
-            <div class="version">v 7.2</div>
+            <div class="version">v 7.2.1</div>
         </div>
 
         <div class="card">
@@ -1321,13 +1321,23 @@
 
             let isExporting = false;
 
-            async function shareToTelegram() { if (isExporting) { playTapFeedback();
-                    showModal('လုပ်ဆောင်နေဆဲ...'); return; } const customerName = customerNameInput.value.trim(); const orderDates =
-                    Array.from(document.querySelectorAll('.order-date-input')).map(inp => inp.value.trim()).filter(Boolean); if (
-                    !customerName || orderDates.length === 0) { playTapFeedback();
-                    showModal('Please enter customer name and order date!'); return; }
+            async function shareToTelegram() { 
+                if (isExporting) { 
+                    playTapFeedback();
+                    showModal('လုပ်ဆောင်နေဆဲ...'); 
+                    return; 
+                } 
+                const customerName = customerNameInput.value.trim(); 
+                const orderDates = Array.from(document.querySelectorAll('.order-date-input')).map(inp => inp.value.trim()).filter(Boolean); 
+                if (!customerName || orderDates.length === 0) { 
+                    playTapFeedback();
+                    showModal('Please enter customer name and order date!'); 
+                    return; 
+                }
                 isExporting = true;
-                const progress = showProgress("PDF ထုတ်နေသည်...", 5); try { playTapFeedback();
+                const progress = showProgress("PDF ထုတ်နေသည်...", 5); 
+                try { 
+                    playTapFeedback();
                     progress.update(5, "ပြင်ဆင်နေသည်...");
                     await new Promise(r => setTimeout(r, 100));
                     const pdfBlob = await generatePdfBlob(progress);
@@ -1335,19 +1345,41 @@
                     const firstOrderDate = orderDates[0] || 'nodate';
                     const safeName = customerName.replace(/[^a-zA-Z0-9\u4e00-\u9fa5]/g, '_');
                     const fileName = `${safeName}_${firstOrderDate}.pdf`;
-                    const file = new File([pdfBlob], fileName, { type: 'application/pdf' }); if (navigator.canShare && navigator
-                        .canShare({ files: [file] })) await navigator.share({ title: 'Freight Calculation', text: ` ${customerName}`, files: [file] });} else { const url = URL.createObjectURL(pdfBlob); const a = document
-                            .createElement('a');
+                    const file = new File([pdfBlob], fileName, { type: 'application/pdf' }); 
+                    
+                    // 修正分享消息：客户名 + 日期列表（多行）
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        await navigator.share({ 
+                            title: 'Freight Calculation', 
+                            text: `${customerName}\n${orderDates.join('\n')}`, 
+                            files: [file] 
+                        });
+                    } else {
+                        const url = URL.createObjectURL(pdfBlob);
+                        const a = document.createElement('a');
                         a.href = url;
                         a.download = fileName;
                         document.body.appendChild(a);
                         a.click();
                         document.body.removeChild(a);
                         URL.revokeObjectURL(url);
-                        showModal('PDF saved!'); }
-                    progress.close(); } catch (err) { console.error(err);
+                        showModal('PDF saved!');
+                    }
+                    progress.close(); 
+                } catch (err) { 
+                    console.error(err);
                     progress.close();
-                    showModal('Failed: ' + (err.message || 'Unknown error')); } finally { isExporting = false; } }
+                    // 如果用户取消分享，不弹错误框
+                    if (err.message && (err.message.includes('cancel') || err.message.includes('abort'))) {
+                        // 静默结束
+                    } else {
+                        showModal('Failed: ' + (err.message || 'Unknown error'));
+                    }
+                } finally { 
+                    isExporting = false; 
+                } 
+            }
+
             exportPdfBtn.addEventListener('click', async (e) => { e.preventDefault(); await shareToTelegram(); });
             loadData();
         })();
